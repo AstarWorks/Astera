@@ -4215,7 +4215,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "with frame: [a, b] of v|w|s (optionally '-'): the plate's width runs along a and its height along b (ADR-0314); absent = the plate faces v",
+                            "description": "with frame: [a, b] of v|w|s (optionally '-'): the plate's width runs along a and its height along b (ADR-0314); the FRONT face looks along a x b (right-hand rule: [v, w] faces s, [w, v] faces -s) and the back face is culled by the client; absent = the plate faces v",
                             "default": null
                         },
                         "item": {
@@ -4750,45 +4750,6 @@
                             ],
                             "description": "#rrggbb glow override; absent = none",
                             "default": null
-                        },
-                        "interpolation_delay": {
-                            "oneOf": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                }
-                            ],
-                            "description": "engine-owned after spawn (section 4); written only for hand-tuned loops",
-                            "default": 0.0
-                        },
-                        "interpolation_duration": {
-                            "oneOf": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                }
-                            ],
-                            "description": "engine-owned after spawn (section 4)",
-                            "default": 0.0
-                        },
-                        "teleport_duration": {
-                            "oneOf": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                }
-                            ],
-                            "description": "engine-owned after spawn (section 4)",
-                            "default": 0.0
                         },
                         "motion": {
                             "anyOf": [

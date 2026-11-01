@@ -5,7 +5,7 @@
 @0 sound - op=windup/snd_5 sound=entity.player.attack.sweep cat=master vol=0.5 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=windup/snd_6 sound=item.armor.equip_chain cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @1 write #0 op=windup/held_m dur=1 pos=-0.296095,1.193866,-0.379864 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
-@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.050000,0.050000,9.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.050000,0.050000,9.000000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 write #1 op=windup/line dur=0 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.050000,0.050000,0.090000 bb=FIXED
 @2 write #0 op=windup/held_m dur=1 pos=-0.296095,1.418866,-0.379864 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @3 spawn #2 op=windup/haze kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#8A5CFF seethrough=false pos=0.000000,0.900000,-0.100000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.400000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -1298,8 +1298,8 @@
 @86 write #86 op=- dur=1 pos=0.000000,1.100000,2.700000 rot=0.000000,0.000000,0.017452,0.999848 scale=30.000000,0.429688,1.000000 bb=CENTER
 @86 sound - op=coin3/snd_17 sound=entity.player.attack.sweep cat=master vol=0.7 pitch=0.5 at=0.000000,0.000000,1.880000
 @86 hit - op=coin3/c3_hit[1] at=0.000000,0.900000,1.880000 r=0.800000 shape=sphere rad=0.800000
-@86 spawn #87 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@86 spawn #88 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,-0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@86 spawn #87 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@86 spawn #88 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,-0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
 @86 spawn #89 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=0.000000,2.260000,2.500000 rot=0.000000,0.000000,-0.999848,0.017452 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @86 spawn #90 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=0.390000,2.170000,2.500000 rot=0.000000,0.000000,-0.979925,0.199368 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @86 spawn #91 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=0.550000,1.960000,2.500000 rot=0.000000,0.000000,-0.906308,0.422618 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -1618,7 +1618,7 @@ r @117 run-end tail=4 | pose
 @0 sound - op=windup/snd_5 sound=entity.player.attack.sweep cat=master vol=0.5 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=windup/snd_6 sound=item.armor.equip_chain cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @1 write #0 op=windup/held_m dur=1 pos=-0.007864,1.193866,-0.481567 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED
-@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.050000,0.050000,9.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.050000,0.050000,9.000000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 write #1 op=windup/line dur=0 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.050000,0.050000,0.090000 bb=FIXED
 @2 write #0 op=windup/held_m dur=1 pos=-0.007864,1.418866,-0.481567 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED
 @3 spawn #2 op=windup/haze kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#8A5CFF seethrough=false pos=0.060182,0.900000,-0.079864 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.400000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -2666,8 +2666,8 @@ r @117 run-end tail=4 | pose
 @67 write #66 op=- dur=1 pos=-1.624901,1.100000,2.156316 rot=-0.005538,-0.317256,0.016551,0.948179 scale=30.000000,0.429688,1.000000 bb=CENTER
 @67 sound - op=coin3/snd_17 sound=entity.player.attack.sweep cat=master vol=0.7 pitch=0.5 at=-1.040369,0.000000,1.380616
 @67 hit - op=coin3/c3_hit[1] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
-@67 spawn #67 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=-0.129059,-0.289872,0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@67 spawn #68 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=0.129059,-0.289872,-0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@67 spawn #67 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=-0.129059,-0.289872,0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@67 spawn #68 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=0.129059,-0.289872,-0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
 @67 spawn #69 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=-1.504538,2.260000,1.996589 rot=0.317256,-0.005538,-0.948179,0.016551 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @67 spawn #70 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=-1.193070,2.170000,2.231297 rot=0.310935,-0.063260,-0.929286,0.189065 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @67 spawn #71 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=-1.065288,1.960000,2.327587 rot=0.287576,-0.134099,-0.859473,0.400779 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -2959,7 +2959,7 @@ r @98 run-end tail=4 | pose
 @0 sound - op=windup/snd_5 sound=entity.player.attack.sweep cat=master vol=0.5 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=windup/snd_6 sound=item.armor.equip_chain cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @1 write #0 op=windup/held_m dur=1 pos=-0.296095,1.193866,-0.379864 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
-@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.050000,0.050000,9.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.050000,0.050000,9.000000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 write #1 op=windup/line dur=0 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.050000,0.050000,0.090000 bb=FIXED
 @2 write #0 op=windup/held_m dur=1 pos=-0.296095,1.418866,-0.379864 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @3 spawn #2 op=windup/haze kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#8A5CFF seethrough=false pos=0.000000,0.900000,-0.100000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.400000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -4252,8 +4252,8 @@ r @98 run-end tail=4 | pose
 @86 write #86 op=- dur=1 pos=0.000000,1.100000,2.700000 rot=0.000000,0.000000,0.017452,0.999848 scale=30.000000,0.429688,1.000000 bb=CENTER
 @86 sound - op=coin3/snd_17 sound=entity.player.attack.sweep cat=master vol=0.7 pitch=0.5 at=0.000000,0.000000,1.880000
 @86 hit - op=coin3/c3_hit[1] at=0.000000,0.900000,1.880000 r=0.800000 shape=sphere rad=0.800000
-@86 spawn #87 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@86 spawn #88 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,-0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@86 spawn #87 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@86 spawn #88 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=0.000000,2.010000,2.500000 rot=0.000000,0.000000,-0.406737,0.913545 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
 @86 spawn #89 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=0.000000,2.260000,2.500000 rot=0.000000,0.000000,-0.999848,0.017452 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @86 spawn #90 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=0.390000,2.170000,2.500000 rot=0.000000,0.000000,-0.979925,0.199368 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @86 spawn #91 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=0.550000,1.960000,2.500000 rot=0.000000,0.000000,-0.906308,0.422618 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -4573,7 +4573,7 @@ r @117 run-end tail=4 | pose
 @0 sound - op=windup/snd_5 sound=entity.player.attack.sweep cat=master vol=0.5 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=windup/snd_6 sound=item.armor.equip_chain cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @1 write #0 op=windup/held_m dur=1 pos=-0.007864,1.193866,-0.481567 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED
-@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.050000,0.050000,9.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #1 op=windup/line kind=block block=white_concrete pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.050000,0.050000,9.000000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 write #1 op=windup/line dur=0 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.050000,0.050000,0.090000 bb=FIXED
 @2 write #0 op=windup/held_m dur=1 pos=-0.007864,1.418866,-0.481567 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED
 @3 spawn #2 op=windup/haze kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#8A5CFF seethrough=false pos=0.060182,0.900000,-0.079864 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.400000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -5866,8 +5866,8 @@ r @117 run-end tail=4 | pose
 @86 write #86 op=- dur=1 pos=-1.624901,1.100000,2.156316 rot=-0.005538,-0.317256,0.016551,0.948179 scale=30.000000,0.429688,1.000000 bb=CENTER
 @86 sound - op=coin3/snd_17 sound=entity.player.attack.sweep cat=master vol=0.7 pitch=0.5 at=-1.040369,0.000000,1.380616
 @86 hit - op=coin3/c3_hit[1] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
-@86 spawn #87 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=-0.129059,-0.289872,0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@86 spawn #88 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=0.129059,-0.289872,-0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@86 spawn #87 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=-0.129059,-0.289872,0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@86 spawn #88 op=- kind=text text=%20 bg=#FFFFFF shadow=false seethrough=false pos=-1.504538,2.010000,1.996589 rot=0.129059,-0.289872,-0.385718,0.866337 scale=0.060000,6.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
 @86 spawn #89 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=-1.504538,2.260000,1.996589 rot=0.317256,-0.005538,-0.948179,0.016551 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @86 spawn #90 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=-1.193070,2.170000,2.231297 rot=0.310935,-0.063260,-0.929286,0.189065 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @86 spawn #91 op=- kind=sprite sprite=couture-s2-petal alpha=1.000000 tint=- seethrough=false pos=-1.065288,1.960000,2.327587 rot=0.287576,-0.134099,-0.859473,0.400779 scale=0.050000,0.031250,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
