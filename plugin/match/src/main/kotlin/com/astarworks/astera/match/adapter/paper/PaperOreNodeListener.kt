@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 public class PaperOreNodeListener(
     private val service: () -> OreNodeService?,
+    private val actions: () -> com.astarworks.astera.match.application.service.StarActionService? = { null },
 ) : Listener {
     public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
         listeners.register(this)
@@ -35,6 +36,7 @@ public class PaperOreNodeListener(
     public fun onBreak(event: BlockBreakEvent) {
         val outcome = mine(event.player, event.block) ?: return
         if (outcome !is OreNodeService.Outcome.NotANode) event.isCancelled = true
+        if (outcome is OreNodeService.Outcome.Mined) actions()?.onOreMined(PlayerId(event.player.uniqueId))
     }
 
     /** Survival dig start: a node never starts vanilla cracking, so the break event only fires for instant mining. */
@@ -42,6 +44,7 @@ public class PaperOreNodeListener(
     public fun onDig(event: BlockDamageEvent) {
         val outcome = mine(event.player, event.block) ?: return
         if (outcome !is OreNodeService.Outcome.NotANode) event.isCancelled = true
+        if (outcome is OreNodeService.Outcome.Mined) actions()?.onOreMined(PlayerId(event.player.uniqueId))
     }
 
     /** An explosion never eats a node cell (ore or its regrowing cobblestone). */

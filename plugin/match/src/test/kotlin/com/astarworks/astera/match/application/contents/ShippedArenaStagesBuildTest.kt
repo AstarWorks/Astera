@@ -3,7 +3,6 @@ package com.astarworks.astera.match.application.contents
 import com.astarworks.astera.core.application.service.arena.ArenaImportContent
 import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.domain.stage.ArenaIslandGenerator
-import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -78,20 +77,24 @@ class ShippedArenaStagesBuildTest {
     }
 
     @Test
-    fun `every shipped generator stands on a landmark pedestal of its stage`() {
+    fun `every shipped generator and every candidate star spot stands on the ground of its stage`() {
         val stages = stages().associateBy { it.id.value }
+        val parts = ArenaStructureContent.load(contentRoot)
+        val imports = ArenaImportContent.load(contentRoot)
         val generators = GeneratorContents()
         assertThat(generators.bootstrap(contentRoot.resolve("generators")).failures).isEmpty()
         for (generator in generators.all()) {
             val stage = stages[generator.matchStageId]
             assertThat(stage).describedAs("generator '${generator.id}' targets an unknown stage '${generator.matchStageId}'").isNotNull
-            val layout = stage!!.layout!!
-            val x = floor(generator.position.x).toInt()
-            val z = floor(generator.position.z).toInt()
-            assertThat(layout.landmarks.any { it.kind == ArenaLandmarkKind.GENERATOR && it.x == x && it.z == z })
-                .describedAs("generator '${generator.id}' at ($x, $z) has no generator landmark in '${stage.id.value}'")
-                .isTrue
-            assertThat(floor(generator.position.y).toInt()).describedAs("generator '${generator.id}' height").isEqualTo(layout.surfaceY + 1)
+            val plan = ArenaIslandGenerator.generate(stage!!, parts, imports)
+            // The anchor and every candidate spot / cache: solid ground directly below, free space at the spot's own height.
+            for (pos in listOf(generator.position) + generator.spots) {
+                val x = floor(pos.x).toInt()
+                val y = floor(pos.y).toInt()
+                val z = floor(pos.z).toInt()
+                assertThat(plan.isSolid(x, y - 1, z)).describedAs("generator '${generator.id}' spot ($x, $y, $z) has no ground below it in '${stage.id.value}'").isTrue
+                assertThat(plan.isSolid(x, y, z)).describedAs("generator '${generator.id}' spot ($x, $y, $z) is inside a block in '${stage.id.value}'").isFalse
+            }
         }
     }
 

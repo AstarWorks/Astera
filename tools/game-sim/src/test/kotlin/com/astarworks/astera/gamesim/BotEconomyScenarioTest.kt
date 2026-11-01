@@ -163,4 +163,88 @@ class BotEconomyScenarioTest {
             assertThat(next.kind to next.ore).isEqualTo("mine" to "ore-gold")
         }
     }
+
+    @Test
+    fun `a bot at its shop replaces armour with each better tier it can pay in full, never a lower or equal tier, and never buys a tool`() {
+        scenario("bot-economy-armour-tiers") {
+            val objectives = checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), "carry-tnt")) { "stage did not load" }
+            val local = checkNotNull(objectives.economySites("red")) { "no economy sites for red" }
+            val bot = player("Bot_Armour", team = "red")
+            val enemy = player("blue-guard", team = "blue")
+            val matchId = startMatch("carry-tnt", mapOf(bot to "red", enemy to "blue"), stage = "siege-isles-tnt")
+            advance(60)
+            val origin = sim.services.getOrThrow<IStageRegistry>().find(StageId("siege-isles-tnt"))!!.origin
+            val shop = checkNotNull(local.shop)
+            bot.position = Vec3(shop.x + origin.x + 1.0, shop.y + origin.y, shop.z + origin.z)
+            val bag = checkNotNull(sim.server.view(bot.id)).givenItems
+            val slots = listOf("helmet", "chestplate", "leggings", "boots")
+            fun pieces(tier: String) = slots.map { "$tier-$it" }
+            fun worn(tier: String) = pieces(tier).count { it in bag }
+            val delivery = sim.services.getOrThrow<IItemDelivery>() as com.astarworks.astera.gamesim.SimItemDelivery
+            fun bought() = delivery.delivered.map { it.id.value }.filter { id -> slots.any { id.endsWith("-$it") } }
+
+            repeat(22) { bag += "ore-iron" }
+            advance(60)
+            assertThat(worn("leather-scout")).`as`("leather set bought with 22 iron, bag=%s", bag).isEqualTo(4)
+
+            repeat(16) { bag += "ore-gold" }
+            advance(60)
+            assertThat(worn("iron-warden")).`as`("iron-warden set (gold 16) replaces leather, bag=%s", bag).isEqualTo(4)
+            assertThat(worn("leather-scout")).`as`("the replaced leather is handed in").isZero()
+            assertThat(worn("chain-guard")).`as`("the lower chain tier is never bought on top").isZero()
+
+            repeat(11) { bag += "ore-diamond" }
+            advance(60)
+            assertThat(worn("diamond-champion")).`as`("diamond set replaces iron-warden, bag=%s", bag).isEqualTo(4)
+            assertThat(worn("iron-warden")).isZero()
+
+            repeat(40) { bag += "ore-iron"; bag += "ore-gold"; bag += "ore-diamond" }
+            advance(120)
+            val all = bought()
+            assertThat(all).`as`("no piece bought twice, no lower tier after a higher one: %s", all).doesNotHaveDuplicates()
+            assertThat(all.filter { it.startsWith("leather") || it.startsWith("chain") || it.startsWith("iron-warden") }.size).isEqualTo(8)
+            assertThat(delivery.delivered.map { it.id.value }).`as`("no tool is ever bought").noneMatch { it.endsWith("pickaxe") || it.endsWith("shovel") }
+        }
+    }
+
+    @Test
+    fun `a failed armour purchase never costs the bot its old piece`() {
+        scenario("bot-economy-armour-atomic") {
+            val shopsDir = GameSim.defaultContentDir().resolve("shops")
+            val catalog = checkNotNull(MatchShopLoaderService().parse(shopsDir).second) { "match-shop.yaml did not load" }
+            val offer = catalog.offers.first { it.itemId.value == "chain-guard-helmet" }
+            val realDelivery = sim.services.getOrThrow<IItemDelivery>()
+            val bot = player("Bot_Atomic", team = "red")
+            val bag = checkNotNull(sim.server.view(bot.id)).givenItems
+            val stock = sim.services.getOrThrow<IOwnedItemStock>()
+            fun purchase(inMatch: Boolean, failNew: Boolean) = MatchShopPurchaseUseCase(
+                itemRegistry = sim.services.getOrThrow<IItemRegistry>(),
+                server = sim.server,
+                stock = { stock },
+                delivery = {
+                    if (!failNew) realDelivery else object : IItemDelivery {
+                        override fun give(target: com.astarworks.astera.core.adapter.api.entity.IMcPlayer, spec: com.astarworks.astera.core.domain.item.ItemSpec, amount: Int, origin: com.astarworks.astera.core.application.port.outbound.item.ItemOrigin) =
+                            if (spec.id == offer.itemId) com.astarworks.astera.core.application.port.outbound.item.DeliveryResult.UnknownTemplate(spec.id.value) else realDelivery.give(target, spec, amount, origin)
+                        override fun refreshHeld(items: IItemRegistry): Int = 0
+                        override fun replace(target: com.astarworks.astera.core.adapter.api.entity.IMcPlayer, from: ItemId, spec: com.astarworks.astera.core.domain.item.ItemSpec) = realDelivery.replace(target, from, spec)
+                    }
+                },
+                inMatch = { inMatch },
+            )
+            val old = ItemId("leather-scout-helmet")
+            repeat(2) { bag += "ore-gold" }
+            bag += old.value
+
+            assertThat(purchase(inMatch = false, failNew = false).execute(bot.id, offer, listOf(old))).isInstanceOf(Result.Failure::class.java)
+            assertThat(bag).`as`("not in a match: nothing changes").contains(old.value).containsOnlyOnce(old.value)
+            assertThat(bag.count { it == "ore-gold" }).isEqualTo(2)
+
+            assertThat(purchase(inMatch = true, failNew = true).execute(bot.id, offer, listOf(old))).isInstanceOf(Result.Failure::class.java)
+            assertThat(bag).`as`("delivery of the new piece failed: the old piece is back, no empty slot").containsOnlyOnce(old.value)
+            assertThat(bag.count { it == "ore-gold" }).`as`("price refunded").isEqualTo(2)
+
+            assertThat(purchase(inMatch = true, failNew = false).execute(bot.id, offer, listOf(old))).isInstanceOf(Result.Success::class.java)
+            assertThat(bag).`as`("success swaps the piece").contains("chain-guard-helmet").doesNotContain(old.value)
+        }
+    }
 }

@@ -50,7 +50,12 @@ fun main(args: Array<String>) {
         }
         for (g in generators.all().filter { it.matchStageId == stage.id.value }) {
             val x = floor(g.position.x).toInt(); val z = floor(g.position.z).toInt()
-            if (layout.landmarks.none { it.x == x && it.z == z } || plan.stateAt(x, layout.surfaceY, z) != "minecraft:iron_block")
+            if (g.wave != null) {
+                // Waves can land on a sunken imported floor; they do not need a surface-y iron pedestal.
+                val y = floor(g.position.y).toInt()
+                if (!plan.isSolid(x, y - 1, z) || plan.isSolid(x, y, z))
+                    problems += "${stage.id.value}: wave ${g.id} has no clear landing at y=$y"
+            } else if (layout.landmarks.none { it.x == x && it.z == z } || plan.stateAt(x, layout.surfaceY, z) != "minecraft:iron_block")
                 problems += "${stage.id.value}: missing generator ${g.id}"
         }
         val finder = PathFinder { x, y, z -> plan.stateAt(x, y, z) != null }

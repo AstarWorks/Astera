@@ -26,7 +26,10 @@ public class MatchStarLifecycle(
         val source = stage?.templateId ?: event.stageId
         val origin = stage?.origin ?: com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
         for (config in registry.all().filter { it.matchStageId == source.value }) {
-            val placed = config.copy(position = config.position.copy(x = config.position.x + origin.x, z = config.position.z + origin.z))
+            val placed = config.copy(
+                position = config.position.copy(x = config.position.x + origin.x, z = config.position.z + origin.z),
+                spots = config.spots.map { it.copy(x = it.x + origin.x, z = it.z + origin.z) },
+            )
             placed.toDomain(event.matchId).fold(
                 onSuccess = { generators.save(it) },
                 onFailure = { onInvalid(config.id, it.toString()) },

@@ -38,6 +38,15 @@
         },
         "wave": {
             "$ref": "#/definitions/com.astarworks.astera.match.application.config.WaveYamlConfig"
+        },
+        "spots": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.match.application.config.Vec3YamlConfig"
+            }
+        },
+        "cache": {
+            "$ref": "#/definitions/com.astarworks.astera.match.application.config.CacheYamlConfig"
         }
     },
     "required": [
@@ -103,6 +112,20 @@
                 "x",
                 "y",
                 "z"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.CacheYamlConfig": {
+            "type": "object",
+            "properties": {
+                "respawn_seconds": {
+                    "type": "number"
+                },
+                "open_radius": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "respawn_seconds"
             ]
         }
     }

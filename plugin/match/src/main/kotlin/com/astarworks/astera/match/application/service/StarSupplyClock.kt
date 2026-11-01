@@ -2,16 +2,16 @@ package com.astarworks.astera.match.application.service
 
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.match.MatchId
-import com.astarworks.astera.match.domain.star.StarSupply
+import com.astarworks.astera.match.domain.star.StarEconomy
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * When each match went active, and the [StarSupply] formula of that match (layer defaults + mode overrides): the one
- * place the star pace asks "how far into the match are we, and what is the supply multiplier now".
+ * When each match went active, and the [StarEconomy] of that match (layer defaults + mode overrides): the one
+ * place the star pace asks "how far into the match are we, and what is the supply ramp now".
  */
 public class StarSupplyClock(
     private val scheduler: IScheduler,
-    private val supplyOf: (MatchId) -> StarSupply,
+    public val economyOf: (MatchId) -> StarEconomy,
     /** Carried across a Match rewire so the star pace keeps its elapsed time. */
     private val startTicks: MutableMap<MatchId, Long> = ConcurrentHashMap(),
 ) {
@@ -30,14 +30,8 @@ public class StarSupplyClock(
         return (scheduler.currentTick() - start) / TICKS_PER_SECOND
     }
 
-    /** The supply multiplier of [matchId] right now. */
-    public fun multiplier(matchId: MatchId): Double = supplyOf(matchId).multiplierAt(elapsedSeconds(matchId))
-
-    /** Stars of a pop / wave of authored size [baseAmount] right now. */
-    public fun amount(matchId: MatchId, baseAmount: Int): Int = supplyOf(matchId).amountAt(baseAmount, elapsedSeconds(matchId))
-
-    /** Stars of a pop / wave of authored size [baseAmount] at [seconds] into the match (for announcing a coming wave). */
-    public fun amountAtSeconds(matchId: MatchId, baseAmount: Int, seconds: Double): Int = supplyOf(matchId).amountAt(baseAmount, seconds)
+    /** The supply ramp multiplier of [matchId] right now. */
+    public fun ramp(matchId: MatchId): Double = economyOf(matchId).rampAt(elapsedSeconds(matchId))
 
     private companion object {
         const val TICKS_PER_SECOND = 20.0
