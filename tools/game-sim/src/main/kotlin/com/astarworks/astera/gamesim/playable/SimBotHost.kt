@@ -24,6 +24,7 @@ import com.astarworks.astera.core.domain.skill.SkillTrigger
 import com.astarworks.astera.gamesim.GameSim
 import com.astarworks.astera.gamesim.SimEntity
 import com.astarworks.astera.gamesim.SimEntityKind
+import com.astarworks.astera.match.domain.event.StarsCollected
 import java.util.UUID
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -51,6 +52,8 @@ class SimHostHub(val sim: GameSim, val terrain: SimTerrain) {
         val events = sim.events
         while (eventCursor < events.size) {
             val event = events[eventCursor++]
+            // Every star payout (cache, star block, dropped star, moved credit) plays PresentationMoments.STAR_PICKUP to the receiver.
+            if (event is StarsCollected && event.amount > 0) hosts[event.playerId]?.recordSound(STAR_PICKUP_SOUND)
             if (event is DamageDealt) {
                 val attacker = event.attacker ?: continue
                 if (attacker != event.target && event.resolved.finalAmount > 0.0) {
@@ -62,6 +65,7 @@ class SimHostHub(val sim: GameSim, val terrain: SimTerrain) {
 
     companion object {
         const val STAR_ID_BASE = 1_000_000
+        const val STAR_PICKUP_SOUND = "astera:star/pickup"
     }
 }
 
@@ -84,6 +88,8 @@ class SimBotHost(
     private var sneaking = false
     private val bars = ArrayList<HostLine>()
     private val hits = ArrayList<String>()
+    /** Cumulative, never drained: the live bot client appends every sound packet to an ever-growing list and BotBrain counts matches. */
+    private val heard = ArrayList<String>()
     private var lastAmmo: Pair<Int, Int>? = null
     private var normaBarsSeen = 0
     private var stamp = -1L
@@ -98,6 +104,8 @@ class SimBotHost(
     override fun carriedItemIds(): Set<String>? = sim.server.view(entity.id)?.givenItems?.toSet()
 
     fun recordHit(text: String) { hits += text }
+
+    fun recordSound(key: String) { heard += key }
 
     // --- observations ---------------------------------------------------------------------------------------------
 
@@ -128,7 +136,7 @@ class SimBotHost(
     override val screens: List<HostScreen> get() = emptyList()
     override val bossBarTitles: List<String> get() = sim.objectiveStage.plainTitles(entity.id)
     override val bossBarColors: List<String> get() = sim.objectiveStage.barColors(entity.id)
-    override val sounds: List<String> get() = emptyList()
+    override val sounds: List<String> get() = heard
     override val damageNumbers: List<String> get() = hits
     override var lift: Double
         get() = locomotion.lift
