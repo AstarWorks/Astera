@@ -30,6 +30,16 @@ drop_inherited_locks
 SOURCED="${VFX_SHOT_SOURCED:-0}"     # anim-shot.sh sources this file for the functions only
 CMD="${1:-capture}"                  # capture | up | down | status
 SKILL="${SKILL:-}"
+# BATCH: SKILLS="a b c" [VIEWS="caster side"] films every skill x view in ONE stack boot (see run_batch). SKILL/VIEW alone = today's single run.
+SKILLS="${SKILLS:-}"; SKILLS="${SKILLS//,/ }"
+VIEWS="${VIEWS:-}"; VIEWS="${VIEWS//,/ }"
+BATCH=0
+if [ -n "$SKILLS" ]; then
+  BATCH=1
+  [ -n "$SKILL" ] || SKILL="${SKILLS%% *}"
+  [ -n "$VIEWS" ] || VIEWS="${VIEW:-side}"
+  export BATCH
+fi
 CASE="${CASE:-}"                     # VIEW=compare: skill-compare case id (tools/skill-compare/data/<case>/intent.json)
 OUT_ROOT="${OUT_ROOT:-$ROOT/build/vfx-shot}"
 # Stack identity. The warm stack is per checkout (one stack per worktree, shared by every skill/case filmed there);
@@ -124,7 +134,7 @@ stack_down() {
 }
 
 # ---------------------------------------------------------------- run lifecycle (lock, watchdog, reap, teardown)
-SHOT_TIMEOUT="${SHOT_TIMEOUT:-2700}"          # hard wall-clock limit per run (s), counted from the moment it holds its locks
+SHOT_TIMEOUT="${SHOT_TIMEOUT:-$(( 2700 + 180 * $(wc -w <<<"$SKILLS") * $(wc -w <<<"$VIEWS") ))}"          # hard wall-clock limit per run (s), counted from the moment it holds its locks
 SHOT_KEEP_TTL="${SHOT_KEEP_TTL:-$SHOT_TIMEOUT}"   # SHOT_KEEP=1: how long the kept stack may idle after the run (s)
 SHOT_REGISTRY="${SHOT_REGISTRY:-/tmp/claude-1000/astera-vfx-shot/stacks}"
 export SHOT_TIMEOUT SHOT_KEEP_TTL SHOT_REGISTRY
@@ -208,6 +218,11 @@ fi
 
 # ---------------------------------------------------------------- capture config
 VIEW="${VIEW:-all}"
+if [ "$BATCH" = 1 ]; then   # the batch loops over VIEWS itself (run_batch); VIEW only carries the validated list
+  VIEW="${VIEWS// /,}"
+  [ "$VIEW" != all ] || VIEW="caster,opponent,side"
+  [[ "$VIEW" != *compare* ]] || { echo "vfx-shot: VIEW=compare cannot be batched (one CASE per run)" >&2; exit 2; }
+fi
 case "$CMD" in
   capture) [ "$SOURCED" = 1 ] || [ -n "$SKILL" ] || die "SKILL=<skill-id> is required (e.g. SKILL=couture-rapier-s2)" ;;
   up|status) ;;
@@ -238,24 +253,8 @@ FOV_FROM_ENV=0
 [ -n "$FOV" ] && FOV_FROM_ENV=1
 RENDER_DISTANCE="${RENDER_DISTANCE:-6}"
 TIME_OF_DAY="${TIME_OF_DAY:-6000}"   # `time set`; 6000 = noon (target + floor readable), 13000 = dusk (glow pops, husk goes dark)
-# caster -> target, blocks. Default: the enemy distance of the skill's skill-compare case (data/<case>/intent.json: enemy x minus
-# caster x at t0), so every review view stages the same fight as the ref; 4 when the skill has no case.
-if [ -z "${DISTANCE:-}" ] && [ -n "$SKILL" ]; then
-  DISTANCE="$(python3 -I -c '
-import json, glob, os, sys
-skill, root = sys.argv[1], sys.argv[2]
-for cj in sorted(glob.glob(os.path.join(root, "tools/skill-compare/data/*/case.json"))):
-    try:
-        c = json.load(open(cj))
-        if (c.get("skill") or {}).get("asteraSkillId") != skill: continue
-        d = json.load(open(os.path.join(os.path.dirname(cj), c.get("intent", {}).get("file", "intent.json"))))
-        x = {a["id"]: a["keys"][0]["pos"][0] for a in d["actors"] if a.get("id") in ("caster", "enemy")}
-        print(round(x["enemy"] - x["caster"], 2)); break
-    except Exception:
-        continue
-' "$SKILL" "$ROOT" 2>/dev/null)"
-fi
-DISTANCE="${DISTANCE:-4}"
+# caster -> target, blocks (configure_skill below derives the per-skill default: the enemy distance of the skill's skill-compare case)
+USER_DISTANCE="${DISTANCE:-}"
 JOIN_SETTLE="${JOIN_SETTLE:-8}"      # seconds after a client joined before the scene is placed (lobby relocations)
 SETTLE="${SETTLE:-5}"                # seconds after the teleport before filming (chunks, join titles)
 SETTLE_WARM="${SETTLE_WARM:-2}"      # same, when both clients were already parked in the arena
@@ -275,11 +274,9 @@ ARENA_H=12                           # air cleared above the floor
 CMP_FOV_OPT=""
 CMP_FOV_DEG=""
 CAM0_CMD=""
-# DUMMIES=<1..3>: husks in the scene (default 1; chain-lightning 3). Extras stand beyond the first (within 4.5 of each other), never toward the caster.
-case "$SKILL" in chain-lightning) DUMMIES="${DUMMIES:-3}" ;; esac
-DUMMIES="${DUMMIES:-1}"
-[[ "$DUMMIES" =~ ^[1-3]$ ]] || die "DUMMIES must be 1, 2 or 3"
-DUMMY_EXTRA_FRAME=0; [ "$DUMMIES" -gt 1 ] && DUMMY_EXTRA_FRAME=6   # side/right framing widened by this many blocks of forward extent
+# DUMMIES=<1..3>: husks in the scene (default 1; chain-lightning 3; configure_skill). Extras stand beyond the first (within 4.5 of each other), never toward the caster.
+USER_DUMMIES="${DUMMIES:-}"
+DUMMY_EXTRA_FRAME=0
 ENEMY_X="${SHOT_ENEMY_X:-4.2}"            # compare: dummy distance ahead of the caster
 ENEMY_Z="${SHOT_ENEMY_Z:-0}"              # compare: lateral offset of the dummy (miss-case captures: SHOT_ENEMY_Z=6)
 for _v in ${VIEW//,/ }; do   # VIEW=top,side films several orbit views in one run (one scene setup, one stack sync)
@@ -305,25 +302,58 @@ fi
 if [ -n "$FOV" ] && [ -z "$FOV_OPT" ]; then
   FOV_OPT="$(python3 -c 'import sys; print("%.4f" % ((float(sys.argv[1]) - 70.0) / 40.0))' "$FOV")"
 fi
-# Held item = the item that binds the skill: content/items/*.yaml `skill_id: <skill>` (greatsword-cleave -> greatsword,
-# rifle-shot -> rifle), else the skill yaml's own `item:`. Never guessed from the skill id: an unbound skill needs an
-# explicit ITEM=<item-id> (or ITEM=none for a skill cast with nothing in hand), and a capture without one fails loudly.
-if [ -z "$ITEM" ] && [ -n "$SKILL" ]; then
-  ITEM="$(grep -lE "^[[:space:]]*-?[[:space:]]*skill_id:[[:space:]]*${SKILL%%@*}[[:space:]]*$" "$ROOT"/content/items/*.yaml 2>/dev/null | head -1 | xargs -r basename -s .yaml)"
-  [ -n "$ITEM" ] || ITEM="$(sed -nE 's/^item:[[:space:]]*([A-Za-z0-9_.-]+).*/\1/p' "$ROOT/content/skills/${SKILL%%@*}/skill.yaml" 2>/dev/null | head -1)"
-fi
-# A callee-only skill (non-empty top-level `frames_in:` or a top-level param with `required: true`) cannot be cast alone: the engine rejects
-# the cast (CastError.CalleeOnly) and nothing is ever drawn. Refuse here and name the callers (`use: skill:<id>` in content/skills).
-if [ "$CMD" = capture ] && [ -n "$SKILL" ] && [ "$SOURCED" != 1 ]; then
-  _base="${SKILL%%@*}"; _yaml="$ROOT/content/skills/$_base/skill.yaml"
-  if [ -f "$_yaml" ] && { grep -qE '^frames_in:[[:space:]]*\{[[:space:]]*[^[:space:]}]' "$_yaml" \
-      || awk '/^params:/ {p=1; next} /^[^[:space:]#]/ {p=0} p && /required:[[:space:]]*true/ {f=1} END {exit !f}' "$_yaml"; }; then
-    _callers="$(grep -rlE "use:[[:space:]]*skill:${_base}([^A-Za-z0-9_-]|\$)" "$ROOT/content/skills" --include='*.yaml' 2>/dev/null \
-      | sed -E 's#.*/content/skills/([^/]+)/.*#\1#' | grep -vx -- "$_base" | sort -u | paste -sd, -)"
-    die "callee-only: capture the caller ${_callers:-<none found>} (skill '$_base' declares frames_in / required params and is only called with 'use: skill:$_base')"
+USER_ITEM="${ITEM:-}"
+
+# configure_skill <skill>: everything that depends on WHICH skill is filmed: caster->target distance, dummy count, held item, callee-only
+# refusal. Env values given by the caller (DISTANCE / ITEM / DUMMIES) win over the derived defaults. A batch calls this once per shot.
+configure_skill() {
+  SKILL="$1"
+  DISTANCE="$USER_DISTANCE"; ITEM="$USER_ITEM"; DUMMIES="$USER_DUMMIES"
+  # DISTANCE default: the enemy distance of the skill's skill-compare case (data/<case>/intent.json: enemy x minus caster x at t0), so
+  # every review view stages the same fight as the ref; 4 when the skill has no case.
+  if [ -z "$DISTANCE" ] && [ -n "$SKILL" ]; then
+    DISTANCE="$(python3 -I -c '
+import json, glob, os, sys
+skill, root = sys.argv[1], sys.argv[2]
+for cj in sorted(glob.glob(os.path.join(root, "tools/skill-compare/data/*/case.json"))):
+    try:
+        c = json.load(open(cj))
+        if (c.get("skill") or {}).get("asteraSkillId") != skill: continue
+        d = json.load(open(os.path.join(os.path.dirname(cj), c.get("intent", {}).get("file", "intent.json"))))
+        x = {a["id"]: a["keys"][0]["pos"][0] for a in d["actors"] if a.get("id") in ("caster", "enemy")}
+        print(round(x["enemy"] - x["caster"], 2)); break
+    except Exception:
+        continue
+' "$SKILL" "$ROOT" 2>/dev/null)"
   fi
-fi
-[ "$CMD" != capture ] || [ -z "$SKILL" ] || [ -n "$ITEM" ] || die "no item binds skill '$SKILL' (content/items/*.yaml skill_id); set ITEM=<item-id> or ITEM=none"
+  DISTANCE="${DISTANCE:-4}"
+  case "$SKILL" in chain-lightning) DUMMIES="${DUMMIES:-3}" ;; esac
+  DUMMIES="${DUMMIES:-1}"
+  [[ "$DUMMIES" =~ ^[1-3]$ ]] || die "DUMMIES must be 1, 2 or 3"
+  DUMMY_EXTRA_FRAME=0; [ "$DUMMIES" -gt 1 ] && DUMMY_EXTRA_FRAME=6   # side/right framing widened by this many blocks of forward extent
+
+  # Held item = the item that binds the skill: content/items/*.yaml `skill_id: <skill>` (greatsword-cleave -> greatsword,
+  # rifle-shot -> rifle), else the skill yaml's own `item:`. Never guessed from the skill id: an unbound skill needs an
+  # explicit ITEM=<item-id> (or ITEM=none for a skill cast with nothing in hand), and a capture without one fails loudly.
+  if [ -z "$ITEM" ] && [ -n "$SKILL" ]; then
+    ITEM="$(grep -lE "^[[:space:]]*-?[[:space:]]*skill_id:[[:space:]]*${SKILL%%@*}[[:space:]]*$" "$ROOT"/content/items/*.yaml 2>/dev/null | head -1 | xargs -r basename -s .yaml)"
+    [ -n "$ITEM" ] || ITEM="$(sed -nE 's/^item:[[:space:]]*([A-Za-z0-9_.-]+).*/\1/p' "$ROOT/content/skills/${SKILL%%@*}/skill.yaml" 2>/dev/null | head -1)"
+  fi
+  # A callee-only skill (non-empty top-level `frames_in:` or a top-level param with `required: true`) cannot be cast alone: the engine rejects
+  # the cast (CastError.CalleeOnly) and nothing is ever drawn. Refuse here and name the callers (`use: skill:<id>` in content/skills).
+  if [ "$CMD" = capture ] && [ -n "$SKILL" ] && [ "$SOURCED" != 1 ]; then
+    _base="${SKILL%%@*}"; _yaml="$ROOT/content/skills/$_base/skill.yaml"
+    if [ -f "$_yaml" ] && { grep -qE '^frames_in:[[:space:]]*\{[[:space:]]*[^[:space:]}]' "$_yaml" \
+        || awk '/^params:/ {p=1; next} /^[^[:space:]#]/ {p=0} p && /required:[[:space:]]*true/ {f=1} END {exit !f}' "$_yaml"; }; then
+      _callers="$(grep -rlE "use:[[:space:]]*skill:${_base}([^A-Za-z0-9_-]|\$)" "$ROOT/content/skills" --include='*.yaml' 2>/dev/null \
+        | sed -E 's#.*/content/skills/([^/]+)/.*#\1#' | grep -vx -- "$_base" | sort -u | paste -sd, -)"
+      die "callee-only: capture the caller ${_callers:-<none found>} (skill '$_base' declares frames_in / required params and is only called with 'use: skill:$_base')"
+    fi
+  fi
+  [ "$CMD" != capture ] || [ -z "$SKILL" ] || [ -n "$ITEM" ] || die "no item binds skill '$SKILL' (content/items/*.yaml skill_id); set ITEM=<item-id> or ITEM=none"
+}
+
+if [ "$BATCH" = 0 ] && [ -n "$SKILL" ]; then configure_skill "$SKILL"; else DISTANCE="${USER_DISTANCE:-4}"; DUMMIES="${USER_DUMMIES:-1}"; ITEM="$USER_ITEM"; fi
 
 CACHE="${SHOT_CACHE:-$HOME/.cache/astera-vfx-shot}"
 VENV="$CACHE/venv"
@@ -338,8 +368,20 @@ PLUGINS=(core items combat match stats economy persistence)
 # watchdog abort) every process carrying this stack's marker (client process groups: portablemc + java + what they spawned,
 # Xvfb, parker) is killed and the compose project removed. run.done tells the watchdog the teardown is complete.
 cleanup() {
+  local rc=$?
   [ "$RUN_STARTED" = 1 ] || return 0
   trap '' INT TERM HUP   # a second Ctrl-C must not cut the teardown short
+  # A failed run keeps the full server log and the [vfx|skill-trace] lines (the compose project goes with `down -v`), so a
+  # "no fx drawn" abort can be diagnosed without a re-run. tools/remote/run.sh pulls $OUT_ROOT/failed/ back on a failed vfx run.
+  if [ "$rc" != 0 ] && [ "$BATCH" != 1 ] && [ -n "${SERVER_CT:-}" ]; then
+    local fd="$OUT_ROOT/failed/${SKILL:-run}-$SHOT_ID"
+    if mkdir -p "$fd" 2>/dev/null && docker logs "$SERVER_CT" > "$fd/server.log" 2>&1; then
+      tr -d '\r' < "$fd/server.log" | grep -E '\[(vfx|skill)-trace\]' > "$fd/trace.log" || true
+      cp "$STATE/phases.log" "$fd/phases.log" 2>/dev/null || true
+      cp "$CLIENTS/Caster/bot.log" "$fd/caster-bot.log" 2>/dev/null || true
+      log "run failed (rc=$rc): server log and trace kept in $fd"
+    fi
+  fi
   [ -n "$FILM_PID" ] && kill "$FILM_PID" 2>/dev/null
   if [ -e "$STATE/abort" ]; then KEEP=0; log "stopped by the watchdog: $(grep -E 'stopping run' "$STATE/watchdog.log" | tail -1)"; fi
   if [ "$KEEP" = 1 ]; then
@@ -520,6 +562,13 @@ record_code_revision() {
 SERVER_RESTARTED=0
 PACK_PUSHED=0
 create_network() {
+  # A leftover network of this project (a dead run whose containers are gone) keeps ITS old subnet, and compose reuses a network by name:
+  # the static IPs of the new subnet (10.N.77.x) then fall outside it ("no configured subnet contains IP address ..."). Drop it first.
+  if docker network inspect "$NET" >/dev/null 2>&1; then
+    log "removing the leftover network $NET (stale subnet)"
+    docker network disconnect -f "$NET" "$SELF_CT" >/dev/null 2>&1 || true
+    docker network rm "$NET" >/dev/null 2>&1 || die "leftover network $NET could not be removed (containers still attached?)"
+  fi
   SUBNET="$(pick_subnet_prefix)" || { log "no free docker subnet 10.N.77.0/24 (N=211..250)"; return 1; }
   echo "$SUBNET" > "$STATE/subnet"
   compose up --no-build --no-start e2e e2e-resource-pack e2e-redis > "$STATE/compose-create.log" 2>&1 \
@@ -713,6 +762,7 @@ wait_client_ready() { # name
   local name="$1" wd="$CLIENTS/$1" i
   for i in $(seq 1 120); do
     grep -qw -- "$name" <<<"$(rcon list 2>/dev/null)" && break
+    [ "$(docker inspect -f '{{.State.Running}}' "$SERVER_CT" 2>/dev/null)" = true ] || die "the server container $SERVER_CT is gone (torn down by another run's reaper?)"
     kill -0 "${CPID[$name]}" 2>/dev/null || { tail -20 "$wd/client.log" >&2; die "client $name exited before joining"; }
     sleep 2
   done
@@ -733,21 +783,32 @@ wait_client_ready() { # name
 # (default) joins it as a protocol bot (tools/bot-runner vfxshot.CasterBotMain, ~150 MB); SHOT_CASTER=client starts a real
 # 480x270 client as before (~2 GB resident). The bot carries VFX_SHOT_STATE like every client, so the reaper removes it.
 CASTER_BUILT=0
+build_caster_bot() {
+  [ "$CASTER_BUILT" = 0 ] || return 0
+  phase "gradle installDist (caster bot)"
+  (cd "$ROOT" && ./gradlew -q :tools:bot-runner:installDist >"$STATE/gradle-bot.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&-) \
+    || { tail -30 "$STATE/gradle-bot.log" >&2; die "caster bot build failed"; }
+  CASTER_BUILT=1
+}
+
+# stop_caster_bot: the protocol bot of an earlier view (a batch goes caster -> side -> caster; the pid file survives the per-shot subshell)
+stop_caster_bot() {
+  local pid; pid="$(cat "$STATE/caster-bot.pid" 2>/dev/null)" || return 0
+  [ -n "$pid" ] && kill -TERM -- "-$pid" 2>/dev/null
+  rm -f "$STATE/caster-bot.pid"
+}
+
 ensure_caster() {
   if [ "${SHOT_CASTER:-bot}" = client ]; then ensure_client "Caster" 480 270; return 0; fi
   local lib="$ROOT/tools/bot-runner/build/install/bot-runner/lib" i
   if grep -qw -- Caster <<<"$(rcon list 2>/dev/null)"; then log "caster bot: joined, reusing"; return 0; fi
-  if [ "$CASTER_BUILT" = 0 ]; then
-    phase "gradle installDist (caster bot)"
-    (cd "$ROOT" && ./gradlew -q :tools:bot-runner:installDist >"$STATE/gradle-bot.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&-) \
-      || { tail -30 "$STATE/gradle-bot.log" >&2; die "caster bot build failed"; }
-    CASTER_BUILT=1
-  fi
+  build_caster_bot
   mkdir -p "$CLIENTS/Caster"
   : > "$CLIENTS/Caster/bot.log"
   VFX_SHOT_STATE="$STATE" setsid java -Xmx128m -Xms32m -XX:+UseSerialGC -cp "$lib/*" com.astarworks.astera.vfxshot.CasterBotMainKt \
     Caster "$SERVER_IP" 25565 >"$CLIENTS/Caster/bot.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&- < /dev/null &
   BOT_PID=$!
+  echo "$BOT_PID" > "$STATE/caster-bot.pid"
   # ready = the bot got its first position packet (it prints "joined") AND the server lists it; a bot that exited ends the wait
   for i in $(seq 1 60); do
     grep -q '^\[caster-bot\] Caster joined' "$CLIENTS/Caster/bot.log" && grep -qw -- Caster <<<"$(rcon list 2>/dev/null)" && break
@@ -1257,6 +1318,7 @@ run_view() { # view
   while :; do
     attempt=$((attempt + 1))
     phase "preparing $view (attempt $attempt)"
+    rm -rf "$out"   # a failed attempt must not leave its (incomplete) frames behind as if they were this shot's
     prepare_view "$view"
     # WARM_UP=1: cast the skill once at the normal tick rate first, so the software client has loaded every model / particle /
     # display it will see (a first-time asset stalls it for >1 s: that tick is then never drawn and a stepped capture is invalid)
@@ -1294,6 +1356,107 @@ run_view() { # view
   rcon "kill @e[type=minecraft:husk]" >/dev/null
   SLOW_RATE="$rate0"; export SLOW_RATE   # only after the meta: capture_meta.py judges camera lateness on the rate the take ran at
   phase "view $view done (every tick has its own frame; $attempt attempt(s))"
+}
+
+# ---------------------------------------------------------------- batch (SKILLS="a b c" VIEWS="caster side")
+# One stack boot, then every view x skill. Views are the OUTER loop, so a viewer client / the caster bot is started once per view, not once
+# per shot. Each shot runs in a subshell: a `die` fails only that shot. Its partial output, the server log so far, the [vfx|skill-trace]
+# lines and the bot / director logs go to $OUT_ROOT/failed/<skill>-<view>/ and the batch goes on. An ok shot writes exactly the single-run
+# layout, $OUT_ROOT/<skill>/<view>/. Summary: $OUT_ROOT/batch-summary.{md,tsv}; exit 0 only when every shot is ok.
+batch_clients_for() { # view: leave only the clients this view needs (a 1080p viewer costs ~3 GB; a stale one would starve the next)
+  local view="$1" n i stopped=()
+  for n in Watcher Target Caster; do
+    [ "$n" = "$VIEWER" ] && continue
+    [ -f "$STATE/clients/$n.env" ] && { log "batch: stopping the $n client (not needed by view $view)"; stop_client_state "$n"; stopped+=("$n"); }
+  done
+  # the Caster seat is either the real client (view caster) or the protocol bot: never both under one name
+  if [ "$DUMMY_CASTER" != 1 ] || [ "$VIEWER" = Caster ]; then [ -f "$STATE/caster-bot.pid" ] && stopped+=(Caster); stop_caster_bot; fi
+  # a client / bot just killed must be gone from the player list before its seat is reused (else "joined, reusing" sees the ghost)
+  for n in ${stopped[@]+"${stopped[@]}"}; do
+    for i in $(seq 1 20); do grep -qw -- "$n" <<<"$(rcon list 2>/dev/null)" || break; sleep 1; done
+  done
+}
+
+batch_save_failure() { # skill view reason shotlog
+  local s="$1" v="$2" fd="$OUT_ROOT/failed/$1-$2"
+  rm -rf "$fd"; mkdir -p "$fd"
+  [ -d "$OUT_ROOT/$s/$v" ] && cp -a "$OUT_ROOT/$s/$v/." "$fd/" 2>/dev/null
+  rm -rf "$OUT_ROOT/$s/$v"; rmdir "$OUT_ROOT/$s" 2>/dev/null
+  docker logs "$SERVER_CT" 2>&1 | tr -d '\r' | tail -n 20000 > "$fd/server.log"
+  grep -E '\[(vfx|skill)-trace\]' "$fd/server.log" | tail -n 5000 > "$fd/trace.log" || true
+  cp "$4" "$fd/shot.log" 2>/dev/null || true
+  cp "$STATE/phases.log" "$fd/phases.log" 2>/dev/null || true
+  cp "$STATE/director.stderr" "$fd/director.stderr" 2>/dev/null || true
+  cp "$CLIENTS/Caster/bot.log" "$fd/caster-bot.log" 2>/dev/null || true
+  [ -f "$CLIENTS/Watcher/client.log" ] && tail -n 300 "$CLIENTS/Watcher/client.log" > "$fd/watcher-client-tail.log"
+  printf '%s\n' "$3" > "$fd/reason.txt"
+}
+
+batch_recover() { # after a failed shot: undo what the aborted shot may have left running
+  pkill -f -- "$OUT_ROOT/.rec-$SHOT_ID.mkv" 2>/dev/null
+  rcon "tick rate 20" >/dev/null 2>&1; rcon "tick unfreeze" >/dev/null 2>&1
+  rcon "kill @e[type=minecraft:husk]" >/dev/null 2>&1
+  rm -f "$OUT_ROOT/.rec-$SHOT_ID.mkv" "$OUT_ROOT/.rec-$SHOT_ID.mkv.log"
+}
+
+run_batch() {
+  local views="${VIEW//,/ }" v s t0 rc reason shotlog n_ok=0 n_fail=0 total=0 lost=0 skill_list
+  local tsv="$OUT_ROOT/batch-summary.tsv" md="$OUT_ROOT/batch-summary.md" B0=$SECONDS
+  [ "${SHOT_CASTER:-bot}" = client ] || build_caster_bot
+  skill_list="$(rcon "astera skill list")"
+  printf 'skill\tview\tstatus\tseconds\treason\n' > "$tsv"
+  total=$(( $(wc -w <<<"$SKILLS") * $(wc -w <<<"$views") ))
+  log "batch: $total shot(s): skills [$SKILLS] x views [$views]"
+  for v in $views; do
+    for s in $SKILLS; do
+      t0=$SECONDS
+      shotlog="$STATE/shot.log"
+      if [ "$lost" = 1 ]; then
+        printf '%s\t%s\tfailed\t0\tskipped: the server was lost earlier in the batch\n' "$s" "$v" >> "$tsv"; n_fail=$((n_fail + 1)); continue
+      fi
+      log "=== batch shot $((n_ok + n_fail + 1))/$total: $s x $v ==="
+      rm -rf "$OUT_ROOT/$s/$v" "$OUT_ROOT/failed/$s-$v"
+      (
+        grep -qw -- "$s" <<<"$skill_list" || die "skill '$s' is not registered on the server (see: astera skill list)"
+        configure_skill "$s"
+        case "$v" in
+          caster) VIEWER=Caster; DUMMY_CASTER=0 ;;
+          opponent) VIEWER=Target; DUMMY_CASTER=1 ;;
+          *) VIEWER=Watcher; DUMMY_CASTER=1 ;;
+        esac
+        batch_clients_for "$v"
+        run_view "$v"
+      ) 2>&1 | tee "$shotlog" >&2
+      rc=${PIPESTATUS[0]}
+      # the first shot carried the cold boot (pack push / server restart waits); later shots start from a warm stack
+      PACK_PUSHED=0; SERVER_RESTARTED=0; STACK_WAS_COLD=0
+      if [ "$rc" = 0 ]; then
+        n_ok=$((n_ok + 1))
+        printf '%s\t%s\tok\t%s\t\n' "$s" "$v" "$((SECONDS - t0))" >> "$tsv"
+      else
+        reason="$(grep -E 'ERROR:' "$shotlog" | tail -1 | sed 's/^\[vfx-shot\] ERROR: //' | cut -c1-300)"
+        [ -n "$reason" ] || reason="exited rc=$rc: $(tail -1 "$shotlog" | cut -c1-200)"
+        n_fail=$((n_fail + 1))
+        log "batch: $s x $v FAILED ($reason); saving to $OUT_ROOT/failed/$s-$v"
+        batch_recover
+        batch_save_failure "$s" "$v" "$reason" "$shotlog"
+        printf '%s\t%s\tfailed\t%s\t%s\n' "$s" "$v" "$((SECONDS - t0))" "$reason" >> "$tsv"
+        # a dead server cannot film anything: do not burn the remaining shots one die at a time
+        rcon list >/dev/null 2>&1 || { lost=1; log "batch: the server no longer answers RCON; skipping the remaining shots"; }
+      fi
+    done
+  done
+  {
+    echo "# vfx-shot batch: $n_ok ok, $n_fail failed of $total ($((SECONDS - B0)) s in the batch loop)"
+    echo
+    echo "| skill | view | status | seconds | reason |"
+    echo "|---|---|---|---|---|"
+    tail -n +2 "$tsv" | awk -F'\t' '{printf "| %s | %s | %s | %s | %s |\n", $1, $2, $3, $4, $5}'
+  } > "$md"
+  cp "$PHASE_LOG" "$OUT_ROOT/batch-phases.log" 2>/dev/null || true
+  phase "batch done: $n_ok ok, $n_fail failed of $total"
+  cat "$md" >&2
+  [ "$n_fail" = 0 ]
 }
 
 # ---------------------------------------------------------------- status / up
@@ -1367,6 +1530,7 @@ if [ "$CMD" = up ]; then
   print_status
   exit 0
 fi
+if [ "$BATCH" = 1 ]; then run_batch; exit $?; fi
 skill_list="$(rcon "astera skill list")"
 if ! grep -qw -- "$SKILL" <<<"$skill_list"; then
   head -c 300 <<<"$skill_list" >&2

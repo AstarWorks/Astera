@@ -1,4 +1,5 @@
-# shock-wand-arc: an electric nova around the caster, damage falling off with distance. Written from zero on the rev4.10 grammar.
+# shock-wand-arc: an electric nova around the caster, damage falling off with distance, on the frame grammar (ADR-0314).
+# ring - the plate under the caster's feet (v up): the discharge ring (24 sparks), the lifted ring and the glow are drawn on it. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: shock-wand-arc
@@ -14,8 +15,9 @@ params:
   dmg_electric: {type: number, default: 15.0}
   falloff:      {type: number, default: 0.5}
   shock_ticks:  {type: ticks,  default: 15}
-anchors:
-  - {id: ring, anchor: caster, offset: {up: 0.15}, mode: follow}
+frames:
+  - {id: ring, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
+  - {id: foe, on: event.victim, each: true, origin: victim.center, v: up, w: forward, s: right}
 machine:
   start: burst
   states:
@@ -23,11 +25,12 @@ machine:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.1}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: ring, volume: 1.0, pitch: 1.1}
         - id: area
           op: hit
           at: 0
-          anchor: caster
+          frame: ring
+          pos: {v: -0.15}
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once
@@ -36,11 +39,11 @@ machine:
           on:
             hit:
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
-        - {id: fx_spark, op: particle, particle: electric_spark, anchor: ring, at: 0, count: 0, extra: 0.03}
-        - {id: fx_dust, op: particle, particle: dust, anchor: ring, at: 0, count: 1, color: "#fff078", size: 1.4}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: foe, volume: 0.7, pitch: 1.0}
+        - {id: fx_spark, op: particle, particle: electric_spark, frame: ring, at: 0, count: 0, extra: 0.03}
+        - {id: fx_dust, op: particle, particle: dust, frame: ring, at: 0, count: 1, color: "#fff078", size: 1.4}
         # the discharge ring: 24 sparks flung outward on the ground plane, a lifted ring behind it (instant rows: the state lasts one tick)
-        - {id: arc, op: particle, particle: electric_spark, anchor: ring, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
-        - {id: arc_hi, op: particle, particle: electric_spark, anchor: ring, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
-        - {id: glow, op: particle, particle: dust, anchor: ring, count: 16, offset: "= vec(1.2, 0.3, 1.2)", color: "#fff6a0", size: 1.2, at: 0}
+        - {id: arc, op: particle, particle: electric_spark, frame: ring, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
+        - {id: arc_hi, op: particle, particle: electric_spark, frame: ring, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: glow, op: particle, particle: dust, frame: ring, count: 16, offset: "= vec(1.2, 0.3, 1.2)", color: "#fff6a0", size: 1.2, at: 0}
     end: {final: true}

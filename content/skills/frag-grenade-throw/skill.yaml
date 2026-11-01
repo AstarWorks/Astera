@@ -1,6 +1,11 @@
-# Frag grenade: a lobbed body (thrown up and forward, so it flies a parabola) that bounces off the floor and walls, passes enemies
-# without touching them, and bursts at a fixed fuse tick after the throw (fuse_ticks = the projectile `for`, fixed at load). One skill-local fragment is the blast, called on the body end with the
-# burst centre bound as `spot`. Schedule: the cast ends at the fuse tick.
+# Frag grenade, in the frame grammar (ADR-0314 / ADR-0315): a lobbed body (thrown up and forward, so it flies a parabola) that bounces off the floor
+# and walls, passes enemies without touching them, and bursts at a fixed fuse tick after the throw (fuse_ticks = the projectile `for`, fixed at load).
+# Gameplay (speed 0.75, lift 0.3, fuse 36, blast 3.5 blocks / 35 physical, bleed 20, chip 1.5 sphere) is unchanged; the fragment `blast` keeps only
+# the gameplay rows (explode, damage, bleed, chip) around the burst point.
+# Frames: `eye` is the caster's eye / aim basis (v = aim, s = right, w = s x v); the grenade leaves at v 0.5 (the old muzzle) and the throw smoke is
+# at v 1.8, w -0.25. There is no `hand` frame / rig: the item has no point table in content/frames (rig needs one), so the arm stays on the vanilla pose. `body` rides the grenade (v forward, w up): the firework-star shell, its smoke and crit tail
+# (the line `tail`, 0.4 behind, 2 samples) are points of it, and the bounce spark is on `blk`, one per block contact (v the way the grenade came in).
+# The burst report is drawn on `body` at the body end.
 apiVersion: astera/v3
 kind: Skill
 id: frag-grenade-throw
@@ -18,9 +23,26 @@ params:
   blast_radius: {type: blocks, default: 3.5}
   blast_damage: {type: number, default: 35.0}
   bleed_ticks:  {type: ticks, default: 20}
-anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: snapshot}
+frames:
+  - id: eye
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  tail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 fragments:
   blast:
     params:
@@ -33,7 +55,6 @@ fragments:
       - {id: dmg, op: damage, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {physical: "${damage}"}}
       - {id: bleed, op: status, target: {kind: enemies, around: spot, radius: "${radius}"}, status: bleed, stacks: 1, for: "${bleed}"}
       - {id: chip, op: break_area, at: 0, anchor: spot, shape: {sphere: {radius: 1.5}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
-      - {id: snd, op: sound, sound: "entity.generic.explode", anchor: spot, volume: 0.7, pitch: 1.2, detach: true}
 machine:
   start: throw
   tail: 2
@@ -42,10 +63,12 @@ machine:
       for: "= fuse_ticks"
       then: end
       do:
-        - {id: fire_fx, use: gun-muzzle, with: {snd: "entity.snowball.throw", vol: 0.9, pitch: 0.7, flash: false}, frames: {muzzle: cast_fx}}
+        - {id: snd, op: sound, at: 0, sound: "entity.snowball.throw", frame: eye, volume: 0.9, pitch: 0.7}
+        - {id: puff, op: particle_def, at: 0, def: gun-muzzle-smoke, frame: eye, pos: {v: 1.8, w: -0.25}}
         - id: bolt
           op: projectile
-          origin: muzzle
+          frame: eye
+          pos: {v: 0.5}
           velocity: "= look(caster) * ${launch_speed} + vec(0, ${lift}, 0)"
           for: "${fuse_ticks}"
           gravity: 0.04
@@ -54,10 +77,11 @@ machine:
           block: {mode: bounce, restitution: 0.45, friction: 0.15, times: 3}
           on:
             bounce:
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point, detach: true}
+              - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, detach: true}
             end:
               - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}", bleed: "${bleed_ticks}"}, frames: {spot: bolt}}
-        - {id: shell, op: display, kind: item, item: "minecraft:firework_star", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - {id: smoke, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
-        - {id: spark, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 2, every: 1, until: bolt.end}
+              - {id: report, op: sound, sound: "entity.generic.explode", frame: body, volume: 0.7, pitch: 1.2, detach: true}
+        - {id: shell, op: display, kind: item, item: "minecraft:firework_star", context: fixed, frame: body, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - {id: smoke, op: particle_def, def: smoke-dark, frame: body, at: 2, every: 1, until: bolt.end}
+        - {id: spark, op: particle, particle: crit, along: tail, samples: 2, count: 1, offset: [0.04, 0.04, 0.04], at: 2, every: 1, until: bolt.end}
     end: {final: true}

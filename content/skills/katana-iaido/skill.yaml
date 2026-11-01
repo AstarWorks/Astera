@@ -1,5 +1,13 @@
-# Wind-up W = 2 ticks (round_half_up(5 / attack_speed 2.5)): the katana is held low at the hip (sheathed draw), the dash and the every-tick hit start at tick 2.
-# The cast ends with the dash; the rig (draw -> rising cut along the dash -> settle) and trail are detach: true.
+# katana-iaido: sheathed draw: the katana held low at the hip, then a rising cut along the dash (wind-up 2 ticks, dash 3 ticks, every-tick hit).
+# Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> the hilt at the right hip -> one long draw-cut to the far left -> guard.
+#   blade  - the katana. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: hip draw low at the right -> rising cut across to the high left -> guard). Long axis along v (grip at the origin,
+#            tip at v 1.03), edge along w. Roll -45 about v lays the edge on the rising diagonal, the cut is a turn about s (v moves towards w): the edge leads. The wind-up
+#            keeps the point low at the right (-50), the cut rises through the target (+80), `reset` eases back.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
+#   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
+#   edge   - line along the blade, outer half (v 0.65 .. 1.03) for the crit trail; edge_full (v 0.26 .. 1.03) for the electric spark and the sweep arc.
 apiVersion: astera/v3
 kind: Skill
 id: katana-iaido
@@ -14,8 +22,46 @@ params:
   dash_distance: {type: blocks, default: 4}
   dash_ticks: {type: ticks, default: 3}
   dmg_physical: {type: number, default: 40.0}
-anchors:
-  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
+frames:
+  - id: arm
+    origin: caster.shoulder_r
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: w, to: -20}   # guard
+      - {at: 0, for: 1, about: w, to: -68, ease: in_out_sine}   # hand to the hilt at the right hip
+      - {at: 1, for: 3, about: w, to: 95, ease: out_cubic}   # the draw-cut: across to the far left
+      - {at: 4, for: 9, about: w, to: -20, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -47}
+      - {at: 0, for: 1, about: s, to: -58, ease: in_out_sine}
+      - {at: 1, for: 3, about: s, to: 0, ease: out_cubic}
+      - {at: 4, for: 9, about: s, to: -47, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: v, to: -45}  # roll the edge into the cut plane
+      - {at: 0, for: 1, about: s, to: -50, ease: in_out_sine}  # wind-up turn
+      - {at: 1, for: 3, about: s, to: 80, ease: out_cubic}  # the cut, edge first
+      - {at: 4, for: 9, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  edge: {frame: blade, from: {v: 0.65}, to: {v: 1.03}}
+  edge_full: {frame: blade, from: {v: 0.26}, to: {v: 1.03}}
 machine:
   start: windup
   tail: 11
@@ -24,28 +70,19 @@ machine:
       for: 2
       then: dash
       do:
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          rest: [{axis: left, deg: 72}]
-          for: 13
-          detach: true
-          swing:
-            - {at: 0, for: 2, from: {left: 0.2, up: -0.1, forward: 0.9}, to: {left: -0.9, up: -0.3, forward: 0.2}, edge: trailing, ease: in_out_sine}
-            - {at: 2, for: 3, to: {left: 0.9, up: 0.3, forward: 0.4}, edge: leading, roll: 15, ease: out_cubic}
-            - {at: 5, for: 8, to: {left: 0.0, up: 0.55, forward: 0.8}, edge: trailing, ease: in_out_sine}
+        - {id: rig, op: rig, frame: blade, for: 13, detach: true}
     dash:
       for: "= dash_ticks"
       then: end
       enter:
-        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.4, detach: true}
-        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet, detach: true}
+        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", frame: body, volume: 1.0, pitch: 1.4, detach: true}
+        - {id: fx_dash, op: particle_def, def: dash-cloud, frame: body, pos: {w: 0.2}, detach: true}
         - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "${dash_ticks}", direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false, pass_through: true}
         # dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
           op: hit
-          anchor: caster.body
+          frame: body
+          pos: {w: 0.9}
           at: 0
           every: 1
           for: "${dash_ticks}"
@@ -56,9 +93,9 @@ machine:
           damage: {physical: "${dmg_physical}"}
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 1.0, pitch: 1.0, detach: true}
         # the whole katana lies inside the caster eye volume (check 16): the lingering crit streak stays on the outer half at a slower cadence; the dense streak is the electric_spark trail_edge below
-        - {id: trail_fx, use: swing-trail, with: {samples: 2, from: 0.5, span: 11, every: 2}, frames: {weapon: /windup/rig}, detach: true}
-        - {id: trail_edge, op: particle, particle: electric_spark, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 8}, count: 2, extra: 0.02, at: 0, every: 1, for: 11, detach: true}
-        - {id: trail_arc, op: particle, particle: sweep_attack, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 2}, count: 1, at: 0, every: 2, for: 10, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 2, for: 4, detach: true}
+        - {id: trail_edge, op: particle, particle: electric_spark, along: edge_full, samples: 8, count: 2, extra: 0.02, at: 0, every: 1, for: 11, detach: true}
+        - {id: trail_arc, op: particle, particle: sweep_attack, along: edge_full, samples: 2, count: 1, at: 0, every: 2, for: 10, detach: true}
     end: {final: true}

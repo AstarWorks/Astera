@@ -4,6 +4,8 @@ import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
@@ -29,7 +31,9 @@ public class KnockbackOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val target: TargetRef,
-    val direction: Value<Vec3>,
+    val direction: Value<Vec3>?,
+    /** `frame:` + `dir:` (ADR-0314): the push direction along the frame's axes, instead of [direction]. */
+    val frameDirection: Val<Any>?,
     val strength: Value<Double>,
 ) : OpNode
 
@@ -39,13 +43,13 @@ public object KnockbackOpSpec : OpSpec<KnockbackOp> {
     override val timing: TimingKind? = TimingKind.POINT
 
     private val targetField = Field.required("target", GameplayOps.target, "victim, caster or an area")
-    private val directionField = Field.required("direction", Types.worldVec3, "[x, y, z] in world axes")
+    private val directionField = Field.optional("direction", Types.nullable(Types.worldVec3), null, "[x, y, z] in world axes; or write frame: + dir: {v, w, s} instead (ADR-0314)")
     private val strengthField = Field.required("strength", Types.number, "push magnitude")
 
-    override val fields: Fields = Fields.of("knockback", targetField, directionField, strengthField)
+    override val fields: Fields = Fields.of("knockback", targetField, directionField, FrameRefs.FRAME, FrameRefs.DIR, strengthField)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<KnockbackOp, SkillDecodeError> =
-        Result.Success(KnockbackOp(id, src, whenExpr, timing, values[targetField], values[directionField], values[strengthField]))
+        Result.Success(KnockbackOp(id, src, whenExpr, timing, values[targetField], values[directionField], GameplayOps.frameDirection(values, ctx, "knockback '${id.value}'", values[directionField] != null), values[strengthField]))
 
     override fun lower(op: KnockbackOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
@@ -54,7 +58,7 @@ public object KnockbackOpSpec : OpSpec<KnockbackOp> {
                 GameplayOps.effect(
                     lc,
                     "knockback",
-                    mapOf<String, Val<Any>>("target" to target, "direction" to GameplayOps.liveVec(op.direction), "strength" to GameplayOps.live(op.strength)),
+                    mapOf<String, Val<Any>>("target" to target, "direction" to (op.frameDirection ?: GameplayOps.liveVec(op.direction!!)), "strength" to GameplayOps.live(op.strength)),
                 ),
             )
         }

@@ -19,7 +19,25 @@ import com.astarworks.astera.core.domain.skillengine.table.phase
  * Each row list is stamped with its content seed ([RowSeeds]) before the sort, so the counter of byte-identical rows follows document order.
  */
 public object TableAssembler {
-    public fun sortRows(rows: List<Row>): List<Row> = rows.sortedWith(compareBy<Row>({ it.tick }, { it.action.phase.ordinal }, { spawnRank(it.action) }))
+    public fun sortRows(rows: List<Row>, rooted: Map<String, String> = emptyMap()): List<Row> {
+        val sorted = rows.sortedWith(compareBy<Row>({ it.tick }, { it.action.phase.ordinal }, { spawnRank(it.action) })).toMutableList()
+        if (rooted.isEmpty()) return sorted
+        // a frame rooted on an instance (`origin: bolt` / a summon op) is readable only once that op has run: a row reading it at the op's own tick
+        // moves to just after the op (ADR-0314), whatever its phase; every other order stays as sorted
+        for (reader in sorted.toList()) {
+            val roots = FrameRefCheck.refsOf(reader).mapNotNull { rooted[it] }.toSet()
+            if (roots.isEmpty()) continue
+            val at = sorted.indexOf(reader)
+            var last = -1
+            for ((i, r) in sorted.withIndex()) {
+                val act = r.action
+                val spawns = r.tick == reader.tick && (act is Action.Summon || (act is Action.Spawn && act.kind == SpawnKind.PROJECTILE_BODY))
+                if (spawns && r.instance.text.substringAfterLast('/') in roots) last = i
+            }
+            if (last > at) { sorted.removeAt(at); sorted.add(last, reader) }
+        }
+        return sorted
+    }
 
     /**
      * Inside the spawn phase the things a display can be anchored on (a frame, a projectile body) spawn first, so a rider listed before its
@@ -39,16 +57,17 @@ public object TableAssembler {
         conditions: Map<String, String>,
         config: EngineConfig,
         worldRows: List<Row> = emptyList(),
+        rooted: Map<String, String> = emptyMap(),
     ): ExpansionTable = ExpansionTable(
         skillId = skillId,
         sampleSeed = sampleSeed,
         params = params,
         bounds = bounds,
-        states = states.map { it.copy(rows = sortRows(RowSeeds.assign(it.rows))) },
-        subTables = subTables.mapValues { (_, s) -> s.copy(rows = sortRows(RowSeeds.assign(s.rows))) },
+        states = states.map { it.copy(rows = sortRows(RowSeeds.assign(it.rows), rooted)) },
+        subTables = subTables.mapValues { (_, s) -> s.copy(rows = sortRows(RowSeeds.assign(s.rows), rooted)) },
         writes = writes,
         conditions = conditions,
         config = config,
-        worldRows = sortRows(RowSeeds.assign(worldRows)),
+        worldRows = sortRows(RowSeeds.assign(worldRows), rooted),
     )
 }

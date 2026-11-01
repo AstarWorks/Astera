@@ -145,6 +145,38 @@ opponent視点のTargetは最大HP200で全回復してから撮影する(多段
 実際に描画停止を確認した撮影には`captureQuality.invalid: true`を付けると比較画面から除外できる。
 ソフトウェア描画は既定で`LP_NUM_THREADS=4`。共有環境では撮影と重いビルドを重ねない。
 
+## Batch: many skills x views in ONE stack boot
+
+A single shot spends most of its time on setup (stack, server, clients). A batch boots once and films every view x skill:
+
+```
+make vfx-shot SKILLS="fireball-cast sword-slash pistol-shot" VIEWS="caster side"
+# = bash tools/remote/run.sh --kind vfx --pull build/vfx-shot [--env ...] -- env SKILLS="..." VIEWS="..." bash tools/vfx-shot/vfx-shot.sh
+```
+
+- Views are the outer loop: the viewer client (and the caster bot for non-caster views) starts once per view, then every skill
+  re-casts in the same scene (husk, arena and held item are reset per shot; per shot cost = warm-up cast + cast length + a few seconds).
+  Clients a view does not need are stopped (a 1080p client is ~3 GB). `VIEW=compare` cannot be batched.
+- Output of an ok shot is the single-run layout, `build/vfx-shot/<skill>/<view>/` (frame_*.png, framestamp.json, trace.log, rig-check.txt, ...);
+  `rig_trace_check` runs per shot. A shot that fails (no fx drawn, rig check, missing ticks, bot dropped) is saved under
+  `build/vfx-shot/failed/<skill>-<view>/` (partial output, `reason.txt`, `shot.log`, `server.log`, `trace.log`, `caster-bot.log`, `director.stderr`)
+  and the batch continues. A dead server (no RCON) skips the rest.
+- Summary: `build/vfx-shot/batch-summary.md` / `.tsv` (ok/failed, seconds, reason per shot). Exit code 0 only if every shot is ok.
+- The run timeout scales with the batch (`SHOT_TIMEOUT` default 2700 + 180 s per shot). tools/remote caps a whole run at
+  `HEAVY_RUN_TIMEOUT` (default 7200 s): for more than ~60 shots pass a larger one (`HEAVY_RUN_TIMEOUT=14400 make vfx-shot ...`) or split the list.
+- Skills are read at the stack boot (same checkout for the whole batch). Per-shot `DISTANCE`/`ITEM`/`DUMMIES` are derived per skill unless the env sets them.
+
+### Concurrent stacks (two heavy slots)
+
+- A heavy-slot runner container mounts only its own checkout, so a neighbour slot's state dir and checkout are not visible to
+  `reap.py`. It used to read that as "run is gone / checkout no longer exists" and tore down the neighbour's LIVE stack at the
+  start of its own run (symptoms: RCON `No route to host`, `server failed to start`, a half-finished batch). `reap.py` now leaves
+  a stack alone whose state dir it cannot see, unless its containers are older than 3 h (`FOREIGN_GRACE`). The fix takes effect
+  per checkout: a run synced from a checkout without it can still reap a neighbour.
+- A leftover compose network `astera-shot-<hash>_default` from a dead run keeps its old subnet (compose reuses networks by name),
+  so the freshly picked static IPs (`10.N.77.x`) fell outside it (`no configured subnet contains IP address ...`).
+  `create_network` now removes such a stale network before the stack is created.
+
 ## Views
 
 | view | client | scene |

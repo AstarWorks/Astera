@@ -1,3 +1,6 @@
+# Frame grammar (ADR-0314): NOT converted. The mine sits at a fixed world point (anchor `spot`, caster forward 2.5, mode snapshot) while the caster
+# walks on; a frame is live (its origin follows the caster) and has no snapshot mode, so a frame placed on the caster would drag the mine along.
+# Reported as inexpressible in this group (no engine change allowed here).
 # Delay mine: plants a mine ahead; it detonates 50 ticks later (arithmetic schedule) and the cast ends one tick after.
 # The mine is a flat dark plate with a red core and a pulsing red ring on the ground, visible from the tick it is laid until the blast.
 apiVersion: astera/v3
