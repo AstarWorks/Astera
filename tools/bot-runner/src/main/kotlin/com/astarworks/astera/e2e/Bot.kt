@@ -245,6 +245,14 @@ class Bot private constructor(
     val entityEvents = CopyOnWriteArrayList<EntityEvent>()
     /** Latest entity-data flags byte (metadata index 0: 0x20 = invisible) per entity id, as sent to this client. */
     val entityFlags = ConcurrentHashMap<Int, Int>()
+    /** Latest LivingEntity health (metadata index 9, a Float) per entity id, as sent to this client. */
+    val entityHealth = ConcurrentHashMap<Int, Float>()
+
+    /**
+     * Health of another living entity as a 0..1 fraction (`health / 20`), `null` when the server never sent it. Paper mirrors
+     * Astera HP into Bukkit health with max 20 and a floor of 1.0 (PaperDamageGateway), so 0.05 means about to die.
+     */
+    fun healthFractionOf(entityId: Int): Float? = entityHealth[entityId]?.let { (it / 20f).coerceIn(0f, 1f) }
     val packetCounts = ConcurrentHashMap<String, AtomicInteger>()
 
     val stateIds = ConcurrentHashMap<Int, Int>()
@@ -383,6 +391,7 @@ class Bot private constructor(
             is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach {
                 entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false)
                 entities.remove(it)
+                entityHealth.remove(it)
             }
             is ClientboundMoveEntityPosPacket -> entities[packet.entityId]?.let { e ->
                 if (packet.stepCount <= 0) e.moveTo(e.x + packet.moveX, e.y + packet.moveY, e.z + packet.moveZ)
@@ -426,6 +435,9 @@ class Bot private constructor(
             is ClientboundSoundEntityPacket -> sounds += packet.sound.toString()
             is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m ->
                 if (m.id == 0 && m.value is Byte) entityFlags[packet.entityId] = (m.value as Byte).toInt()
+                if (m.id == 9 && m.value is Float) {
+                    entityHealth[packet.entityId] = m.value as Float
+                }
                 // Custom names are OPTIONAL_COMPONENT: unwrap the Optional, or a villager's name tag is never seen.
                 ((m.value as? Component) ?: ((m.value as? java.util.Optional<*>)?.orElse(null) as? Component))?.let { c ->
                     val txt = plain(c)

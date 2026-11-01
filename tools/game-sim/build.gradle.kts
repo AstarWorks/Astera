@@ -35,8 +35,8 @@ dependencies {
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
-    // The bot brain's pure weapon choice (WeaponPolicy) is driven against real wiring by BotTwoWeaponsScenarioTest.
-    testImplementation(project(":tools:bot-runner"))
+    // The real BotBrain runs headless through SimBotHost; AgentPort walks the seat with the bot Navigator (ADR-0316).
+    api(project(":tools:bot-runner"))
     testImplementation(libs.kotlinx.collections.immutable) // GuiSpec.slots is a PersistentMap
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
@@ -77,4 +77,19 @@ tasks.register<JavaExec>("massPlay") {
     jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
     val out = layout.buildDirectory.dir("play").get().asFile.absolutePath
     args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seeds").getOrElse(""))
+}
+
+// Playable sim (ADR-0316): a Claude session plays one seat headless over JSON lines.
+//   printf '%s\n' '{"op":"new","mode":"annihilation","me":"red"}' '{"op":"skip","until":"phase=engage"}' '{"op":"end"}' | ./gradlew -q :tools:game-sim:play
+//   ./gradlew -q :tools:game-sim:play --args="path/to/commands.jsonl"     (commands from a file instead of stdin)
+tasks.register<JavaExec>("play") {
+    group = "application"
+    description = "JSON-lines agent port: stdin ops (new/act/skip/look/end) -> one observation line each on stdout."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.gamesim.playable.agent.PlayMainKt")
+    standardInput = System.`in`
+    workingDir = rootDir
+    jvmArgs("-Xmx2g")
+    systemProperty("astera.sim.contentDir", rootProject.file("content").absolutePath)
+    systemProperty("astera.sim.traceDir", layout.buildDirectory.dir("play").get().asFile.absolutePath)
 }
