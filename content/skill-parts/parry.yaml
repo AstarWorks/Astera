@@ -41,7 +41,7 @@ machine:
           brightness: {block: 15, sky: 15}
           for: 4
           motion:
-            - {law: grow, per_tick: {left: 2.0, up: 2.0}, at: 0, for: 4, ease: out_cubic}
+            - {law: grow, per_tick: {s: 2.0, w: 2.0}, at: 0, for: 4, ease: out_cubic}
             - {law: fade, at: 0, for: 4}
     whiff:
       for: "${whiff_lag}"

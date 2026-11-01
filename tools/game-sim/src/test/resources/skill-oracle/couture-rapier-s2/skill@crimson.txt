@@ -16,19 +16,19 @@
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#d0203a alpha=0.349020
-@4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 trail #6 op=windup/trail_a root=-0.296095,0.858866,1.620136 tip=-0.836095,1.688866,1.620136
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=8 width=0.200000 color=#d0203a alpha=0.349020
+@4 trail_look #6 op=windup/trail_a fade=1.000000 style=soft
+@4 trail #6 op=windup/trail_a root=-0.836095,1.688866,1.620136 tip=-0.836095,1.688866,1.620136
 @4 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.046875,0.046875,9.000000 bb=FIXED
 @4 sound - op=windup/whoosh[0] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.296095,0.918866,-0.379864
 @4 write #0 op=windup/held_m dur=1 pos=-0.296095,1.718866,-0.379864 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @4 remove #0 op=windup/held_m
-@5 trail #6 op=windup/trail_a root=-0.286967,0.884010,1.572160 tip=-0.946945,1.317909,2.169371
+@5 trail #6 op=windup/trail_a root=-0.946945,1.317909,2.169371 tip=-0.946945,1.317909,2.169371
 @5 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.042969,0.042969,9.000000 bb=FIXED
 @5 write #3 op=windup/piece_body_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.000000,0.309017,0.951057,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #4 op=windup/piece_a_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.072550,-0.308117,-0.948285,0.023573 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #5 op=windup/piece_b_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.072550,0.308117,0.948285,0.023573 scale=1.000000,1.000000,1.000000 bb=FIXED
-@6 trail #6 op=windup/trail_a root=-0.278052,0.936549,1.565714 tip=-1.042645,0.742114,2.164122
+@6 trail #6 op=windup/trail_a root=-1.042645,0.742114,2.164122 tip=-1.042645,0.742114,2.164122
 @6 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.037500,0.037500,9.000000 bb=FIXED
 @6 write #3 op=windup/piece_body_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.000000,0.156434,-0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @6 write #4 op=windup/piece_a_m dur=1 pos=-0.296095,0.918866,1.620136 rot=-0.150250,-0.154614,0.976193,0.023797 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -39,7 +39,7 @@
 @7 spawn #10 op=windup/streak_d kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=0.000000,2.100000,1.200000 rot=0.000000,0.000000,-0.069756,0.997564 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #11 op=windup/streak_e kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=0.000000,2.500000,0.900000 rot=0.000000,0.000000,0.026177,0.999657 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #12 op=windup/core kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.000000,1.000000,-0.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@7 trail #6 op=windup/trail_a root=-0.269557,0.970045,1.603507 tip=-1.120968,0.489221,1.759736
+@7 trail #6 op=windup/trail_a root=-1.120968,0.489221,1.759736 tip=-1.120968,0.489221,1.759736
 @7 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.030469,0.030469,9.000000 bb=FIXED
 @7 write #2 op=windup/haze dur=4 pos=0.000000,0.900000,-0.100000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.800000,0.800000,1.000000 bb=CENTER
 @7 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,2.100000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.500000,0.200000,1.000000 bb=CENTER
@@ -59,7 +59,7 @@
 @8 spawn #16 op=windup/petal_3 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.710000,0.860000,0.720000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #17 op=windup/petal_4 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.160000,1.730000,0.760000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #18 op=windup/petal_5 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.480000,1.930000,0.800000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@8 trail #6 op=windup/trail_a root=-0.261680,0.958629,1.649025 tip=-1.180090,0.659159,1.431448
+@8 trail #6 op=windup/trail_a root=-1.180090,0.659159,1.431448 tip=-1.180090,0.659159,1.431448
 @8 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.021875,0.021875,9.000000 bb=FIXED
 @8 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,3.400000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.487500,0.195000,1.000000 bb=CENTER
 @8 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,4.000000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.487500,0.195000,1.000000 bb=CENTER
@@ -99,7 +99,7 @@
 @9 spawn #26 op=windup/petal_13 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.340000,1.920000,0.960000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #27 op=windup/petal_14 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.820000,1.750000,1.000000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #28 op=windup/petal_15 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.860000,0.880000,1.040000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@9 trail #6 op=windup/trail_a root=-0.095209,0.976271,1.561331 tip=-1.013620,0.976271,1.191166
+@9 trail #6 op=windup/trail_a root=-1.013620,0.976271,1.191166 tip=-1.013620,0.976271,1.191166
 @9 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.011719,0.011719,9.000000 bb=FIXED
 @9 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,4.700000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.450000,0.180000,1.000000 bb=CENTER
 @9 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,5.300000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.450000,0.180000,1.000000 bb=CENTER
@@ -139,7 +139,7 @@
 @10 spawn #32 op=windup/petal_19 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.890000,1.480000,1.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #33 op=windup/petal_20 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.580000,0.680000,1.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #34 op=windup/petal_21 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.040000,0.840000,1.280000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@10 trail #6 op=windup/trail_a root=-0.095209,0.936508,1.541071 tip=-1.013620,1.235978,1.323494
+@10 trail #6 op=windup/trail_a root=-1.013620,1.235978,1.323494 tip=-1.013620,1.235978,1.323494
 @10 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.000000,0.000000,9.000000 bb=FIXED
 @10 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,6.000000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.387500,0.155000,1.000000 bb=CENTER
 @10 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,6.600000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.387500,0.155000,1.000000 bb=CENTER
@@ -180,7 +180,7 @@
 @11 spawn #38 op=windup/petal_25 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.120000,0.600000,1.440000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #39 op=windup/petal_26 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.520000,1.110000,1.480000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #40 op=windup/petal_27 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.880000,1.910000,1.520000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@11 trail #6 op=windup/trail_a root=-0.095209,0.929527,1.496994 tip=-1.013620,1.281575,1.611381
+@11 trail #6 op=windup/trail_a root=-1.013620,1.281575,1.611381 tip=-1.013620,1.281575,1.611381
 @11 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,7.300000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,7.900000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #9 op=windup/streak_c dur=1 pos=0.000000,1.700000,7.100000 rot=0.000000,0.000000,0.087156,0.996195 scale=0.300000,0.120000,1.000000 bb=CENTER
@@ -229,7 +229,7 @@
 @12 spawn #44 op=windup/over_a0_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.830000,1.410000,1.680000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #45 op=windup/over_a1_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.850000,2.000000,1.720000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #46 op=windup/over_a2_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.420000,1.500000,1.760000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@12 trail #6 op=windup/trail_a root=-0.095209,0.961083,1.465438 tip=-1.013620,1.075470,1.817486
+@12 trail #6 op=windup/trail_a root=-1.013620,1.075470,1.817486 tip=-1.013620,1.075470,1.817486
 @12 write #12 op=windup/core dur=3 pos=0.000000,1.000000,-0.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.650000,0.520000,1.000000 bb=CENTER
 @12 write #13 op=windup/petal_0 dur=1 pos=0.000000,2.000000,2.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.022773,0.022773,1.000000 bb=CENTER
 @12 write #14 op=windup/petal_1 dur=1 pos=0.610000,1.460000,2.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.022773,0.022773,1.000000 bb=CENTER
@@ -271,7 +271,7 @@
 @12 write #3 op=windup/piece_body_m dur=1 pos=-0.129624,0.976271,1.512182 rot=0.000000,0.156434,0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #4 op=windup/piece_a_m dur=1 pos=-0.129624,0.976271,1.512182 rot=0.297004,-0.149194,-0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #5 op=windup/piece_b_m dur=1 pos=-0.129624,0.976271,1.512182 rot=0.297004,0.149194,0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
-@13 trail #6 op=windup/trail_a root=-0.186008,0.703249,1.698851 tip=-1.104419,0.485672,1.998320
+@13 trail #6 op=windup/trail_a root=-1.104419,0.485672,1.998320 tip=-1.104419,0.485672,1.998320
 @13 write #13 op=windup/petal_0 dur=1 pos=0.000000,2.000000,2.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #14 op=windup/petal_1 dur=1 pos=0.610000,1.460000,2.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #15 op=windup/petal_2 dur=1 pos=-0.900000,0.670000,2.280000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -315,7 +315,7 @@
 @13 remove #9 op=windup/streak_c
 @13 remove #10 op=windup/streak_d
 @13 remove #11 op=windup/streak_e
-@14 trail #6 op=windup/trail_a root=-0.266568,0.655235,2.113372 tip=-1.184978,0.285070,2.113372
+@14 trail #6 op=windup/trail_a root=-1.184978,0.285070,2.113372 tip=-1.184978,0.285070,2.113372
 @14 write #23 op=windup/petal_10 dur=1 pos=0.870000,1.150000,2.440000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #24 op=windup/petal_11 dur=1 pos=-0.800000,0.600000,2.480000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #25 op=windup/petal_12 dur=1 pos=0.310000,1.130000,2.520000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -354,7 +354,7 @@
 @14 remove #21 op=windup/petal_8
 @14 remove #22 op=windup/petal_9
 @15 spawn #47 op=windup/over_b0_m kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.079688,0.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@15 trail #6 op=windup/trail_a root=-0.276105,0.836495,2.492847 tip=-1.194516,0.618918,2.193377
+@15 trail #6 op=windup/trail_a root=-1.194516,0.618918,2.193377 tip=-1.194516,0.618918,2.193377
 @15 write #29 op=windup/petal_16 dur=1 pos=-0.450000,0.660000,2.680000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #30 op=windup/petal_17 dur=1 pos=-0.190000,1.430000,2.720000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #31 op=windup/petal_18 dur=1 pos=0.740000,2.000000,2.760000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -383,7 +383,7 @@
 @15 remove #26 op=windup/petal_13
 @15 remove #27 op=windup/petal_14
 @15 remove #28 op=windup/petal_15
-@16 trail #6 op=windup/trail_a root=-0.329051,1.398653,2.629794 tip=-1.247462,1.513041,2.277746
+@16 trail #6 op=windup/trail_a root=-1.247462,1.513041,2.277746 tip=-1.247462,1.513041,2.277746
 @16 write #35 op=windup/petal_22 dur=1 pos=-0.640000,1.710000,2.920000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #36 op=windup/petal_23 dur=1 pos=0.900000,1.940000,2.960000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #37 op=windup/petal_24 dur=1 pos=-0.690000,1.180000,3.000000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -407,7 +407,7 @@
 @16 remove #32 op=windup/petal_19
 @16 remove #33 op=windup/petal_20
 @16 remove #34 op=windup/petal_21
-@17 trail #6 op=windup/trail_a root=-0.361358,1.760485,2.099494 tip=-1.279768,2.112532,1.985106
+@17 trail #6 op=windup/trail_a root=-1.279768,2.112532,1.985106 tip=-1.279768,2.112532,1.985106
 @17 write #41 op=windup/petal_28 dur=1 pos=0.780000,1.770000,3.160000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #42 op=windup/petal_29 dur=1 pos=-0.270000,0.900000,3.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #43 op=windup/wisp dur=1 pos=-0.380000,0.650000,3.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -424,7 +424,7 @@
 @17 remove #38 op=windup/petal_25
 @17 remove #39 op=windup/petal_26
 @17 remove #40 op=windup/petal_27
-@18 trail #6 op=windup/trail_a root=-0.353351,1.609566,1.491742 tip=-1.271762,1.909036,1.709319
+@18 trail #6 op=windup/trail_a root=-1.271762,1.909036,1.709319 tip=-1.271762,1.909036,1.709319
 @18 write #47 op=windup/over_b0_m dur=1 pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.091162,0.428000,1.000000 bb=CENTER
 @18 sound - op=windup/snd_11 sound=item.trident.throw cat=master vol=0.5 pitch=1.2 at=0.000000,0.000000,0.000000
 @18 write #3 op=windup/piece_body_m dur=1 pos=-0.387766,1.649329,1.520631 rot=0.000000,0.453990,0.891007,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -436,20 +436,20 @@
 @18 remove #44 op=windup/over_a0_m
 @18 remove #45 op=windup/over_a1_m
 @18 remove #46 op=windup/over_a2_m
-@19 trail #6 op=windup/trail_a root=-0.340200,1.679257,1.443527 tip=-1.258610,1.679257,1.813692
+@19 trail #6 op=windup/trail_a root=-1.258610,1.679257,1.813692 tip=-1.258610,1.679257,1.813692
 @19 write #47 op=windup/over_b0_m dur=1 pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.100088,0.372000,1.000000 bb=CENTER
 @19 write #3 op=windup/piece_body_m dur=1 pos=-0.374614,1.679257,1.492677 rot=0.000000,0.000000,1.000000,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #4 op=windup/piece_a_m dur=1 pos=-0.374614,1.679257,1.492677 rot=0.300706,0.000000,-0.953717,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #5 op=windup/piece_b_m dur=1 pos=-0.374614,1.679257,1.492677 rot=0.300706,0.000000,0.953717,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 effect 00000000-0000-0000-0000-000000000001 op=- held_model=astera:couture-rapier-hidden
-@20 trail #6 op=windup/trail_a root=-0.325858,1.737650,1.436357 tip=-1.244269,1.438180,1.653934
+@20 trail #6 op=windup/trail_a root=-1.244269,1.438180,1.653934 tip=-1.244269,1.438180,1.653934
 @20 write #47 op=windup/over_b0_m dur=1 pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.111562,0.300000,1.000000 bb=CENTER
 @20 sound - op=windup/whoosh[4] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.360273,1.697887,-0.534754
 @20 write #3 op=windup/piece_body_m dur=1 pos=-0.360273,1.697887,1.465246 rot=0.000000,0.453990,-0.891007,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #4 op=windup/piece_a_m dur=1 pos=-0.360273,1.697887,1.465246 rot=-0.267931,-0.432978,0.849768,0.136518 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #5 op=windup/piece_b_m dur=1 pos=-0.360273,1.697887,1.465246 rot=-0.267931,0.432978,-0.849768,0.136518 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@21 trail #6 op=windup/trail_a root=-0.310351,1.751965,1.453574 tip=-1.228761,1.399917,1.339187
+@21 trail #6 op=windup/trail_a root=-1.228761,1.399917,1.339187 tip=-1.228761,1.399917,1.339187
 @21 write #3 op=windup/piece_body_m dur=1 pos=-0.344765,1.705221,1.438386 rot=0.000000,0.809017,-0.587785,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #4 op=windup/piece_a_m dur=1 pos=-0.344765,1.705221,1.438386 rot=-0.176750,-0.771573,0.560581,0.243276 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #5 op=windup/piece_b_m dur=1 pos=-0.344765,1.705221,1.438386 rot=-0.176750,0.771573,-0.560581,0.243276 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -461,12 +461,12 @@
 @22 spawn #51 op=throw/fly_a_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=0.000000,2.600000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #52 op=throw/fly_b_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=0.000000,2.400000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #53 op=throw/thread_a kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@22 trail #6 op=windup/trail_a root=-0.293701,1.716449,1.458890 tip=-1.212112,1.602062,1.106842
+@22 trail #6 op=windup/trail_a root=-1.212112,1.602062,1.106842 tip=-1.212112,1.602062,1.106842
 @22 write #3 op=windup/piece_body_m dur=1 pos=-0.328116,1.701261,1.412146 rot=0.000000,0.987688,-0.156434,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #4 op=windup/piece_a_m dur=1 pos=-0.328116,1.701261,1.412146 rot=-0.047041,-0.941975,0.149194,0.297004 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #5 op=windup/piece_b_m dur=1 pos=-0.328116,1.701261,1.412146 rot=-0.047041,0.941975,-0.149194,0.297004 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@23 trail #6 op=windup/trail_a root=-0.298446,1.772450,1.594265 tip=-1.216857,1.990027,1.294795
+@23 trail #6 op=windup/trail_a root=-1.216857,1.990027,1.294795 tip=-1.216857,1.990027,1.294795
 @23 write #3 op=windup/piece_body_m dur=1 pos=-0.332861,1.801339,1.554502 rot=0.000000,0.951057,0.309017,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #4 op=windup/piece_a_m dur=1 pos=-0.332861,1.801339,1.554502 rot=0.092923,-0.907039,-0.294715,0.285988 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #5 op=windup/piece_b_m dur=1 pos=-0.332861,1.801339,1.554502 rot=0.092923,0.907039,0.294715,0.285988 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -477,7 +477,7 @@
 @23 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@24 trail #6 op=windup/trail_a root=-0.294407,1.749536,1.550383 tip=-1.212818,2.119701,1.550383
+@24 trail #6 op=windup/trail_a root=-1.212818,2.119701,1.550383 tip=-1.212818,2.119701,1.550383
 @24 write #48 op=windup/over_b1_m dur=3 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #49 op=windup/over_b2_m dur=3 pos=-0.086603,2.550000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #50 op=throw/fly_body_m dur=3 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.236060,0.236060,1.000000 bb=FIXED
@@ -495,7 +495,7 @@
 @24 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.550000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@25 trail #6 op=windup/trail_a root=-0.282010,1.763645,1.498542 tip=-1.200420,1.981223,1.798011
+@25 trail #6 op=windup/trail_a root=-1.200420,1.981223,1.798011 tip=-1.200420,1.981223,1.798011
 @25 write #3 op=windup/piece_body_m dur=1 pos=-0.316425,1.792534,1.538304 rot=0.000000,0.309017,0.951057,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #4 op=windup/piece_a_m dur=1 pos=-0.316425,1.792534,1.538304 rot=0.285988,-0.294715,-0.907039,0.092923 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #5 op=windup/piece_b_m dur=1 pos=-0.316425,1.792534,1.538304 rot=0.285988,0.294715,0.907039,0.092923 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -506,7 +506,7 @@
 @25 write #52 op=throw/fly_b_m dur=1 pos=0.000000,2.600000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@26 trail #6 op=windup/trail_a root=-0.262658,1.798390,1.474259 tip=-1.181069,1.684003,1.826307
+@26 trail #6 op=windup/trail_a root=-1.181069,1.684003,1.826307 tip=-1.181069,1.684003,1.826307
 @26 write #3 op=windup/piece_body_m dur=1 pos=-0.297073,1.783202,1.521003 rot=0.000000,0.156434,-0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #4 op=windup/piece_a_m dur=1 pos=-0.297073,1.783202,1.521003 rot=-0.297004,-0.149194,0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #5 op=windup/piece_b_m dur=1 pos=-0.297073,1.783202,1.521003 rot=-0.297004,0.149194,-0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -517,7 +517,7 @@
 @26 write #52 op=throw/fly_b_m dur=1 pos=-0.086603,2.550000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@27 trail #6 op=windup/trail_a root=-0.249278,1.821395,1.494847 tip=-1.167689,1.469347,1.609234
+@27 trail #6 op=windup/trail_a root=-1.167689,1.469347,1.609234 tip=-1.167689,1.469347,1.609234
 @27 write #48 op=windup/over_b1_m dur=2 pos=-0.086603,2.550000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #49 op=windup/over_b2_m dur=2 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #50 op=throw/fly_body_m dur=2 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
@@ -534,7 +534,7 @@
 @27 write #52 op=throw/fly_b_m dur=1 pos=-0.086603,2.450000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@28 trail #6 op=windup/trail_a root=-0.244737,1.807891,1.535371 tip=-1.163147,1.508421,1.317794
+@28 trail #6 op=windup/trail_a root=-1.163147,1.508421,1.317794 tip=-1.163147,1.508421,1.317794
 @28 sound - op=windup/whoosh[6] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.279151,1.768128,-0.493518
 @28 write #3 op=windup/piece_body_m dur=1 pos=-0.279151,1.768128,1.506482 rot=0.000000,0.891007,-0.453990,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @28 write #4 op=windup/piece_a_m dur=1 pos=-0.279151,1.768128,1.506482 rot=-0.136518,-0.849768,0.432978,0.267931 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -546,7 +546,7 @@
 @28 write #52 op=throw/fly_b_m dur=1 pos=0.000000,2.400000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@29 trail #6 op=windup/trail_a root=-0.235982,1.762311,1.549849 tip=-1.154393,1.762311,1.179684
+@29 trail #6 op=windup/trail_a root=-1.154393,1.762311,1.179684 tip=-1.154393,1.762311,1.179684
 @29 write #48 op=windup/over_b1_m dur=3 pos=0.086603,2.550000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #49 op=windup/over_b2_m dur=3 pos=-0.086603,2.450000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #50 op=throw/fly_body_m dur=3 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.103125,0.103125,1.000000 bb=FIXED
@@ -563,7 +563,7 @@
 @29 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@30 trail #6 op=windup/trail_a root=-0.209042,1.714662,1.513246 tip=-1.127453,2.014132,1.295669
+@30 trail #6 op=windup/trail_a root=-1.127453,2.014132,1.295669 tip=-1.127453,2.014132,1.295669
 @30 write #3 op=windup/piece_body_m dur=1 pos=-0.243457,1.754425,1.484357 rot=0.000000,0.891007,0.453990,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #4 op=windup/piece_a_m dur=1 pos=-0.243457,1.754425,1.484357 rot=0.136518,-0.849768,-0.432978,0.267931 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #5 op=windup/piece_b_m dur=1 pos=-0.243457,1.754425,1.484357 rot=0.136518,0.849768,0.432978,0.267931 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -574,7 +574,7 @@
 @30 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.550000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@31 trail #6 op=windup/trail_a root=-0.166892,1.698176,1.447586 tip=-1.085303,2.050224,1.561973
+@31 trail #6 op=windup/trail_a root=-1.085303,2.050224,1.561973 tip=-1.085303,2.050224,1.561973
 @31 write #3 op=windup/piece_body_m dur=1 pos=-0.201307,1.744920,1.462774 rot=0.000000,0.587785,0.809017,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #4 op=windup/piece_a_m dur=1 pos=-0.201307,1.744920,1.462774 rot=0.243276,-0.560581,-0.771573,0.176750 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #5 op=windup/piece_b_m dur=1 pos=-0.201307,1.744920,1.462774 rot=0.243276,0.560581,0.771573,0.176750 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -585,7 +585,7 @@
 @31 write #52 op=throw/fly_b_m dur=1 pos=0.000000,2.600000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@32 trail #6 op=windup/trail_a root=-0.137771,1.723334,1.403672 tip=-1.056182,1.837721,1.755720
+@32 trail #6 op=windup/trail_a root=-1.056182,1.837721,1.755720 tip=-1.056182,1.837721,1.755720
 @32 sound - op=windup/whoosh[7] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.172186,1.738521,-0.549585
 @32 write #3 op=windup/piece_body_m dur=1 pos=-0.172186,1.738521,1.450415 rot=0.000000,0.156434,0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @32 write #4 op=windup/piece_a_m dur=1 pos=-0.172186,1.738521,1.450415 rot=0.297004,-0.149194,-0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -603,7 +603,7 @@
 @32 remove #51 op=throw/fly_a_m
 @32 remove #52 op=throw/fly_b_m
 @32 remove #53 op=throw/thread_a
-@33 trail #6 op=windup/trail_a root=-0.127904,1.765238,1.406904 tip=-1.046314,1.547661,1.706374
+@33 trail #6 op=windup/trail_a root=-1.046314,1.547661,1.706374 tip=-1.046314,1.547661,1.706374
 @33 sound - op=windup/snd_13 sound=block.amethyst_block.chime cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @33 write #3 op=windup/piece_body_m dur=1 pos=-0.162318,1.736349,1.446667 rot=0.000000,0.309017,-0.951057,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @33 write #4 op=windup/piece_a_m dur=1 pos=-0.162318,1.736349,1.446667 rot=-0.285988,-0.294715,0.907039,0.092923 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -1596,19 +1596,19 @@ r @117 run-end tail=4 | pose
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#d0203a alpha=0.349020
-@4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 trail #6 op=windup/trail_a root=-1.211494,0.858866,1.115704 tip=-1.642757,1.688866,0.790724
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=8 width=0.200000 color=#d0203a alpha=0.349020
+@4 trail_look #6 op=windup/trail_a fade=1.000000 style=soft
+@4 trail #6 op=windup/trail_a root=-1.642757,1.688866,0.790724 tip=-1.642757,1.688866,0.790724
 @4 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.046875,0.046875,9.000000 bb=FIXED
 @4 sound - op=windup/whoosh[0] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.007864,0.918866,-0.481567
 @4 write #0 op=windup/held_m dur=1 pos=-0.007864,1.718866,-0.481567 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED
 @4 remove #0 op=windup/held_m
-@5 trail #6 op=windup/trail_a root=-1.175332,0.884010,1.082882 tip=-2.061824,1.317909,1.162651
+@5 trail #6 op=windup/trail_a root=-2.061824,1.317909,1.162651 tip=-2.061824,1.317909,1.162651
 @5 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.042969,0.042969,9.000000 bb=FIXED
 @5 write #3 op=windup/piece_body_m dur=1 pos=-1.211494,0.918866,1.115704 rot=-0.301775,0.293048,0.901909,0.098053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #4 op=windup/piece_a_m dur=1 pos=-1.211494,0.918866,1.115704 rot=-0.369697,0.299674,0.876261,0.075412 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #5 op=windup/piece_b_m dur=1 pos=-1.211494,0.918866,1.115704 rot=-0.232094,0.284714,0.922302,0.120122 scale=1.000000,1.000000,1.000000 bb=FIXED
-@6 trail #6 op=windup/trail_a root=-1.164332,0.936549,1.083099 tip=-2.135095,0.742114,1.100865
+@6 trail #6 op=windup/trail_a root=-2.135095,0.742114,1.100865 tip=-2.135095,0.742114,1.100865
 @6 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.037500,0.037500,9.000000 bb=FIXED
 @6 write #3 op=windup/piece_body_m dur=1 pos=-1.211494,0.918866,1.115704 rot=0.313398,0.148351,-0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @6 write #4 op=windup/piece_a_m dur=1 pos=-1.211494,0.918866,1.115704 rot=0.452237,0.154175,-0.878072,0.026492 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -1619,7 +1619,7 @@ r @117 run-end tail=4 | pose
 @7 spawn #10 op=windup/streak_d kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=-0.722178,2.100000,0.958363 rot=0.022134,-0.316532,-0.066152,0.946014 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #11 op=windup/streak_e kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=-0.541634,2.500000,0.718772 rot=-0.008306,-0.317196,0.024824,0.947999 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #12 op=windup/core kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.120363,1.000000,-0.159727 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@7 trail #6 op=windup/trail_a root=-1.180293,0.970045,1.118394 tip=-1.954281,0.489221,0.730772
+@7 trail #6 op=windup/trail_a root=-1.954281,0.489221,0.730772 tip=-1.954281,0.489221,0.730772
 @7 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.030469,0.030469,9.000000 bb=FIXED
 @7 write #2 op=windup/haze dur=4 pos=0.060182,0.900000,-0.079864 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.800000,0.800000,1.000000 bb=CENTER
 @7 write #7 op=windup/streak_a dur=1 pos=-1.263812,0.900000,1.677135 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.500000,0.200000,1.000000 bb=CENTER
@@ -1639,7 +1639,7 @@ r @117 run-end tail=4 | pose
 @8 spawn #16 op=windup/petal_3 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.133724,0.860000,1.002306 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #17 op=windup/petal_4 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.585161,1.730000,0.510673 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #18 op=windup/petal_5 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.864797,1.930000,0.350037 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@8 trail #6 op=windup/trail_a root=-1.201395,0.958629,1.159487 tip=-1.803929,0.659159,0.433009
+@8 trail #6 op=windup/trail_a root=-1.803929,0.659159,0.433009 tip=-1.803929,0.659159,0.433009
 @8 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.021875,0.021875,9.000000 bb=FIXED
 @8 write #7 op=windup/streak_a dur=1 pos=-2.046171,0.900000,2.715361 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.487500,0.195000,1.000000 bb=CENTER
 @8 write #8 op=windup/streak_b dur=1 pos=-2.407260,1.300000,3.194542 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.487500,0.195000,1.000000 bb=CENTER
@@ -1679,7 +1679,7 @@ r @117 run-end tail=4 | pose
 @9 spawn #26 op=windup/petal_13 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.306206,1.920000,0.971307 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #27 op=windup/petal_14 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.256696,1.750000,0.305147 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #28 op=windup/petal_15 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.060939,0.880000,1.348142 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@9 trail #6 op=windup/trail_a root=-1.015670,0.976271,1.189636 tip=-1.526374,0.976271,0.341296
+@9 trail #6 op=windup/trail_a root=-1.526374,0.976271,0.341296 tip=-1.526374,0.976271,0.341296
 @9 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.011719,0.011719,9.000000 bb=FIXED
 @9 write #7 op=windup/streak_a dur=1 pos=-2.828531,0.900000,3.753587 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.450000,0.180000,1.000000 bb=CENTER
 @9 write #8 op=windup/streak_b dur=1 pos=-3.189620,1.300000,4.232768 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.450000,0.180000,1.000000 bb=CENTER
@@ -1719,7 +1719,7 @@ r @117 run-end tail=4 | pose
 @10 spawn #32 op=windup/petal_19 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.432964,1.480000,0.422747 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #33 op=windup/petal_20 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.283042,0.680000,1.339361 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #34 op=windup/petal_21 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.738378,0.840000,1.046326 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@10 trail #6 op=windup/trail_a root=-1.003477,0.936508,1.173456 tip=-1.606011,1.235978,0.446977
+@10 trail #6 op=windup/trail_a root=-1.606011,1.235978,0.446977 tip=-1.606011,1.235978,0.446977
 @10 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.000000,0.000000,9.000000 bb=FIXED
 @10 write #7 op=windup/streak_a dur=1 pos=-3.610890,0.900000,4.791813 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.387500,0.155000,1.000000 bb=CENTER
 @10 write #8 op=windup/streak_b dur=1 pos=-3.971979,1.300000,5.270994 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.387500,0.155000,1.000000 bb=CENTER
@@ -1760,7 +1760,7 @@ r @117 run-end tail=4 | pose
 @11 spawn #38 op=windup/petal_25 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.770777,0.600000,1.222253 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #39 op=windup/petal_26 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.475396,1.110000,1.494924 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #40 op=windup/petal_27 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.617558,1.910000,0.684329 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@11 trail #6 op=windup/trail_a root=-0.976951,0.929527,1.138254 tip=-1.779266,1.281575,0.676895
+@11 trail #6 op=windup/trail_a root=-1.779266,1.281575,0.676895 tip=-1.779266,1.281575,0.676895
 @11 write #7 op=windup/streak_a dur=1 pos=-4.393250,0.900000,5.830039 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #8 op=windup/streak_b dur=1 pos=-4.754339,1.300000,6.309221 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #9 op=windup/streak_c dur=1 pos=-4.272887,1.700000,5.670312 rot=-0.027655,-0.316097,0.082652,0.944715 scale=0.300000,0.120000,1.000000 bb=CENTER
@@ -1809,7 +1809,7 @@ r @117 run-end tail=4 | pose
 @12 spawn #44 op=windup/over_a0_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.348182,1.410000,1.841214 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #45 op=windup/over_a1_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.713962,2.000000,0.862110 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #46 op=windup/over_a2_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.723768,1.500000,1.658361 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@12 trail #6 op=windup/trail_a root=-0.957960,0.961083,1.113053 tip=-1.903303,1.075470,0.841497
+@12 trail #6 op=windup/trail_a root=-1.903303,1.075470,0.841497 tip=-1.903303,1.075470,0.841497
 @12 write #12 op=windup/core dur=3 pos=0.120363,1.000000,-0.159727 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.650000,0.520000,1.000000 bb=CENTER
 @12 write #13 op=windup/petal_0 dur=1 pos=-1.323993,2.000000,1.756998 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.022773,0.022773,1.000000 bb=CENTER
 @12 write #14 op=windup/petal_1 dur=1 pos=-0.860898,1.460000,2.156051 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.022773,0.022773,1.000000 bb=CENTER
@@ -1851,7 +1851,7 @@ r @117 run-end tail=4 | pose
 @12 write #3 op=windup/piece_body_m dur=1 pos=-1.013576,0.976271,1.129673 rot=-0.313398,0.148351,0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #4 op=windup/piece_a_m dur=1 pos=-1.013576,0.976271,1.129673 rot=-0.580549,0.156411,0.799057,0.002730 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #5 op=windup/piece_b_m dur=1 pos=-1.013576,0.976271,1.129673 rot=-0.017238,0.126558,0.987538,0.091950 scale=1.000000,1.000000,1.000000 bb=FIXED
-@13 trail #6 op=windup/trail_a root=-1.170947,0.703249,1.244820 tip=-2.084647,0.485672,0.931274
+@13 trail #6 op=windup/trail_a root=-2.084647,0.485672,0.931274 tip=-2.084647,0.485672,0.931274
 @13 write #13 op=windup/petal_0 dur=1 pos=-1.323993,2.000000,1.756998 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #14 op=windup/petal_1 dur=1 pos=-0.860898,1.460000,2.156051 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #15 op=windup/petal_2 dur=1 pos=-2.090910,0.670000,1.279255 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -1895,7 +1895,7 @@ r @117 run-end tail=4 | pose
 @13 remove #9 op=windup/streak_c
 @13 remove #10 op=windup/streak_d
 @13 remove #11 op=windup/streak_e
-@14 trail #6 op=windup/trail_a root=-1.484750,0.655235,1.527390 tip=-2.218225,0.285070,0.974676
+@14 trail #6 op=windup/trail_a root=-2.218225,0.285070,0.974676 tip=-2.218225,0.285070,0.974676
 @14 write #23 op=windup/petal_10 dur=1 pos=-0.773616,1.150000,2.472250 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #24 op=windup/petal_11 dur=1 pos=-2.131410,0.600000,1.499164 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #25 op=windup/petal_12 dur=1 pos=-1.268997,1.130000,2.199124 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -1934,7 +1934,7 @@ r @117 run-end tail=4 | pose
 @14 remove #21 op=windup/petal_8
 @14 remove #22 op=windup/petal_9
 @15 spawn #47 op=windup/over_b0_m kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.079688,0.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@15 trail #6 op=windup/trail_a root=-1.720740,0.836495,1.824712 tip=-2.273990,0.618918,1.032831
+@15 trail #6 op=windup/trail_a root=-2.273990,0.618918,1.032831 tip=-2.273990,0.618918,1.032831
 @15 write #29 op=windup/petal_16 dur=1 pos=-1.972250,0.660000,1.869526 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #30 op=windup/petal_17 dur=1 pos=-1.788678,1.430000,2.057944 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #31 op=windup/petal_18 dur=1 pos=-1.070019,2.000000,2.649577 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -1963,7 +1963,7 @@ r @117 run-end tail=4 | pose
 @15 remove #26 op=windup/petal_13
 @15 remove #27 op=windup/petal_14
 @15 remove #28 op=windup/petal_15
-@16 trail #6 op=windup/trail_a root=-1.845442,1.398653,1.902219 tip=-2.367049,1.513041,1.068348
+@16 trail #6 op=windup/trail_a root=-2.367049,1.513041,1.068348 tip=-2.367049,1.513041,1.068348
 @16 write #35 op=windup/petal_22 dur=1 pos=-2.268427,1.710000,1.946854 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #36 op=windup/petal_23 dur=1 pos=-1.062601,1.940000,2.905595 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #37 op=windup/petal_24 dur=1 pos=-2.356504,1.180000,1.980654 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -1987,7 +1987,7 @@ r @117 run-end tail=4 | pose
 @16 remove #32 op=windup/petal_19
 @16 remove #33 op=windup/petal_20
 @16 remove #34 op=windup/petal_21
-@17 trail #6 op=windup/trail_a root=-1.552100,1.760485,1.459260 tip=-2.216735,2.112532,0.815193
+@17 trail #6 op=windup/trail_a root=-2.216735,2.112532,0.815193 tip=-2.216735,2.112532,0.815193
 @17 write #41 op=windup/petal_28 dur=1 pos=-1.278800,1.770000,2.993104 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #42 op=windup/petal_29 dur=1 pos=-2.141440,0.900000,2.393144 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #43 op=windup/wisp dur=1 pos=-2.253362,0.650000,2.358889 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -2004,7 +2004,7 @@ r @117 run-end tail=4 | pose
 @17 remove #38 op=windup/petal_25
 @17 remove #39 op=windup/petal_26
 @17 remove #40 op=windup/petal_27
-@18 trail #6 op=windup/trail_a root=-1.179952,1.609566,0.978706 tip=-2.044368,1.909036,0.599758
+@18 trail #6 op=windup/trail_a root=-2.044368,1.909036,0.599758 tip=-2.044368,1.909036,0.599758
 @18 write #47 op=windup/over_b0_m dur=1 pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.091162,0.428000,1.000000 bb=CENTER
 @18 sound - op=windup/snd_11 sound=item.trident.throw cat=master vol=0.5 pitch=1.2 at=0.000000,0.000000,0.000000
 @18 write #3 op=windup/piece_body_m dur=1 pos=-1.224822,1.649329,0.981067 rot=-0.282721,0.430530,0.844963,0.144053 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2016,20 +2016,20 @@ r @117 run-end tail=4 | pose
 @18 remove #44 op=windup/over_a0_m
 @18 remove #45 op=windup/over_a1_m
 @18 remove #46 op=windup/over_a2_m
-@19 trail #6 op=windup/trail_a root=-1.140432,1.679257,0.948115 tip=-2.096678,1.679257,0.691029
+@19 trail #6 op=windup/trail_a root=-2.096678,1.679257,0.691029 tip=-2.096678,1.679257,0.691029
 @19 write #47 op=windup/over_b0_m dur=1 pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.100088,0.372000,1.000000 bb=CENTER
 @19 write #3 op=windup/piece_body_m dur=1 pos=-1.197495,1.679257,0.966656 rot=0.317305,0.000000,-0.948324,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #4 op=windup/piece_a_m dur=1 pos=-1.197495,1.679257,0.966656 rot=0.587785,0.000000,-0.809017,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #5 op=windup/piece_b_m dur=1 pos=-1.197495,1.679257,0.966656 rot=0.017452,0.000000,-0.999848,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 effect 00000000-0000-0000-0000-000000000001 op=- held_model=astera:couture-rapier-hidden
-@20 trail #6 op=windup/trail_a root=-1.124663,1.737650,0.951019 tip=-1.989080,1.438180,0.572071
+@20 trail #6 op=windup/trail_a root=-1.989080,1.438180,0.572071 tip=-1.989080,1.438180,0.572071
 @20 write #47 op=windup/over_b0_m dur=1 pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.111562,0.300000,1.000000 bb=CENTER
 @20 sound - op=windup/whoosh[4] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=0.034096,1.697887,-0.643891
 @20 write #3 op=windup/piece_body_m dur=1 pos=-1.169534,1.697887,0.953380 rot=0.282721,0.430530,-0.844963,0.144053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #4 op=windup/piece_a_m dur=1 pos=-1.169534,1.697887,0.953380 rot=0.523720,0.453921,-0.720839,0.007923 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #5 op=windup/piece_b_m dur=1 pos=-1.169534,1.697887,0.953380 rot=0.015550,0.367286,-0.890871,0.266849 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@21 trail #6 op=windup/trail_a root=-1.122640,1.751965,0.974103 tip=-1.787275,1.399917,0.330036
+@21 trail #6 op=windup/trail_a root=-1.787275,1.399917,0.330036 tip=-1.787275,1.399917,0.330036
 @21 write #3 op=windup/piece_body_m dur=1 pos=-1.140984,1.705221,0.941262 rot=0.186507,0.767210,-0.557411,0.256705 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #4 op=windup/piece_a_m dur=1 pos=-1.140984,1.705221,0.941262 rot=0.345492,0.808894,-0.475528,0.014119 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #5 op=windup/piece_b_m dur=1 pos=-1.140984,1.705221,0.941262 rot=0.010258,0.654508,-0.587696,0.475528 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2041,12 +2041,12 @@ r @117 run-end tail=4 | pose
 @22 spawn #51 op=throw/fly_a_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=-1.323993,2.600000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #52 op=throw/fly_b_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=-1.323993,2.400000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #53 op=throw/thread_a kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=-1.323993,2.500000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@22 trail #6 op=windup/trail_a root=-1.112542,1.716449,0.988367 tip=-1.634150,1.602062,0.154496
+@22 trail #6 op=windup/trail_a root=-1.634150,1.602062,0.154496 tip=-1.634150,1.602062,0.154496
 @22 write #3 op=windup/piece_body_m dur=1 pos=-1.111896,1.701261,0.930325 rot=0.049637,0.936648,-0.148351,0.313398 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #4 op=windup/piece_a_m dur=1 pos=-1.111896,1.701261,0.930325 rot=0.091950,0.987538,-0.126558,0.017238 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #5 op=windup/piece_b_m dur=1 pos=-1.111896,1.701261,0.930325 rot=0.002730,0.799057,-0.156411,0.580549 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@23 trail #6 op=windup/trail_a root=-1.197802,1.772450,1.093627 tip=-1.751052,1.990027,0.301747
+@23 trail #6 op=windup/trail_a root=-1.751052,1.990027,0.301747 tip=-1.751052,1.990027,0.301747
 @23 write #3 op=windup/piece_body_m dur=1 pos=-1.201357,1.801339,1.041160 rot=-0.098053,0.901909,0.293048,0.301775 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #4 op=windup/piece_a_m dur=1 pos=-1.201357,1.801339,1.041160 rot=-0.181636,0.950912,0.250000,0.016598 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #5 op=windup/piece_b_m dur=1 pos=-1.201357,1.801339,1.041160 rot=-0.005393,0.769421,0.308970,0.559017 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2057,7 +2057,7 @@ r @117 run-end tail=4 | pose
 @23 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.450000,1.809117 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@24 trail #6 op=windup/trail_a root=-1.168167,1.749536,1.061012 tip=-1.901643,2.119701,0.508299
+@24 trail #6 op=windup/trail_a root=-1.901643,2.119701,0.508299 tip=-1.901643,2.119701,0.508299
 @24 write #48 op=windup/over_b1_m dur=3 pos=-1.254829,2.450000,1.809117 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #49 op=windup/over_b2_m dur=3 pos=-1.393157,2.550000,1.704879 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #50 op=throw/fly_body_m dur=3 pos=-1.323993,2.500000,1.756998 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.236060,0.236060,1.000000 bb=FIXED
@@ -2075,7 +2075,7 @@ r @117 run-end tail=4 | pose
 @24 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.550000,1.809117 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@25 trail #6 op=windup/trail_a root=-1.127068,1.763645,1.027071 tip=-2.040769,1.981223,0.713525
+@25 trail #6 op=windup/trail_a root=-2.040769,1.981223,0.713525 tip=-2.040769,1.981223,0.713525
 @25 write #3 op=windup/piece_body_m dur=1 pos=-1.178482,1.792534,1.038115 rot=-0.301775,0.293048,0.901909,0.098053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #4 op=windup/piece_a_m dur=1 pos=-1.178482,1.792534,1.038115 rot=-0.559017,0.308970,0.769421,0.005393 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #5 op=windup/piece_b_m dur=1 pos=-1.178482,1.792534,1.038115 rot=-0.016598,0.250000,0.950912,0.181636 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2086,7 +2086,7 @@ r @117 run-end tail=4 | pose
 @25 write #52 op=throw/fly_b_m dur=1 pos=-1.323993,2.600000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@26 trail #6 op=windup/trail_a root=-1.097000,1.798390,1.019324 tip=-2.042343,1.684003,0.747769
+@26 trail #6 op=windup/trail_a root=-2.042343,1.684003,0.747769 tip=-2.042343,1.684003,0.747769
 @26 write #3 op=windup/piece_body_m dur=1 pos=-1.152615,1.783202,1.035944 rot=0.313398,0.148351,-0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #4 op=windup/piece_a_m dur=1 pos=-1.152615,1.783202,1.035944 rot=0.580549,0.156411,-0.799057,0.002730 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #5 op=windup/piece_b_m dur=1 pos=-1.152615,1.783202,1.035944 rot=0.017238,0.126558,-0.987538,0.091950 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2097,7 +2097,7 @@ r @117 run-end tail=4 | pose
 @26 write #52 op=throw/fly_b_m dur=1 pos=-1.393157,2.550000,1.704879 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@27 trail #6 op=windup/trail_a root=-1.098704,1.821395,1.043818 tip=-1.901019,1.469347,0.582459
+@27 trail #6 op=windup/trail_a root=-1.901019,1.469347,0.582459 tip=-1.901019,1.469347,0.582459
 @27 write #48 op=windup/over_b1_m dur=2 pos=-1.393157,2.550000,1.704879 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #49 op=windup/over_b2_m dur=2 pos=-1.254829,2.450000,1.809117 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #50 op=throw/fly_body_m dur=2 pos=-1.323993,2.500000,1.756998 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
@@ -2114,7 +2114,7 @@ r @117 run-end tail=4 | pose
 @27 write #52 op=throw/fly_b_m dur=1 pos=-1.393157,2.450000,1.704879 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@28 trail #6 op=windup/trail_a root=-1.119465,1.807891,1.078916 tip=-1.721999,1.508421,0.352437
+@28 trail #6 op=windup/trail_a root=-1.721999,1.508421,0.352437 tip=-1.721999,1.508421,0.352437
 @28 sound - op=windup/whoosh[6] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=0.074066,1.768128,-0.562138
 @28 write #3 op=windup/piece_body_m dur=1 pos=-1.129564,1.768128,1.035133 rot=0.144053,0.844963,-0.430530,0.282721 scale=1.000000,1.000000,1.000000 bb=FIXED
 @28 write #4 op=windup/piece_a_m dur=1 pos=-1.129564,1.768128,1.035133 rot=0.266849,0.890871,-0.367286,0.015550 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2126,7 +2126,7 @@ r @117 run-end tail=4 | pose
 @28 write #52 op=throw/fly_b_m dur=1 pos=-1.323993,2.400000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@29 trail #6 op=windup/trail_a root=-1.121186,1.762311,1.095747 tip=-1.631891,1.762311,0.247406
+@29 trail #6 op=windup/trail_a root=-1.631891,1.762311,0.247406 tip=-1.631891,1.762311,0.247406
 @29 write #48 op=windup/over_b1_m dur=3 pos=-1.254829,2.550000,1.809117 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #49 op=windup/over_b2_m dur=3 pos=-1.393157,2.450000,1.704879 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #50 op=throw/fly_body_m dur=3 pos=-1.323993,2.500000,1.756998 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.103125,0.103125,1.000000 bb=FIXED
@@ -2143,7 +2143,7 @@ r @117 run-end tail=4 | pose
 @29 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.450000,1.809117 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@30 trail #6 op=windup/trail_a root=-1.077643,1.714662,1.082727 tip=-1.680177,2.014132,0.356249
+@30 trail #6 op=windup/trail_a root=-1.680177,2.014132,0.356249 tip=-1.680177,2.014132,0.356249
 @30 write #3 op=windup/piece_body_m dur=1 pos=-1.087742,1.754425,1.038944 rot=-0.144053,0.844963,0.430530,0.282721 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #4 op=windup/piece_a_m dur=1 pos=-1.087742,1.754425,1.038944 rot=-0.266849,0.890871,0.367286,0.015550 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #5 op=windup/piece_b_m dur=1 pos=-1.087742,1.754425,1.038944 rot=-0.007923,0.720839,0.453921,0.523720 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2154,7 +2154,7 @@ r @117 run-end tail=4 | pose
 @30 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.550000,1.809117 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@31 trail #6 op=windup/trail_a root=-1.004465,1.698176,1.055655 tip=-1.806780,2.050224,0.594296
+@31 trail #6 op=windup/trail_a root=-1.806780,2.050224,0.594296 tip=-1.806780,2.050224,0.594296
 @31 write #3 op=windup/piece_body_m dur=1 pos=-1.041090,1.744920,1.047073 rot=-0.256705,0.557411,0.767210,0.186507 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #4 op=windup/piece_a_m dur=1 pos=-1.041090,1.744920,1.047073 rot=-0.475528,0.587696,0.654508,0.010258 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #5 op=windup/piece_b_m dur=1 pos=-1.041090,1.744920,1.047073 rot=-0.014119,0.475528,0.808894,0.345492 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2165,7 +2165,7 @@ r @117 run-end tail=4 | pose
 @31 write #52 op=throw/fly_b_m dur=1 pos=-1.323993,2.600000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@32 trail #6 op=windup/trail_a root=-0.954780,1.723334,1.038109 tip=-1.900123,1.837721,0.766554
+@32 trail #6 op=windup/trail_a root=-1.900123,1.837721,0.766554 tip=-1.900123,1.837721,0.766554
 @32 sound - op=windup/whoosh[7] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=0.193234,1.738521,-0.542542
 @32 write #3 op=windup/piece_body_m dur=1 pos=-1.010396,1.738521,1.054729 rot=-0.313398,0.148351,0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @32 write #4 op=windup/piece_a_m dur=1 pos=-1.010396,1.738521,1.054729 rot=-0.580549,0.156411,0.799057,0.002730 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2183,7 +2183,7 @@ r @117 run-end tail=4 | pose
 @32 remove #51 op=throw/fly_a_m
 @32 remove #52 op=throw/fly_b_m
 @32 remove #53 op=throw/thread_a
-@33 trail #6 op=windup/trail_a root=-0.948844,1.765238,1.046629 tip=-1.862545,1.547661,0.733083
+@33 trail #6 op=windup/trail_a root=-1.862545,1.547661,0.733083 tip=-1.862545,1.547661,0.733083
 @33 sound - op=windup/snd_13 sound=block.amethyst_block.chime cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @33 write #3 op=windup/piece_body_m dur=1 pos=-1.000259,1.736349,1.057674 rot=0.301775,0.293048,-0.901909,0.098053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @33 write #4 op=windup/piece_a_m dur=1 pos=-1.000259,1.736349,1.057674 rot=0.559017,0.308970,-0.769421,0.005393 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2904,19 +2904,19 @@ r @98 run-end tail=4 | pose
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#d0203a alpha=0.349020
-@4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 trail #6 op=windup/trail_a root=-0.296095,0.858866,1.620136 tip=-0.836095,1.688866,1.620136
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=8 width=0.200000 color=#d0203a alpha=0.349020
+@4 trail_look #6 op=windup/trail_a fade=1.000000 style=soft
+@4 trail #6 op=windup/trail_a root=-0.836095,1.688866,1.620136 tip=-0.836095,1.688866,1.620136
 @4 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.046875,0.046875,9.000000 bb=FIXED
 @4 sound - op=windup/whoosh[0] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.296095,0.918866,-0.379864
 @4 write #0 op=windup/held_m dur=1 pos=-0.296095,1.718866,-0.379864 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @4 remove #0 op=windup/held_m
-@5 trail #6 op=windup/trail_a root=-0.286967,0.884010,1.572160 tip=-0.946945,1.317909,2.169371
+@5 trail #6 op=windup/trail_a root=-0.946945,1.317909,2.169371 tip=-0.946945,1.317909,2.169371
 @5 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.042969,0.042969,9.000000 bb=FIXED
 @5 write #3 op=windup/piece_body_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.000000,0.309017,0.951057,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #4 op=windup/piece_a_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.072550,-0.308117,-0.948285,0.023573 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #5 op=windup/piece_b_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.072550,0.308117,0.948285,0.023573 scale=1.000000,1.000000,1.000000 bb=FIXED
-@6 trail #6 op=windup/trail_a root=-0.278052,0.936549,1.565714 tip=-1.042645,0.742114,2.164122
+@6 trail #6 op=windup/trail_a root=-1.042645,0.742114,2.164122 tip=-1.042645,0.742114,2.164122
 @6 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.037500,0.037500,9.000000 bb=FIXED
 @6 write #3 op=windup/piece_body_m dur=1 pos=-0.296095,0.918866,1.620136 rot=0.000000,0.156434,-0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @6 write #4 op=windup/piece_a_m dur=1 pos=-0.296095,0.918866,1.620136 rot=-0.150250,-0.154614,0.976193,0.023797 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -2927,7 +2927,7 @@ r @98 run-end tail=4 | pose
 @7 spawn #10 op=windup/streak_d kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=0.000000,2.100000,1.200000 rot=0.000000,0.000000,-0.069756,0.997564 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #11 op=windup/streak_e kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=0.000000,2.500000,0.900000 rot=0.000000,0.000000,0.026177,0.999657 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #12 op=windup/core kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.000000,1.000000,-0.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@7 trail #6 op=windup/trail_a root=-0.269557,0.970045,1.603507 tip=-1.120968,0.489221,1.759736
+@7 trail #6 op=windup/trail_a root=-1.120968,0.489221,1.759736 tip=-1.120968,0.489221,1.759736
 @7 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.030469,0.030469,9.000000 bb=FIXED
 @7 write #2 op=windup/haze dur=4 pos=0.000000,0.900000,-0.100000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.800000,0.800000,1.000000 bb=CENTER
 @7 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,2.100000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.500000,0.200000,1.000000 bb=CENTER
@@ -2947,7 +2947,7 @@ r @98 run-end tail=4 | pose
 @8 spawn #16 op=windup/petal_3 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.710000,0.860000,0.720000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #17 op=windup/petal_4 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.160000,1.730000,0.760000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #18 op=windup/petal_5 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.480000,1.930000,0.800000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@8 trail #6 op=windup/trail_a root=-0.261680,0.958629,1.649025 tip=-1.180090,0.659159,1.431448
+@8 trail #6 op=windup/trail_a root=-1.180090,0.659159,1.431448 tip=-1.180090,0.659159,1.431448
 @8 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.021875,0.021875,9.000000 bb=FIXED
 @8 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,3.400000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.487500,0.195000,1.000000 bb=CENTER
 @8 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,4.000000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.487500,0.195000,1.000000 bb=CENTER
@@ -2987,7 +2987,7 @@ r @98 run-end tail=4 | pose
 @9 spawn #26 op=windup/petal_13 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.340000,1.920000,0.960000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #27 op=windup/petal_14 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.820000,1.750000,1.000000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #28 op=windup/petal_15 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.860000,0.880000,1.040000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@9 trail #6 op=windup/trail_a root=-0.095209,0.976271,1.561331 tip=-1.013620,0.976271,1.191166
+@9 trail #6 op=windup/trail_a root=-1.013620,0.976271,1.191166 tip=-1.013620,0.976271,1.191166
 @9 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.011719,0.011719,9.000000 bb=FIXED
 @9 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,4.700000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.450000,0.180000,1.000000 bb=CENTER
 @9 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,5.300000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.450000,0.180000,1.000000 bb=CENTER
@@ -3027,7 +3027,7 @@ r @98 run-end tail=4 | pose
 @10 spawn #32 op=windup/petal_19 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.890000,1.480000,1.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #33 op=windup/petal_20 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.580000,0.680000,1.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #34 op=windup/petal_21 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.040000,0.840000,1.280000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@10 trail #6 op=windup/trail_a root=-0.095209,0.936508,1.541071 tip=-1.013620,1.235978,1.323494
+@10 trail #6 op=windup/trail_a root=-1.013620,1.235978,1.323494 tip=-1.013620,1.235978,1.323494
 @10 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.121869,0.000000,0.000000,0.992546 scale=0.000000,0.000000,9.000000 bb=FIXED
 @10 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,6.000000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.387500,0.155000,1.000000 bb=CENTER
 @10 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,6.600000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.387500,0.155000,1.000000 bb=CENTER
@@ -3068,7 +3068,7 @@ r @98 run-end tail=4 | pose
 @11 spawn #38 op=windup/petal_25 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.120000,0.600000,1.440000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #39 op=windup/petal_26 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.520000,1.110000,1.480000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #40 op=windup/petal_27 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.880000,1.910000,1.520000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@11 trail #6 op=windup/trail_a root=-0.095209,0.929527,1.496994 tip=-1.013620,1.281575,1.611381
+@11 trail #6 op=windup/trail_a root=-1.013620,1.281575,1.611381 tip=-1.013620,1.281575,1.611381
 @11 write #7 op=windup/streak_a dur=1 pos=0.000000,0.900000,7.300000 rot=0.000000,0.000000,0.052336,0.998630 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #8 op=windup/streak_b dur=1 pos=0.000000,1.300000,7.900000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #9 op=windup/streak_c dur=1 pos=0.000000,1.700000,7.100000 rot=0.000000,0.000000,0.087156,0.996195 scale=0.300000,0.120000,1.000000 bb=CENTER
@@ -3117,7 +3117,7 @@ r @98 run-end tail=4 | pose
 @12 spawn #44 op=windup/over_a0_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.830000,1.410000,1.680000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #45 op=windup/over_a1_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.850000,2.000000,1.720000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #46 op=windup/over_a2_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.420000,1.500000,1.760000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@12 trail #6 op=windup/trail_a root=-0.095209,0.961083,1.465438 tip=-1.013620,1.075470,1.817486
+@12 trail #6 op=windup/trail_a root=-1.013620,1.075470,1.817486 tip=-1.013620,1.075470,1.817486
 @12 write #12 op=windup/core dur=3 pos=0.000000,1.000000,-0.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.650000,0.520000,1.000000 bb=CENTER
 @12 write #13 op=windup/petal_0 dur=1 pos=0.000000,2.000000,2.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.022773,0.022773,1.000000 bb=CENTER
 @12 write #14 op=windup/petal_1 dur=1 pos=0.610000,1.460000,2.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.022773,0.022773,1.000000 bb=CENTER
@@ -3159,7 +3159,7 @@ r @98 run-end tail=4 | pose
 @12 write #3 op=windup/piece_body_m dur=1 pos=-0.129624,0.976271,1.512182 rot=0.000000,0.156434,0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #4 op=windup/piece_a_m dur=1 pos=-0.129624,0.976271,1.512182 rot=0.297004,-0.149194,-0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #5 op=windup/piece_b_m dur=1 pos=-0.129624,0.976271,1.512182 rot=0.297004,0.149194,0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
-@13 trail #6 op=windup/trail_a root=-0.186008,0.703249,1.698851 tip=-1.104419,0.485672,1.998320
+@13 trail #6 op=windup/trail_a root=-1.104419,0.485672,1.998320 tip=-1.104419,0.485672,1.998320
 @13 write #13 op=windup/petal_0 dur=1 pos=0.000000,2.000000,2.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #14 op=windup/petal_1 dur=1 pos=0.610000,1.460000,2.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #15 op=windup/petal_2 dur=1 pos=-0.900000,0.670000,2.280000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -3203,7 +3203,7 @@ r @98 run-end tail=4 | pose
 @13 remove #9 op=windup/streak_c
 @13 remove #10 op=windup/streak_d
 @13 remove #11 op=windup/streak_e
-@14 trail #6 op=windup/trail_a root=-0.266568,0.655235,2.113372 tip=-1.184978,0.285070,2.113372
+@14 trail #6 op=windup/trail_a root=-1.184978,0.285070,2.113372 tip=-1.184978,0.285070,2.113372
 @14 write #23 op=windup/petal_10 dur=1 pos=0.870000,1.150000,2.440000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #24 op=windup/petal_11 dur=1 pos=-0.800000,0.600000,2.480000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #25 op=windup/petal_12 dur=1 pos=0.310000,1.130000,2.520000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -3242,7 +3242,7 @@ r @98 run-end tail=4 | pose
 @14 remove #21 op=windup/petal_8
 @14 remove #22 op=windup/petal_9
 @15 spawn #47 op=windup/over_b0_m kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.079688,0.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@15 trail #6 op=windup/trail_a root=-0.276105,0.836495,2.492847 tip=-1.194516,0.618918,2.193377
+@15 trail #6 op=windup/trail_a root=-1.194516,0.618918,2.193377 tip=-1.194516,0.618918,2.193377
 @15 write #29 op=windup/petal_16 dur=1 pos=-0.450000,0.660000,2.680000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #30 op=windup/petal_17 dur=1 pos=-0.190000,1.430000,2.720000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #31 op=windup/petal_18 dur=1 pos=0.740000,2.000000,2.760000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -3271,7 +3271,7 @@ r @98 run-end tail=4 | pose
 @15 remove #26 op=windup/petal_13
 @15 remove #27 op=windup/petal_14
 @15 remove #28 op=windup/petal_15
-@16 trail #6 op=windup/trail_a root=-0.329051,1.398653,2.629794 tip=-1.247462,1.513041,2.277746
+@16 trail #6 op=windup/trail_a root=-1.247462,1.513041,2.277746 tip=-1.247462,1.513041,2.277746
 @16 write #35 op=windup/petal_22 dur=1 pos=-0.640000,1.710000,2.920000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #36 op=windup/petal_23 dur=1 pos=0.900000,1.940000,2.960000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #37 op=windup/petal_24 dur=1 pos=-0.690000,1.180000,3.000000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -3295,7 +3295,7 @@ r @98 run-end tail=4 | pose
 @16 remove #32 op=windup/petal_19
 @16 remove #33 op=windup/petal_20
 @16 remove #34 op=windup/petal_21
-@17 trail #6 op=windup/trail_a root=-0.361358,1.760485,2.099494 tip=-1.279768,2.112532,1.985106
+@17 trail #6 op=windup/trail_a root=-1.279768,2.112532,1.985106 tip=-1.279768,2.112532,1.985106
 @17 write #41 op=windup/petal_28 dur=1 pos=0.780000,1.770000,3.160000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #42 op=windup/petal_29 dur=1 pos=-0.270000,0.900000,3.200000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #43 op=windup/wisp dur=1 pos=-0.380000,0.650000,3.240000 rot=0.000000,0.000000,0.342020,0.939693 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -3312,7 +3312,7 @@ r @98 run-end tail=4 | pose
 @17 remove #38 op=windup/petal_25
 @17 remove #39 op=windup/petal_26
 @17 remove #40 op=windup/petal_27
-@18 trail #6 op=windup/trail_a root=-0.353351,1.609566,1.491742 tip=-1.271762,1.909036,1.709319
+@18 trail #6 op=windup/trail_a root=-1.271762,1.909036,1.709319 tip=-1.271762,1.909036,1.709319
 @18 write #47 op=windup/over_b0_m dur=1 pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.091162,0.428000,1.000000 bb=CENTER
 @18 sound - op=windup/snd_11 sound=item.trident.throw cat=master vol=0.5 pitch=1.2 at=0.000000,0.000000,0.000000
 @18 write #3 op=windup/piece_body_m dur=1 pos=-0.387766,1.649329,1.520631 rot=0.000000,0.453990,0.891007,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3324,20 +3324,20 @@ r @98 run-end tail=4 | pose
 @18 remove #44 op=windup/over_a0_m
 @18 remove #45 op=windup/over_a1_m
 @18 remove #46 op=windup/over_a2_m
-@19 trail #6 op=windup/trail_a root=-0.340200,1.679257,1.443527 tip=-1.258610,1.679257,1.813692
+@19 trail #6 op=windup/trail_a root=-1.258610,1.679257,1.813692 tip=-1.258610,1.679257,1.813692
 @19 write #47 op=windup/over_b0_m dur=1 pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.100088,0.372000,1.000000 bb=CENTER
 @19 write #3 op=windup/piece_body_m dur=1 pos=-0.374614,1.679257,1.492677 rot=0.000000,0.000000,1.000000,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #4 op=windup/piece_a_m dur=1 pos=-0.374614,1.679257,1.492677 rot=0.300706,0.000000,-0.953717,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #5 op=windup/piece_b_m dur=1 pos=-0.374614,1.679257,1.492677 rot=0.300706,0.000000,0.953717,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 effect 00000000-0000-0000-0000-000000000001 op=- held_model=astera:couture-rapier-hidden
-@20 trail #6 op=windup/trail_a root=-0.325858,1.737650,1.436357 tip=-1.244269,1.438180,1.653934
+@20 trail #6 op=windup/trail_a root=-1.244269,1.438180,1.653934 tip=-1.244269,1.438180,1.653934
 @20 write #47 op=windup/over_b0_m dur=1 pos=0.000000,1.300000,-1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.111562,0.300000,1.000000 bb=CENTER
 @20 sound - op=windup/whoosh[4] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.360273,1.697887,-0.534754
 @20 write #3 op=windup/piece_body_m dur=1 pos=-0.360273,1.697887,1.465246 rot=0.000000,0.453990,-0.891007,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #4 op=windup/piece_a_m dur=1 pos=-0.360273,1.697887,1.465246 rot=-0.267931,-0.432978,0.849768,0.136518 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #5 op=windup/piece_b_m dur=1 pos=-0.360273,1.697887,1.465246 rot=-0.267931,0.432978,-0.849768,0.136518 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@21 trail #6 op=windup/trail_a root=-0.310351,1.751965,1.453574 tip=-1.228761,1.399917,1.339187
+@21 trail #6 op=windup/trail_a root=-1.228761,1.399917,1.339187 tip=-1.228761,1.399917,1.339187
 @21 write #3 op=windup/piece_body_m dur=1 pos=-0.344765,1.705221,1.438386 rot=0.000000,0.809017,-0.587785,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #4 op=windup/piece_a_m dur=1 pos=-0.344765,1.705221,1.438386 rot=-0.176750,-0.771573,0.560581,0.243276 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #5 op=windup/piece_b_m dur=1 pos=-0.344765,1.705221,1.438386 rot=-0.176750,0.771573,-0.560581,0.243276 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3349,12 +3349,12 @@ r @98 run-end tail=4 | pose
 @22 spawn #51 op=throw/fly_a_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=0.000000,2.600000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #52 op=throw/fly_b_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=0.000000,2.400000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #53 op=throw/thread_a kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@22 trail #6 op=windup/trail_a root=-0.293701,1.716449,1.458890 tip=-1.212112,1.602062,1.106842
+@22 trail #6 op=windup/trail_a root=-1.212112,1.602062,1.106842 tip=-1.212112,1.602062,1.106842
 @22 write #3 op=windup/piece_body_m dur=1 pos=-0.328116,1.701261,1.412146 rot=0.000000,0.987688,-0.156434,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #4 op=windup/piece_a_m dur=1 pos=-0.328116,1.701261,1.412146 rot=-0.047041,-0.941975,0.149194,0.297004 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #5 op=windup/piece_b_m dur=1 pos=-0.328116,1.701261,1.412146 rot=-0.047041,0.941975,-0.149194,0.297004 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@23 trail #6 op=windup/trail_a root=-0.298446,1.772450,1.594265 tip=-1.216857,1.990027,1.294795
+@23 trail #6 op=windup/trail_a root=-1.216857,1.990027,1.294795 tip=-1.216857,1.990027,1.294795
 @23 write #3 op=windup/piece_body_m dur=1 pos=-0.332861,1.801339,1.554502 rot=0.000000,0.951057,0.309017,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #4 op=windup/piece_a_m dur=1 pos=-0.332861,1.801339,1.554502 rot=0.092923,-0.907039,-0.294715,0.285988 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #5 op=windup/piece_b_m dur=1 pos=-0.332861,1.801339,1.554502 rot=0.092923,0.907039,0.294715,0.285988 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3365,7 +3365,7 @@ r @98 run-end tail=4 | pose
 @23 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@24 trail #6 op=windup/trail_a root=-0.294407,1.749536,1.550383 tip=-1.212818,2.119701,1.550383
+@24 trail #6 op=windup/trail_a root=-1.212818,2.119701,1.550383 tip=-1.212818,2.119701,1.550383
 @24 write #48 op=windup/over_b1_m dur=3 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #49 op=windup/over_b2_m dur=3 pos=-0.086603,2.550000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #50 op=throw/fly_body_m dur=3 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.236060,0.236060,1.000000 bb=FIXED
@@ -3383,7 +3383,7 @@ r @98 run-end tail=4 | pose
 @24 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.550000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@25 trail #6 op=windup/trail_a root=-0.282010,1.763645,1.498542 tip=-1.200420,1.981223,1.798011
+@25 trail #6 op=windup/trail_a root=-1.200420,1.981223,1.798011 tip=-1.200420,1.981223,1.798011
 @25 write #3 op=windup/piece_body_m dur=1 pos=-0.316425,1.792534,1.538304 rot=0.000000,0.309017,0.951057,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #4 op=windup/piece_a_m dur=1 pos=-0.316425,1.792534,1.538304 rot=0.285988,-0.294715,-0.907039,0.092923 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #5 op=windup/piece_b_m dur=1 pos=-0.316425,1.792534,1.538304 rot=0.285988,0.294715,0.907039,0.092923 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3394,7 +3394,7 @@ r @98 run-end tail=4 | pose
 @25 write #52 op=throw/fly_b_m dur=1 pos=0.000000,2.600000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@26 trail #6 op=windup/trail_a root=-0.262658,1.798390,1.474259 tip=-1.181069,1.684003,1.826307
+@26 trail #6 op=windup/trail_a root=-1.181069,1.684003,1.826307 tip=-1.181069,1.684003,1.826307
 @26 write #3 op=windup/piece_body_m dur=1 pos=-0.297073,1.783202,1.521003 rot=0.000000,0.156434,-0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #4 op=windup/piece_a_m dur=1 pos=-0.297073,1.783202,1.521003 rot=-0.297004,-0.149194,0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #5 op=windup/piece_b_m dur=1 pos=-0.297073,1.783202,1.521003 rot=-0.297004,0.149194,-0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3405,7 +3405,7 @@ r @98 run-end tail=4 | pose
 @26 write #52 op=throw/fly_b_m dur=1 pos=-0.086603,2.550000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.866025,0.500000 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@27 trail #6 op=windup/trail_a root=-0.249278,1.821395,1.494847 tip=-1.167689,1.469347,1.609234
+@27 trail #6 op=windup/trail_a root=-1.167689,1.469347,1.609234 tip=-1.167689,1.469347,1.609234
 @27 write #48 op=windup/over_b1_m dur=2 pos=-0.086603,2.550000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #49 op=windup/over_b2_m dur=2 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #50 op=throw/fly_body_m dur=2 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
@@ -3422,7 +3422,7 @@ r @98 run-end tail=4 | pose
 @27 write #52 op=throw/fly_b_m dur=1 pos=-0.086603,2.450000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@28 trail #6 op=windup/trail_a root=-0.244737,1.807891,1.535371 tip=-1.163147,1.508421,1.317794
+@28 trail #6 op=windup/trail_a root=-1.163147,1.508421,1.317794 tip=-1.163147,1.508421,1.317794
 @28 sound - op=windup/whoosh[6] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.279151,1.768128,-0.493518
 @28 write #3 op=windup/piece_body_m dur=1 pos=-0.279151,1.768128,1.506482 rot=0.000000,0.891007,-0.453990,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @28 write #4 op=windup/piece_a_m dur=1 pos=-0.279151,1.768128,1.506482 rot=-0.136518,-0.849768,0.432978,0.267931 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3434,7 +3434,7 @@ r @98 run-end tail=4 | pose
 @28 write #52 op=throw/fly_b_m dur=1 pos=0.000000,2.400000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@29 trail #6 op=windup/trail_a root=-0.235982,1.762311,1.549849 tip=-1.154393,1.762311,1.179684
+@29 trail #6 op=windup/trail_a root=-1.154393,1.762311,1.179684 tip=-1.154393,1.762311,1.179684
 @29 write #48 op=windup/over_b1_m dur=3 pos=0.086603,2.550000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #49 op=windup/over_b2_m dur=3 pos=-0.086603,2.450000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #50 op=throw/fly_body_m dur=3 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.103125,0.103125,1.000000 bb=FIXED
@@ -3451,7 +3451,7 @@ r @98 run-end tail=4 | pose
 @29 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.450000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@30 trail #6 op=windup/trail_a root=-0.209042,1.714662,1.513246 tip=-1.127453,2.014132,1.295669
+@30 trail #6 op=windup/trail_a root=-1.127453,2.014132,1.295669 tip=-1.127453,2.014132,1.295669
 @30 write #3 op=windup/piece_body_m dur=1 pos=-0.243457,1.754425,1.484357 rot=0.000000,0.891007,0.453990,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #4 op=windup/piece_a_m dur=1 pos=-0.243457,1.754425,1.484357 rot=0.136518,-0.849768,-0.432978,0.267931 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #5 op=windup/piece_b_m dur=1 pos=-0.243457,1.754425,1.484357 rot=0.136518,0.849768,0.432978,0.267931 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3462,7 +3462,7 @@ r @98 run-end tail=4 | pose
 @30 write #52 op=throw/fly_b_m dur=1 pos=0.086603,2.550000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@31 trail #6 op=windup/trail_a root=-0.166892,1.698176,1.447586 tip=-1.085303,2.050224,1.561973
+@31 trail #6 op=windup/trail_a root=-1.085303,2.050224,1.561973 tip=-1.085303,2.050224,1.561973
 @31 write #3 op=windup/piece_body_m dur=1 pos=-0.201307,1.744920,1.462774 rot=0.000000,0.587785,0.809017,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #4 op=windup/piece_a_m dur=1 pos=-0.201307,1.744920,1.462774 rot=0.243276,-0.560581,-0.771573,0.176750 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #5 op=windup/piece_b_m dur=1 pos=-0.201307,1.744920,1.462774 rot=0.243276,0.560581,0.771573,0.176750 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3473,7 +3473,7 @@ r @98 run-end tail=4 | pose
 @31 write #52 op=throw/fly_b_m dur=1 pos=0.000000,2.600000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 write #53 op=throw/thread_a dur=1 pos=0.000000,2.500000,2.200000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@32 trail #6 op=windup/trail_a root=-0.137771,1.723334,1.403672 tip=-1.056182,1.837721,1.755720
+@32 trail #6 op=windup/trail_a root=-1.056182,1.837721,1.755720 tip=-1.056182,1.837721,1.755720
 @32 sound - op=windup/whoosh[7] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.172186,1.738521,-0.549585
 @32 write #3 op=windup/piece_body_m dur=1 pos=-0.172186,1.738521,1.450415 rot=0.000000,0.156434,0.987688,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @32 write #4 op=windup/piece_a_m dur=1 pos=-0.172186,1.738521,1.450415 rot=0.297004,-0.149194,-0.941975,0.047041 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -3491,7 +3491,7 @@ r @98 run-end tail=4 | pose
 @32 remove #51 op=throw/fly_a_m
 @32 remove #52 op=throw/fly_b_m
 @32 remove #53 op=throw/thread_a
-@33 trail #6 op=windup/trail_a root=-0.127904,1.765238,1.406904 tip=-1.046314,1.547661,1.706374
+@33 trail #6 op=windup/trail_a root=-1.046314,1.547661,1.706374 tip=-1.046314,1.547661,1.706374
 @33 sound - op=windup/snd_13 sound=block.amethyst_block.chime cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @33 write #3 op=windup/piece_body_m dur=1 pos=-0.162318,1.736349,1.446667 rot=0.000000,0.309017,-0.951057,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @33 write #4 op=windup/piece_a_m dur=1 pos=-0.162318,1.736349,1.446667 rot=-0.285988,-0.294715,0.907039,0.092923 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -4485,19 +4485,19 @@ r @117 run-end tail=4 | pose
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#d0203a alpha=0.349020
-@4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 trail #6 op=windup/trail_a root=-1.211494,0.858866,1.115704 tip=-1.642757,1.688866,0.790724
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=8 width=0.200000 color=#d0203a alpha=0.349020
+@4 trail_look #6 op=windup/trail_a fade=1.000000 style=soft
+@4 trail #6 op=windup/trail_a root=-1.642757,1.688866,0.790724 tip=-1.642757,1.688866,0.790724
 @4 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.046875,0.046875,9.000000 bb=FIXED
 @4 sound - op=windup/whoosh[0] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=-0.007864,0.918866,-0.481567
 @4 write #0 op=windup/held_m dur=1 pos=-0.007864,1.718866,-0.481567 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED
 @4 remove #0 op=windup/held_m
-@5 trail #6 op=windup/trail_a root=-1.175332,0.884010,1.082882 tip=-2.061824,1.317909,1.162651
+@5 trail #6 op=windup/trail_a root=-2.061824,1.317909,1.162651 tip=-2.061824,1.317909,1.162651
 @5 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.042969,0.042969,9.000000 bb=FIXED
 @5 write #3 op=windup/piece_body_m dur=1 pos=-1.211494,0.918866,1.115704 rot=-0.301775,0.293048,0.901909,0.098053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #4 op=windup/piece_a_m dur=1 pos=-1.211494,0.918866,1.115704 rot=-0.369697,0.299674,0.876261,0.075412 scale=1.000000,1.000000,1.000000 bb=FIXED
 @5 write #5 op=windup/piece_b_m dur=1 pos=-1.211494,0.918866,1.115704 rot=-0.232094,0.284714,0.922302,0.120122 scale=1.000000,1.000000,1.000000 bb=FIXED
-@6 trail #6 op=windup/trail_a root=-1.164332,0.936549,1.083099 tip=-2.135095,0.742114,1.100865
+@6 trail #6 op=windup/trail_a root=-2.135095,0.742114,1.100865 tip=-2.135095,0.742114,1.100865
 @6 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.037500,0.037500,9.000000 bb=FIXED
 @6 write #3 op=windup/piece_body_m dur=1 pos=-1.211494,0.918866,1.115704 rot=0.313398,0.148351,-0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @6 write #4 op=windup/piece_a_m dur=1 pos=-1.211494,0.918866,1.115704 rot=0.452237,0.154175,-0.878072,0.026492 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -4508,7 +4508,7 @@ r @117 run-end tail=4 | pose
 @7 spawn #10 op=windup/streak_d kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=-0.722178,2.100000,0.958363 rot=0.022134,-0.316532,-0.066152,0.946014 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #11 op=windup/streak_e kind=sprite sprite=couture-s2-streak alpha=1.000000 tint=- seethrough=false pos=-0.541634,2.500000,0.718772 rot=-0.008306,-0.317196,0.024824,0.947999 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @7 spawn #12 op=windup/core kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.120363,1.000000,-0.159727 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.400000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@7 trail #6 op=windup/trail_a root=-1.180293,0.970045,1.118394 tip=-1.954281,0.489221,0.730772
+@7 trail #6 op=windup/trail_a root=-1.954281,0.489221,0.730772 tip=-1.954281,0.489221,0.730772
 @7 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.030469,0.030469,9.000000 bb=FIXED
 @7 write #2 op=windup/haze dur=4 pos=0.060182,0.900000,-0.079864 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.800000,0.800000,1.000000 bb=CENTER
 @7 write #7 op=windup/streak_a dur=1 pos=-1.263812,0.900000,1.677135 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.500000,0.200000,1.000000 bb=CENTER
@@ -4528,7 +4528,7 @@ r @117 run-end tail=4 | pose
 @8 spawn #16 op=windup/petal_3 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.133724,0.860000,1.002306 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #17 op=windup/petal_4 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.585161,1.730000,0.510673 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @8 spawn #18 op=windup/petal_5 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.864797,1.930000,0.350037 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@8 trail #6 op=windup/trail_a root=-1.201395,0.958629,1.159487 tip=-1.803929,0.659159,0.433009
+@8 trail #6 op=windup/trail_a root=-1.803929,0.659159,0.433009 tip=-1.803929,0.659159,0.433009
 @8 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.021875,0.021875,9.000000 bb=FIXED
 @8 write #7 op=windup/streak_a dur=1 pos=-2.046171,0.900000,2.715361 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.487500,0.195000,1.000000 bb=CENTER
 @8 write #8 op=windup/streak_b dur=1 pos=-2.407260,1.300000,3.194542 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.487500,0.195000,1.000000 bb=CENTER
@@ -4568,7 +4568,7 @@ r @117 run-end tail=4 | pose
 @9 spawn #26 op=windup/petal_13 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.306206,1.920000,0.971307 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #27 op=windup/petal_14 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.256696,1.750000,0.305147 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @9 spawn #28 op=windup/petal_15 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=0.060939,0.880000,1.348142 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@9 trail #6 op=windup/trail_a root=-1.015670,0.976271,1.189636 tip=-1.526374,0.976271,0.341296
+@9 trail #6 op=windup/trail_a root=-1.526374,0.976271,0.341296 tip=-1.526374,0.976271,0.341296
 @9 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.011719,0.011719,9.000000 bb=FIXED
 @9 write #7 op=windup/streak_a dur=1 pos=-2.828531,0.900000,3.753587 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.450000,0.180000,1.000000 bb=CENTER
 @9 write #8 op=windup/streak_b dur=1 pos=-3.189620,1.300000,4.232768 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.450000,0.180000,1.000000 bb=CENTER
@@ -4608,7 +4608,7 @@ r @117 run-end tail=4 | pose
 @10 spawn #32 op=windup/petal_19 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.432964,1.480000,0.422747 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #33 op=windup/petal_20 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.283042,0.680000,1.339361 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 spawn #34 op=windup/petal_21 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.738378,0.840000,1.046326 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@10 trail #6 op=windup/trail_a root=-1.003477,0.936508,1.173456 tip=-1.606011,1.235978,0.446977
+@10 trail #6 op=windup/trail_a root=-1.606011,1.235978,0.446977 tip=-1.606011,1.235978,0.446977
 @10 write #1 op=windup/line dur=1 pos=0.000000,0.800000,0.000000 rot=-0.115572,-0.314940,-0.038670,0.941255 scale=0.000000,0.000000,9.000000 bb=FIXED
 @10 write #7 op=windup/streak_a dur=1 pos=-3.610890,0.900000,4.791813 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.387500,0.155000,1.000000 bb=CENTER
 @10 write #8 op=windup/streak_b dur=1 pos=-3.971979,1.300000,5.270994 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.387500,0.155000,1.000000 bb=CENTER
@@ -4649,7 +4649,7 @@ r @117 run-end tail=4 | pose
 @11 spawn #38 op=windup/petal_25 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.770777,0.600000,1.222253 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #39 op=windup/petal_26 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.475396,1.110000,1.494924 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @11 spawn #40 op=windup/petal_27 kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.617558,1.910000,0.684329 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@11 trail #6 op=windup/trail_a root=-0.976951,0.929527,1.138254 tip=-1.779266,1.281575,0.676895
+@11 trail #6 op=windup/trail_a root=-1.779266,1.281575,0.676895 tip=-1.779266,1.281575,0.676895
 @11 write #7 op=windup/streak_a dur=1 pos=-4.393250,0.900000,5.830039 rot=-0.016606,-0.316870,0.049631,0.947024 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #8 op=windup/streak_b dur=1 pos=-4.754339,1.300000,6.309221 rot=0.011074,-0.317111,-0.033096,0.947746 scale=0.300000,0.120000,1.000000 bb=CENTER
 @11 write #9 op=windup/streak_c dur=1 pos=-4.272887,1.700000,5.670312 rot=-0.027655,-0.316097,0.082652,0.944715 scale=0.300000,0.120000,1.000000 bb=CENTER
@@ -4698,7 +4698,7 @@ r @117 run-end tail=4 | pose
 @12 spawn #44 op=windup/over_a0_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.348182,1.410000,1.841214 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #45 op=windup/over_a1_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-1.713962,2.000000,0.862110 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #46 op=windup/over_a2_m kind=sprite sprite=couture-s2-petal-spark alpha=1.000000 tint=- seethrough=false pos=-0.723768,1.500000,1.658361 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.034375,0.034375,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@12 trail #6 op=windup/trail_a root=-0.957960,0.961083,1.113053 tip=-1.903303,1.075470,0.841497
+@12 trail #6 op=windup/trail_a root=-1.903303,1.075470,0.841497 tip=-1.903303,1.075470,0.841497
 @12 write #12 op=windup/core dur=3 pos=0.120363,1.000000,-0.159727 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.650000,0.520000,1.000000 bb=CENTER
 @12 write #13 op=windup/petal_0 dur=1 pos=-1.323993,2.000000,1.756998 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.022773,0.022773,1.000000 bb=CENTER
 @12 write #14 op=windup/petal_1 dur=1 pos=-0.860898,1.460000,2.156051 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.022773,0.022773,1.000000 bb=CENTER
@@ -4740,7 +4740,7 @@ r @117 run-end tail=4 | pose
 @12 write #3 op=windup/piece_body_m dur=1 pos=-1.013576,0.976271,1.129673 rot=-0.313398,0.148351,0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #4 op=windup/piece_a_m dur=1 pos=-1.013576,0.976271,1.129673 rot=-0.580549,0.156411,0.799057,0.002730 scale=1.000000,1.000000,1.000000 bb=FIXED
 @12 write #5 op=windup/piece_b_m dur=1 pos=-1.013576,0.976271,1.129673 rot=-0.017238,0.126558,0.987538,0.091950 scale=1.000000,1.000000,1.000000 bb=FIXED
-@13 trail #6 op=windup/trail_a root=-1.170947,0.703249,1.244820 tip=-2.084647,0.485672,0.931274
+@13 trail #6 op=windup/trail_a root=-2.084647,0.485672,0.931274 tip=-2.084647,0.485672,0.931274
 @13 write #13 op=windup/petal_0 dur=1 pos=-1.323993,2.000000,1.756998 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #14 op=windup/petal_1 dur=1 pos=-0.860898,1.460000,2.156051 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @13 write #15 op=windup/petal_2 dur=1 pos=-2.090910,0.670000,1.279255 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -4784,7 +4784,7 @@ r @117 run-end tail=4 | pose
 @13 remove #9 op=windup/streak_c
 @13 remove #10 op=windup/streak_d
 @13 remove #11 op=windup/streak_e
-@14 trail #6 op=windup/trail_a root=-1.484750,0.655235,1.527390 tip=-2.218225,0.285070,0.974676
+@14 trail #6 op=windup/trail_a root=-2.218225,0.285070,0.974676 tip=-2.218225,0.285070,0.974676
 @14 write #23 op=windup/petal_10 dur=1 pos=-0.773616,1.150000,2.472250 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #24 op=windup/petal_11 dur=1 pos=-2.131410,0.600000,1.499164 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @14 write #25 op=windup/petal_12 dur=1 pos=-1.268997,1.130000,2.199124 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -4823,7 +4823,7 @@ r @117 run-end tail=4 | pose
 @14 remove #21 op=windup/petal_8
 @14 remove #22 op=windup/petal_9
 @15 spawn #47 op=windup/over_b0_m kind=sprite sprite=couture-s2-crescent-core alpha=1.000000 tint=- seethrough=false pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.079688,0.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@15 trail #6 op=windup/trail_a root=-1.720740,0.836495,1.824712 tip=-2.273990,0.618918,1.032831
+@15 trail #6 op=windup/trail_a root=-2.273990,0.618918,1.032831 tip=-2.273990,0.618918,1.032831
 @15 write #29 op=windup/petal_16 dur=1 pos=-1.972250,0.660000,1.869526 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #30 op=windup/petal_17 dur=1 pos=-1.788678,1.430000,2.057944 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @15 write #31 op=windup/petal_18 dur=1 pos=-1.070019,2.000000,2.649577 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -4852,7 +4852,7 @@ r @117 run-end tail=4 | pose
 @15 remove #26 op=windup/petal_13
 @15 remove #27 op=windup/petal_14
 @15 remove #28 op=windup/petal_15
-@16 trail #6 op=windup/trail_a root=-1.845442,1.398653,1.902219 tip=-2.367049,1.513041,1.068348
+@16 trail #6 op=windup/trail_a root=-2.367049,1.513041,1.068348 tip=-2.367049,1.513041,1.068348
 @16 write #35 op=windup/petal_22 dur=1 pos=-2.268427,1.710000,1.946854 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #36 op=windup/petal_23 dur=1 pos=-1.062601,1.940000,2.905595 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @16 write #37 op=windup/petal_24 dur=1 pos=-2.356504,1.180000,1.980654 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -4876,7 +4876,7 @@ r @117 run-end tail=4 | pose
 @16 remove #32 op=windup/petal_19
 @16 remove #33 op=windup/petal_20
 @16 remove #34 op=windup/petal_21
-@17 trail #6 op=windup/trail_a root=-1.552100,1.760485,1.459260 tip=-2.216735,2.112532,0.815193
+@17 trail #6 op=windup/trail_a root=-2.216735,2.112532,0.815193 tip=-2.216735,2.112532,0.815193
 @17 write #41 op=windup/petal_28 dur=1 pos=-1.278800,1.770000,2.993104 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #42 op=windup/petal_29 dur=1 pos=-2.141440,0.900000,2.393144 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
 @17 write #43 op=windup/wisp dur=1 pos=-2.253362,0.650000,2.358889 rot=-0.108525,-0.298169,0.324346,0.891133 scale=0.013750,0.013750,1.000000 bb=CENTER
@@ -4893,7 +4893,7 @@ r @117 run-end tail=4 | pose
 @17 remove #38 op=windup/petal_25
 @17 remove #39 op=windup/petal_26
 @17 remove #40 op=windup/petal_27
-@18 trail #6 op=windup/trail_a root=-1.179952,1.609566,0.978706 tip=-2.044368,1.909036,0.599758
+@18 trail #6 op=windup/trail_a root=-2.044368,1.909036,0.599758 tip=-2.044368,1.909036,0.599758
 @18 write #47 op=windup/over_b0_m dur=1 pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.091162,0.428000,1.000000 bb=CENTER
 @18 sound - op=windup/snd_11 sound=item.trident.throw cat=master vol=0.5 pitch=1.2 at=0.000000,0.000000,0.000000
 @18 write #3 op=windup/piece_body_m dur=1 pos=-1.224822,1.649329,0.981067 rot=-0.282721,0.430530,0.844963,0.144053 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -4905,20 +4905,20 @@ r @117 run-end tail=4 | pose
 @18 remove #44 op=windup/over_a0_m
 @18 remove #45 op=windup/over_a1_m
 @18 remove #46 op=windup/over_a2_m
-@19 trail #6 op=windup/trail_a root=-1.140432,1.679257,0.948115 tip=-2.096678,1.679257,0.691029
+@19 trail #6 op=windup/trail_a root=-2.096678,1.679257,0.691029 tip=-2.096678,1.679257,0.691029
 @19 write #47 op=windup/over_b0_m dur=1 pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.100088,0.372000,1.000000 bb=CENTER
 @19 write #3 op=windup/piece_body_m dur=1 pos=-1.197495,1.679257,0.966656 rot=0.317305,0.000000,-0.948324,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #4 op=windup/piece_a_m dur=1 pos=-1.197495,1.679257,0.966656 rot=0.587785,0.000000,-0.809017,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @19 write #5 op=windup/piece_b_m dur=1 pos=-1.197495,1.679257,0.966656 rot=0.017452,0.000000,-0.999848,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 effect 00000000-0000-0000-0000-000000000001 op=- held_model=astera:couture-rapier-hidden
-@20 trail #6 op=windup/trail_a root=-1.124663,1.737650,0.951019 tip=-1.989080,1.438180,0.572071
+@20 trail #6 op=windup/trail_a root=-1.989080,1.438180,0.572071 tip=-1.989080,1.438180,0.572071
 @20 write #47 op=windup/over_b0_m dur=1 pos=0.962904,1.300000,-1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.111562,0.300000,1.000000 bb=CENTER
 @20 sound - op=windup/whoosh[4] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=0.034096,1.697887,-0.643891
 @20 write #3 op=windup/piece_body_m dur=1 pos=-1.169534,1.697887,0.953380 rot=0.282721,0.430530,-0.844963,0.144053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #4 op=windup/piece_a_m dur=1 pos=-1.169534,1.697887,0.953380 rot=0.523720,0.453921,-0.720839,0.007923 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 write #5 op=windup/piece_b_m dur=1 pos=-1.169534,1.697887,0.953380 rot=0.015550,0.367286,-0.890871,0.266849 scale=1.000000,1.000000,1.000000 bb=FIXED
 @20 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@21 trail #6 op=windup/trail_a root=-1.122640,1.751965,0.974103 tip=-1.787275,1.399917,0.330036
+@21 trail #6 op=windup/trail_a root=-1.787275,1.399917,0.330036 tip=-1.787275,1.399917,0.330036
 @21 write #3 op=windup/piece_body_m dur=1 pos=-1.140984,1.705221,0.941262 rot=0.186507,0.767210,-0.557411,0.256705 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #4 op=windup/piece_a_m dur=1 pos=-1.140984,1.705221,0.941262 rot=0.345492,0.808894,-0.475528,0.014119 scale=1.000000,1.000000,1.000000 bb=FIXED
 @21 write #5 op=windup/piece_b_m dur=1 pos=-1.140984,1.705221,0.941262 rot=0.010258,0.654508,-0.587696,0.475528 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -4930,12 +4930,12 @@ r @117 run-end tail=4 | pose
 @22 spawn #51 op=throw/fly_a_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=-1.323993,2.600000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #52 op=throw/fly_b_m kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=-1.323993,2.400000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @22 spawn #53 op=throw/thread_a kind=sprite sprite=couture-s2-overhead-slash alpha=1.000000 tint=- seethrough=false pos=-1.323993,2.500000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.257812,0.257812,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@22 trail #6 op=windup/trail_a root=-1.112542,1.716449,0.988367 tip=-1.634150,1.602062,0.154496
+@22 trail #6 op=windup/trail_a root=-1.634150,1.602062,0.154496 tip=-1.634150,1.602062,0.154496
 @22 write #3 op=windup/piece_body_m dur=1 pos=-1.111896,1.701261,0.930325 rot=0.049637,0.936648,-0.148351,0.313398 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #4 op=windup/piece_a_m dur=1 pos=-1.111896,1.701261,0.930325 rot=0.091950,0.987538,-0.126558,0.017238 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #5 op=windup/piece_b_m dur=1 pos=-1.111896,1.701261,0.930325 rot=0.002730,0.799057,-0.156411,0.580549 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@23 trail #6 op=windup/trail_a root=-1.197802,1.772450,1.093627 tip=-1.751052,1.990027,0.301747
+@23 trail #6 op=windup/trail_a root=-1.751052,1.990027,0.301747 tip=-1.751052,1.990027,0.301747
 @23 write #3 op=windup/piece_body_m dur=1 pos=-1.201357,1.801339,1.041160 rot=-0.098053,0.901909,0.293048,0.301775 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #4 op=windup/piece_a_m dur=1 pos=-1.201357,1.801339,1.041160 rot=-0.181636,0.950912,0.250000,0.016598 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #5 op=windup/piece_b_m dur=1 pos=-1.201357,1.801339,1.041160 rot=-0.005393,0.769421,0.308970,0.559017 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -4946,7 +4946,7 @@ r @117 run-end tail=4 | pose
 @23 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.450000,1.809117 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.257812,0.257812,1.000000 bb=FIXED
 @23 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@24 trail #6 op=windup/trail_a root=-1.168167,1.749536,1.061012 tip=-1.901643,2.119701,0.508299
+@24 trail #6 op=windup/trail_a root=-1.901643,2.119701,0.508299 tip=-1.901643,2.119701,0.508299
 @24 write #48 op=windup/over_b1_m dur=3 pos=-1.254829,2.450000,1.809117 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #49 op=windup/over_b2_m dur=3 pos=-1.393157,2.550000,1.704879 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.236060,0.236060,1.000000 bb=FIXED
 @24 write #50 op=throw/fly_body_m dur=3 pos=-1.323993,2.500000,1.756998 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.236060,0.236060,1.000000 bb=FIXED
@@ -4964,7 +4964,7 @@ r @117 run-end tail=4 | pose
 @24 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.550000,1.809117 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.257812,0.257812,1.000000 bb=FIXED
 @24 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@25 trail #6 op=windup/trail_a root=-1.127068,1.763645,1.027071 tip=-2.040769,1.981223,0.713525
+@25 trail #6 op=windup/trail_a root=-2.040769,1.981223,0.713525 tip=-2.040769,1.981223,0.713525
 @25 write #3 op=windup/piece_body_m dur=1 pos=-1.178482,1.792534,1.038115 rot=-0.301775,0.293048,0.901909,0.098053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #4 op=windup/piece_a_m dur=1 pos=-1.178482,1.792534,1.038115 rot=-0.559017,0.308970,0.769421,0.005393 scale=1.000000,1.000000,1.000000 bb=FIXED
 @25 write #5 op=windup/piece_b_m dur=1 pos=-1.178482,1.792534,1.038115 rot=-0.016598,0.250000,0.950912,0.181636 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -4975,7 +4975,7 @@ r @117 run-end tail=4 | pose
 @25 write #52 op=throw/fly_b_m dur=1 pos=-1.323993,2.600000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.250562,0.250562,1.000000 bb=FIXED
 @25 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@26 trail #6 op=windup/trail_a root=-1.097000,1.798390,1.019324 tip=-2.042343,1.684003,0.747769
+@26 trail #6 op=windup/trail_a root=-2.042343,1.684003,0.747769 tip=-2.042343,1.684003,0.747769
 @26 write #3 op=windup/piece_body_m dur=1 pos=-1.152615,1.783202,1.035944 rot=0.313398,0.148351,-0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #4 op=windup/piece_a_m dur=1 pos=-1.152615,1.783202,1.035944 rot=0.580549,0.156411,-0.799057,0.002730 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #5 op=windup/piece_b_m dur=1 pos=-1.152615,1.783202,1.035944 rot=0.017238,0.126558,-0.987538,0.091950 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -4986,7 +4986,7 @@ r @117 run-end tail=4 | pose
 @26 write #52 op=throw/fly_b_m dur=1 pos=-1.393157,2.550000,1.704879 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.274794,-0.158652,-0.821272,0.474162 scale=0.243311,0.243311,1.000000 bb=FIXED
 @26 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@27 trail #6 op=windup/trail_a root=-1.098704,1.821395,1.043818 tip=-1.901019,1.469347,0.582459
+@27 trail #6 op=windup/trail_a root=-1.901019,1.469347,0.582459 tip=-1.901019,1.469347,0.582459
 @27 write #48 op=windup/over_b1_m dur=2 pos=-1.393157,2.550000,1.704879 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #49 op=windup/over_b2_m dur=2 pos=-1.254829,2.450000,1.809117 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @27 write #50 op=throw/fly_body_m dur=2 pos=-1.323993,2.500000,1.756998 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
@@ -5003,7 +5003,7 @@ r @117 run-end tail=4 | pose
 @27 write #52 op=throw/fly_b_m dur=1 pos=-1.393157,2.450000,1.704879 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.236060,0.236060,1.000000 bb=FIXED
 @27 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@28 trail #6 op=windup/trail_a root=-1.119465,1.807891,1.078916 tip=-1.721999,1.508421,0.352437
+@28 trail #6 op=windup/trail_a root=-1.721999,1.508421,0.352437 tip=-1.721999,1.508421,0.352437
 @28 sound - op=windup/whoosh[6] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=0.074066,1.768128,-0.562138
 @28 write #3 op=windup/piece_body_m dur=1 pos=-1.129564,1.768128,1.035133 rot=0.144053,0.844963,-0.430530,0.282721 scale=1.000000,1.000000,1.000000 bb=FIXED
 @28 write #4 op=windup/piece_a_m dur=1 pos=-1.129564,1.768128,1.035133 rot=0.266849,0.890871,-0.367286,0.015550 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -5015,7 +5015,7 @@ r @117 run-end tail=4 | pose
 @28 write #52 op=throw/fly_b_m dur=1 pos=-1.323993,2.400000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.216724,0.216724,1.000000 bb=FIXED
 @28 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@29 trail #6 op=windup/trail_a root=-1.121186,1.762311,1.095747 tip=-1.631891,1.762311,0.247406
+@29 trail #6 op=windup/trail_a root=-1.631891,1.762311,0.247406 tip=-1.631891,1.762311,0.247406
 @29 write #48 op=windup/over_b1_m dur=3 pos=-1.254829,2.550000,1.809117 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #49 op=windup/over_b2_m dur=3 pos=-1.393157,2.450000,1.704879 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.103125,0.103125,1.000000 bb=FIXED
 @29 write #50 op=throw/fly_body_m dur=3 pos=-1.323993,2.500000,1.756998 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.103125,0.103125,1.000000 bb=FIXED
@@ -5032,7 +5032,7 @@ r @117 run-end tail=4 | pose
 @29 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.450000,1.809117 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.197388,0.197388,1.000000 bb=FIXED
 @29 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@30 trail #6 op=windup/trail_a root=-1.077643,1.714662,1.082727 tip=-1.680177,2.014132,0.356249
+@30 trail #6 op=windup/trail_a root=-1.680177,2.014132,0.356249 tip=-1.680177,2.014132,0.356249
 @30 write #3 op=windup/piece_body_m dur=1 pos=-1.087742,1.754425,1.038944 rot=-0.144053,0.844963,0.430530,0.282721 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #4 op=windup/piece_a_m dur=1 pos=-1.087742,1.754425,1.038944 rot=-0.266849,0.890871,0.367286,0.015550 scale=1.000000,1.000000,1.000000 bb=FIXED
 @30 write #5 op=windup/piece_b_m dur=1 pos=-1.087742,1.754425,1.038944 rot=-0.007923,0.720839,0.453921,0.523720 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -5043,7 +5043,7 @@ r @117 run-end tail=4 | pose
 @30 write #52 op=throw/fly_b_m dur=1 pos=-1.254829,2.550000,1.809117 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.165967,0.165967,1.000000 bb=FIXED
 @30 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@31 trail #6 op=windup/trail_a root=-1.004465,1.698176,1.055655 tip=-1.806780,2.050224,0.594296
+@31 trail #6 op=windup/trail_a root=-1.806780,2.050224,0.594296 tip=-1.806780,2.050224,0.594296
 @31 write #3 op=windup/piece_body_m dur=1 pos=-1.041090,1.744920,1.047073 rot=-0.256705,0.557411,0.767210,0.186507 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #4 op=windup/piece_a_m dur=1 pos=-1.041090,1.744920,1.047073 rot=-0.475528,0.587696,0.654508,0.010258 scale=1.000000,1.000000,1.000000 bb=FIXED
 @31 write #5 op=windup/piece_b_m dur=1 pos=-1.041090,1.744920,1.047073 rot=-0.014119,0.475528,0.808894,0.345492 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -5054,7 +5054,7 @@ r @117 run-end tail=4 | pose
 @31 write #52 op=throw/fly_b_m dur=1 pos=-1.323993,2.600000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 write #53 op=throw/thread_a dur=1 pos=-1.323993,2.500000,1.756998 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.134546,0.134546,1.000000 bb=FIXED
 @31 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@32 trail #6 op=windup/trail_a root=-0.954780,1.723334,1.038109 tip=-1.900123,1.837721,0.766554
+@32 trail #6 op=windup/trail_a root=-1.900123,1.837721,0.766554 tip=-1.900123,1.837721,0.766554
 @32 sound - op=windup/whoosh[7] sound=couture.whoosh cat=master vol=0.4851 pitch=1.0091 at=0.193234,1.738521,-0.542542
 @32 write #3 op=windup/piece_body_m dur=1 pos=-1.010396,1.738521,1.054729 rot=-0.313398,0.148351,0.936648,0.049637 scale=1.000000,1.000000,1.000000 bb=FIXED
 @32 write #4 op=windup/piece_a_m dur=1 pos=-1.010396,1.738521,1.054729 rot=-0.580549,0.156411,0.799057,0.002730 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -5072,7 +5072,7 @@ r @117 run-end tail=4 | pose
 @32 remove #51 op=throw/fly_a_m
 @32 remove #52 op=throw/fly_b_m
 @32 remove #53 op=throw/thread_a
-@33 trail #6 op=windup/trail_a root=-0.948844,1.765238,1.046629 tip=-1.862545,1.547661,0.733083
+@33 trail #6 op=windup/trail_a root=-1.862545,1.547661,0.733083 tip=-1.862545,1.547661,0.733083
 @33 sound - op=windup/snd_13 sound=block.amethyst_block.chime cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @33 write #3 op=windup/piece_body_m dur=1 pos=-1.000259,1.736349,1.057674 rot=0.301775,0.293048,-0.901909,0.098053 scale=1.000000,1.000000,1.000000 bb=FIXED
 @33 write #4 op=windup/piece_a_m dur=1 pos=-1.000259,1.736349,1.057674 rot=0.559017,0.308970,-0.769421,0.005393 scale=1.000000,1.000000,1.000000 bb=FIXED
