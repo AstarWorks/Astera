@@ -65,6 +65,7 @@ class BotStarSeekScenarioTest {
         override fun note(text: String) {}
         override fun isSpectator(player: UUID) = false
         override fun teamOf(player: String) = "red"
+        override fun healthOf(entityId: Int): Float? = null
         override fun hotbar() = listOf(1, -1, -1, -1, -1, -1, -1, -1, -1)
         override fun hotbarName(slot: Int) = "Knight Sword"
         override fun hotbarLore(slot: Int) = "[LMB] Slash"
