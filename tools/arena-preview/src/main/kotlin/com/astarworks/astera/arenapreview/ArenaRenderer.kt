@@ -93,6 +93,55 @@ object ArenaRenderer {
         return image
     }
 
+    /** Fixed west-flank cameras: red base edge toward yellow, comparable across art passes.
+     * Voxel DDA renders the decoded import with perspective and depth fog, without a server.
+     */
+    fun perspective(plan: ArenaBuildPlan, eyeLevel: Boolean, underside: Boolean = false): BufferedImage {
+        val eye = if (underside) doubleArrayOf(193.5, 28.6, 154.5) else if (eyeLevel) doubleArrayOf(-52.5, 66.6, -94.5) else doubleArrayOf(-38.5, 100.0, -91.5)
+        val target = if (underside) doubleArrayOf(115.0, 58.0, 80.0)
+            else doubleArrayOf(-99.0, if (eyeLevel) 66.6 else 61.0, -38.0)
+        fun normal(v: DoubleArray): DoubleArray {
+            val length = kotlin.math.sqrt(v.sumOf { it * it })
+            return DoubleArray(3) { v[it] / length }
+        }
+        val forward = normal(DoubleArray(3) { target[it] - eye[it] })
+        val right = normal(doubleArrayOf(-forward[2], 0.0, forward[0]))
+        val up = doubleArrayOf(right[1] * forward[2] - right[2] * forward[1],
+            right[2] * forward[0] - right[0] * forward[2], right[0] * forward[1] - right[1] * forward[0])
+        val image = BufferedImage(800, 520, BufferedImage.TYPE_INT_RGB)
+        val sky = Color(0xaecbf2)
+        for (py in 0 until image.height) for (px in 0 until image.width) {
+            val u = (2.0 * (px + .5) / image.width - 1) * .72 * image.width / image.height
+            val v = (1 - 2.0 * (py + .5) / image.height) * .72
+            val ray = normal(DoubleArray(3) { forward[it] + right[it] * u + up[it] * v })
+            val cell = IntArray(3) { kotlin.math.floor(eye[it]).toInt() }
+            val step = IntArray(3) { if (ray[it] > 0) 1 else -1 }
+            val delta = DoubleArray(3) { kotlin.math.abs(1 / ray[it]) }
+            val next = DoubleArray(3) { ((if (step[it] > 0) cell[it] + 1.0 else cell[it].toDouble()) - eye[it]) / ray[it] }
+            var distance = 0.0
+            var axis = 1
+            var colour = sky
+            while (distance < 230 && cell[1] > 16) {
+                val state = plan.stateAt(cell[0], cell[1], cell[2])
+                if (state != null) {
+                    val c = shade(colorOf(state), when (axis) { 0 -> .78; 2 -> .62; else -> 1.0 })
+                    val fog = (distance / 280).coerceIn(0.0, .65)
+                    colour = Color((c.red * (1 - fog) + sky.red * fog).toInt(),
+                        (c.green * (1 - fog) + sky.green * fog).toInt(), (c.blue * (1 - fog) + sky.blue * fog).toInt())
+                    break
+                }
+                axis = next.indices.minBy { next[it] }
+                distance = next[axis]; next[axis] += delta[axis]; cell[axis] += step[axis]
+            }
+            image.setRGB(px, py, colour.rgb)
+        }
+        val g = image.createGraphics()
+        g.color = Color.BLACK; g.fillRect(0, 0, image.width, 28)
+        g.color = Color.WHITE; g.drawString("Highmarch west flank / ${if (underside) "blue south rim underside" else if (eyeLevel) "eye level" else "founder region"} / eye=${eye.joinToString()}", 10, 19)
+        g.dispose()
+        return image
+    }
+
     // The shared lobby palette has no yellow entry: authored yellow teams otherwise render white.
     private fun colorOf(state: String): Color = when (state.substringAfter(':').substringBefore('[')) {
         "yellow_wool", "yellow_concrete", "yellow_banner", "yellow_wall_banner" -> Color(0xf0c932)
@@ -100,6 +149,9 @@ object ArenaRenderer {
         "blue_banner", "blue_wall_banner" -> Color(0x3c44aa)
         "cobbled_deepslate", "deepslate_tiles", "deepslate_tile_stairs" -> Color(0x45454e)
         "gravel" -> Color(0x99938a)
+        "hanging_roots" -> Color(0x806244)
+        "spruce_leaves" -> Color(0x31583c)
+        "dark_oak_leaves" -> Color(0x294e24)
         else -> LobbyRenderer.colorOf(state)
     }
 

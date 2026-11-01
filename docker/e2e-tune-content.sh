@@ -27,14 +27,16 @@ for v in tnt wool jewelry mini-tnt; do
   patch "generators/siege-$v-south.yaml" 's/^position:.*/position: { x: 0.5, y: 65.0, z: 56.5 }/' '^position:'
 done
 
+# annihilation-arena is NOT swapped: e2e runs the shipped Highmarch stage (the Highmarch map probes need layout.import).
 # Use the preserved compact fixtures only in the E2E image. Keep production IDs
 # so queue assignments, mode references, generator IDs and existing protocol assertions agree.
-for stage in example-arena siege-isles annihilation-arena pve-proving-grounds; do
+for stage in example-arena siege-isles pve-proving-grounds; do
   source="$root/stages/debug-$stage.yaml"
   test -f "$source"
   sed -e "s/^id: debug-$stage$/id: $stage/" "$source" > "$root/stages/$stage.yaml"
   rm "$source"
 done
+rm "$root/stages/debug-annihilation-arena.yaml"
 # The production siege-isles base generators sit on the full-size team islands (x +-101.5/102.5); the compact debug fixture keeps its red/blue
 # islands at r22 around (-68,0)/(68,0), so move the base ore generators back onto them (stage-local, same z rows as production).
 for g in "$root"/generators/siege-isles*-base-*.yaml; do
@@ -91,8 +93,7 @@ patch game-modes/annihilation.yaml 's/^(  build_phase_ticks:).*/\1 "100"/' '^  b
 patch game-modes/annihilation.yaml 's/^(  engage_phase_ticks:).*/\1 "200"/' '^  engage_phase_ticks:'
 patch game-modes/annihilation.yaml 's/^(  sudden_death_ticks:).*/\1 "600"/' '^  sudden_death_ticks:'
 # 150 = 60 x 2.5: the HP-100 rebalance made ranged damage x2.5 (60e5669a5), so the pillar keeps the same number of pistol hits.
-# The tier-3 pillars carry their own HP in the stage.
-patch stages/annihilation-arena.yaml 's/^(    hp:) 800$/\1 150/' '^    hp: 800$'
+# Highmarch pillars carry no per-pillar hp in the stage; the game-mode pillar_hp* values above are the only source.
 
 # carry-tnt (Rainmaker): one trip to the enemy goal wins, with a shield and checkpoints; shield 40 HP (4 s alone).
 patch game-modes/carry-tnt.yaml 's/^(  shield_hp:).*/\1 "40"/' '^  shield_hp:'

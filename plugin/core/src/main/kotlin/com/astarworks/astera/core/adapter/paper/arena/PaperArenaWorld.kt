@@ -30,6 +30,7 @@ internal class PaperArenaWorld(
     private val paster = ArenaPaster(plugin, scheduler, setting("ASTERA_PASTE_BLOCKS_PER_TICK", 4096).also { require(it > 0) })
     private data class Build(val stage: Stage, val plan: ArenaBuildPlan, val journal: ArenaPaster.Journal)
     private val book = ArenaSlotBook<Build>(slots, MAX_REBUILD_ATTEMPTS)
+    private var installed = false
     private val manifest = SlotManifest(plugin.dataFolder.toPath().resolve("arena-slots.txt"))
 
     fun killY(worldName: String, x: Double, z: Double): Int? = book.entries().firstOrNull {
@@ -51,14 +52,21 @@ internal class PaperArenaWorld(
         val templates = stages()?.all()?.filter { it.layout != null }.orEmpty()
         val world = plugin.server.getWorld("world")
         val stale = manifest.load()
-        if (world == null || stale.isEmpty()) { templates.forEach(::replenish); return templates.size to templates.size }
+        if (world == null) return 0 to templates.size
+        if (stale.isEmpty()) { installed = true; templates.forEach(::replenish); return templates.size to templates.size }
         // A previous run (restart, /reload, crash) left arenas in the slots; the allocator forgot them. Sweep them out
         // BEFORE the first paste: otherwise a shrunk layout keeps ghost islands and a rollback "restores" the old arena.
         log.info("Sweeping {} arena slot(s) left by an earlier run", stale.size)
-        java.util.concurrent.CompletableFuture.allOf(*stale.values.map { paster.clear(world, it) }.toTypedArray()).whenComplete { _, _ ->
+        val sweeps = stale.values.map { paster.clear(world, it) }
+        java.util.concurrent.CompletableFuture.allOf(*sweeps.toTypedArray()).whenComplete { _, failure ->
             scheduler.run(ExecutionScope.Global, Duration.ZERO) {
-                stale.keys.forEach(manifest::remove)
-                templates.forEach(::replenish)
+                if (failure != null || sweeps.any { it.join() is Result.Failure }) {
+                    log.error("Arena startup sweep failed; manifests retained and warm slots disabled: {}", sweeps.map { it.getNow(null) }, failure)
+                } else {
+                    stale.keys.forEach(manifest::remove)
+                    installed = true
+                    templates.forEach(::replenish)
+                }
             }
         }
         return templates.size to templates.size
@@ -81,6 +89,7 @@ internal class PaperArenaWorld(
     }
 
     private fun replenish(template: Stage) {
+        if (!installed) return
         val world = plugin.server.getWorld("world") ?: return
         repeat(((template.warmSlots ?: warm) - book.waiting(template.id)).coerceAtLeast(0)) {
             val slot = slots.allocate(template.id) ?: return
@@ -105,8 +114,9 @@ internal class PaperArenaWorld(
                     log.info("Arena '{}' plan: {} blocks in {} ms (off thread)", template.id, plan.blocks.size,
                         (System.nanoTime() - started) / 1_000_000)
                     val journal = ArenaPaster.Journal()
-                    manifest.add(slot.index, ArenaPaster.Box(plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ))
-                    paster.paste(world, plan, journal).thenAccept { result ->
+                    val box = sweepBox(world, slot)
+                    manifest.add(slot.index, box)
+                    importClean(world, plan, box, journal).thenAccept { result ->
                         scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                             when (result) {
                                 is Result.Success -> {
@@ -173,7 +183,7 @@ internal class PaperArenaWorld(
             val startedNanos = System.nanoTime()
             paster.rollback(world, build.journal).thenCompose { rolled ->
                 val swept: java.util.concurrent.CompletableFuture<Result<Any?, ArenaPaster.Error>> =
-                    if (rolled is Result.Success) paster.clear(world, sweepBox(world, build.plan, entry.slot)).thenApply<Result<Any?, ArenaPaster.Error>> { it }
+                    if (rolled is Result.Success) paster.clear(world, sweepBox(world, entry.slot)).thenApply<Result<Any?, ArenaPaster.Error>> { it }
                     else java.util.concurrent.CompletableFuture.completedFuture(rolled)
                 swept
             }.thenAccept { result ->
@@ -185,7 +195,7 @@ internal class PaperArenaWorld(
                         template?.let(::replenish)
                     } else {
                         // Keep the slot unavailable until the fallback paste has fully completed.
-                        paster.paste(world, build.plan).thenAccept { pasted ->
+                        importClean(world, build.plan, sweepBox(world, entry.slot), ArenaPaster.Journal()).thenAccept { pasted ->
                             scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                                 if (pasted is Result.Success) {
                                     book.repasted(stageId, entry, build.copy(journal = pasted.value))
@@ -201,16 +211,31 @@ internal class PaperArenaWorld(
         }
     }
 
-    /** The built box widened for strays (placed blocks beside the island, high-flying falling blocks), kept inside the slot. */
-    private fun sweepBox(world: org.bukkit.World, plan: ArenaBuildPlan, slot: SlotAllocator.Slot): ArenaPaster.Box {
-        fun clampX(v: Int) = v.coerceIn(slot.x - SWEEP_LIMIT, slot.x + SWEEP_LIMIT)
-        fun clampZ(v: Int) = v.coerceIn(slot.z - SWEEP_LIMIT, slot.z + SWEEP_LIMIT)
-        return ArenaPaster.Box(
-            clampX(plan.minX - SWEEP_MARGIN), clampX(plan.maxX + SWEEP_MARGIN),
-            (plan.minY - SWEEP_MARGIN).coerceAtLeast(world.minHeight), (plan.maxY + 2 * SWEEP_MARGIN).coerceAtMost(world.maxHeight - 1),
-            clampZ(plan.minZ - SWEEP_MARGIN), clampZ(plan.maxZ + SWEEP_MARGIN),
-        )
-    }
+    /** The entire allowed footprint, not the current map's bounds: shrinking/replacing a map must remove old islands.
+     * Slots are 2048 apart, so these disjoint 1025-wide volumes include an explicit margin without touching a neighbour.
+     */
+    private fun sweepBox(world: org.bukkit.World, slot: SlotAllocator.Slot): ArenaPaster.Box = ArenaPaster.Box(
+        slot.x - 512, slot.x + 512, world.minHeight, world.maxHeight - 1, slot.z - 512, slot.z + 512,
+    )
+
+    private fun importClean(world: org.bukkit.World, plan: ArenaBuildPlan, box: ArenaPaster.Box, journal: ArenaPaster.Journal):
+        java.util.concurrent.CompletableFuture<Result<ArenaPaster.Journal, ArenaPaster.Error>> =
+        paster.clear(world, box).thenCompose { cleared ->
+            when (cleared) {
+                is Result.Failure -> java.util.concurrent.CompletableFuture.completedFuture(Result.failure(cleared.error))
+                is Result.Success -> paster.paste(world, plan, journal).thenCompose { pasted ->
+                    when (pasted) {
+                        is Result.Failure -> java.util.concurrent.CompletableFuture.completedFuture(pasted)
+                        is Result.Success -> paster.verify(world, box, plan).thenApply { verified ->
+                            when (verified) {
+                                is Result.Failure -> Result.failure(verified.error)
+                                is Result.Success -> pasted
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
     fun remember(block: org.bukkit.block.Block, previous: org.bukkit.block.data.BlockData = block.blockData) {
         val build = book.entries().firstOrNull {
@@ -240,9 +265,5 @@ internal class PaperArenaWorld(
 
     private companion object {
         const val MAX_REBUILD_ATTEMPTS = 5
-        /** Blocks swept beyond the built box on each side. */
-        const val SWEEP_MARGIN = 24
-        /** Slots sit 2048 apart and plans stay within +-512, so a sweep never reaches a neighbour. */
-        const val SWEEP_LIMIT = 1000
     }
 }

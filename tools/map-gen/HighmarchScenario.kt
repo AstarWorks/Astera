@@ -29,6 +29,24 @@ fun main(args: Array<String>) {
     check(plan.problems.isEmpty()) { plan.problems }
     check(stage.layout!!.islands.isEmpty() && stage.layout!!.bridges.isEmpty() && stage.layout!!.structures.isEmpty())
     check(stage.pillars.size == 9)
+    // HighmarchImportIsolation: real RLE loader -> production plan. Air holes and outer void must
+    // stay absent; the only planned overlay is each shipped generator's iron pedestal.
+    val imported = checkNotNull(imports["annihilation-highmarch"])
+    val pedestals = stage.layout!!.landmarks.map { ArenaBlockPos(it.x, plan.surfaceY, it.z) }.toSet()
+    check(plan.blocks.size == imported.blocks.size) { "Highmarch import added/dropped cells" }
+    for ((p, state) in plan.blocks) {
+        check(state == if (p in pedestals) "minecraft:iron_block" else imported.blocks[p]) {
+            "HighmarchImportIsolation: foreign state $state at $p (import=${imported.blocks[p]})"
+        }
+        check(p.x in -512..512 && p.z in -512..512 && p.y in -64..319)
+        check(state.substringBefore('[') !in setOf("minecraft:barrier", "minecraft:structure_void", "minecraft:light")) {
+            "HighmarchImportIsolation: visible/debug marker $state at $p"
+        }
+    }
+    for ((x, y, z) in listOf(Triple(0, 64, 203), Triple(177, 64, -101), Triple(-177, 64, -101), Triple(0, 100, -187))) {
+        check(plan.stateAt(x, y, z) == null) { "HighmarchImportIsolation: legacy frost cell ($x,$y,$z) is not void" }
+    }
+    println("HighmarchImportIsolation: ${plan.blocks.size} cells match the shipped import and pedestal overlay; legacy cells are void")
     // Match placement replaces exactly these nine exposed cells; include them in navigation collision.
     val blocks = plan.blocks.toMutableMap()
     stage.pillars.forEach { p -> blocks[ArenaBlockPos(p.position.x.toInt(), p.position.y.toInt(), p.position.z.toInt())] = p.block.key }
@@ -113,6 +131,79 @@ fun main(args: Array<String>) {
     for (x in listOf(-88, 88)) {
         check(plan.stateAt(x, 56, -25) == "minecraft:water")
         check(plan.stateAt(x, 64, -25) == "minecraft:coarse_dirt") { "lost ridge crossing $x,-25" }
+    }
+    if (args.getOrNull(3) != "--baseline") {
+        // Quality regression on the real shipped import: thick noisy perimeter,
+        // rolling outer turf, mixed veteran woodland and visible path shoulders.
+        check(plan.blocks.none { (p, state) -> hypot(p.x.toDouble(), p.z.toDouble()) <= 42 && state == "minecraft:grass_block" }) {
+            "outer hill pass left turf floating above the quarry"
+        }
+        val turf = plan.blocks.filter { (p, state) ->
+            state == "minecraft:grass_block" && hypot(p.x.toDouble(), p.z.toDouble()) > 75
+        }
+        check(turf.keys.map { it.y }.distinct().size >= 7) { "outer ring became a flat lawn" }
+        check(turf.count { it.key.y >= 67 } >= 1500) { "outer hills lost" }
+        fun count(material: String) = plan.blocks.values.count { it.substringBefore('[') == "minecraft:$material" }
+        for (species in listOf("oak", "birch", "spruce", "dark_oak")) {
+            check(count("${species}_log") >= 50 && count("${species}_leaves") >= 200) { "lost woodland species $species" }
+        }
+        val stemLengths = plan.blocks.filterValues { it.endsWith("_log[axis=y]") }.mapNotNull { (p, state) ->
+            if (plan.stateAt(p.x, p.y - 1, p.z) == state) null else {
+                var length = 0
+                while (plan.stateAt(p.x, p.y + length, p.z) == state) length++
+                length
+            }
+        }.toSet()
+        check(stemLengths.containsAll(listOf(5, 7, 10))) { "lost three woodland scales: $stemLengths" }
+        check(plan.blocks.any { (p, state) ->
+            state in setOf("minecraft:oak_log[axis=y]", "minecraft:dark_oak_log[axis=y]") &&
+                plan.stateAt(p.x + 1, p.y, p.z) == state && plan.stateAt(p.x, p.y, p.z + 1) == state &&
+                plan.stateAt(p.x + 1, p.y, p.z + 1) == state
+        }) { "lost multi-trunk veteran trees" }
+        val roundedCrowns = plan.blocks.count { (p, state) ->
+            state.endsWith("_log[axis=y]") && p.y > 67 &&
+                listOf(-2 to 0, 2 to 0, 0 to -2, 0 to 2).all { (dx, dz) ->
+                    plan.stateAt(p.x + dx, p.y, p.z + dz)?.contains("_leaves[") == true
+                } && listOf(-2 to -2, -2 to 2, 2 to -2, 2 to 2).count { (dx, dz) ->
+                    plan.stateAt(p.x + dx, p.y, p.z + dz)?.contains("_leaves[") != true
+                } >= 3
+        }
+        check(roundedCrowns >= 20) { "woodland reverted to square crowns: $roundedCrowns" }
+        check(count("spruce_wall_sign") > 0) { "lost roadside posts" }
+        check(count("fern") >= 100 && count("short_grass") >= 300) { "lost undergrowth" }
+        check(count("dirt_path") >= 500 && count("gravel") >= 500) { "lost blended tracks" }
+        // Quality2: the decoded island contracts downward instead of a thick rim extrusion.
+        val rock = setOf("stone", "andesite", "tuff", "deepslate", "dirt", "coal_ore", "deepslate_iron_ore")
+        val sections = listOf(30, 40, 50, 60).map { y ->
+            plan.blocks.count { (p, state) -> p.y == y && state.removePrefix("minecraft:").substringBefore('[') in rock }
+        }
+        check(sections.zipWithNext().all { (lower, upper) -> lower < upper * .9 }) { "underside no longer narrows: $sections" }
+        val bottoms = plan.blocks.keys.groupingBy { it.x to it.z }.fold(Int.MAX_VALUE) { y, p -> minOf(y, p.y) }
+        check(bottoms.values.distinct().size >= 30) { "flat island bottom" }
+        var maxWall = 0
+        for ((xz, _) in bottoms) {
+            var run = 0
+            for (y in 20..60) {
+                val state = plan.stateAt(xz.first, y, xz.second)?.removePrefix("minecraft:")?.substringBefore('[')
+                val exposed = state in rock && listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1).any { (dx, dz) ->
+                    !plan.isSolid(xz.first + dx, y, xz.second + dz)
+                }
+                run = if (exposed) run + 1 else 0
+                maxWall = maxOf(maxWall, run)
+            }
+        }
+        check(maxWall <= 6) { "vertical underside wall: $maxWall" }
+        check(count("hanging_roots") >= 20) { "lost rim roots" }
+        check(plan.blocks.all { (p, state) ->
+            state != "minecraft:hanging_roots" || plan.isSolid(p.x, p.y + 1, p.z)
+        }) { "unsupported hanging root tip" }
+        check(plan.blocks.count { (p, state) -> p.y < 40 && state.startsWith("minecraft:water") } >= 20) { "lost outlet falls" }
+        check(plan.blocks.any { (p, state) ->
+            state == "minecraft:spruce_log[axis=y]" && p.y > 65 &&
+                plan.stateAt(p.x + 1, p.y, p.z) == state && plan.stateAt(p.x, p.y, p.z + 1) == state &&
+                plan.stateAt(p.x + 1, p.y, p.z + 1) == state
+        }) { "lost giant spruce trunks" }
+        println("HighmarchQuality2: underside slices $sections; longest exposed wall $maxWall; rooted rim, waterfalls and giant spruce")
     }
     val rows = StringBuilder("# Highmarch integration traversal\n\nShipped import, stage and ore loaders + production PathFinder, cap 5000 with at most 12 progress replans; paths count cells as TraversalCheck does (5.6 cells/s). Diagonals count as one cell, so these are comparable estimates, not elapsed play time.\n\n| Scenario | Route | Reached | Path blocks | Sprint s |\n|---|---|---|---:|---:|\n")
     var failures = 0
@@ -199,9 +290,9 @@ fun main(args: Array<String>) {
             starTable.append("| $team#$index | ${p.x}/${p.y}/${p.z} | $nearest | %.3f | $nearestPath | %.3f |\n".format(straight, ratio))
             check(finder.standable(cell(p).first, cell(p).second, cell(p).third)) { "unsafe spawn $team#$index" }
             if (!baseline) {
-                check(straight in 20.0..35.0) { "$team#$index star straight distance $straight" }
-                check(nearestPath in 20..35) { "$team#$index nearest straight star path $nearestPath" }
-                check(path in 20..35) { "$team#$index star path distance $path" }
+                check(straight in 20.0..25.0) { "$team#$index star straight distance $straight" }
+                check(nearestPath in 20..25) { "$team#$index nearest straight star path $nearestPath" }
+                check(path in 20..25) { "$team#$index star path distance $path" }
                 check(ratio <= 1.4) { "$team#$index star detour ratio $ratio" }
             }
         }

@@ -475,7 +475,13 @@ objective_taken() {  # our objective progress: rising coin chirp (lighter than t
     mix tk 0.6 a:0:0.8 b:90:0.9 c:170:0.5; finish objective/taken tk
 }
 
-ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
+ore_mined() {  # node cracks open: stony thud, a pickaxe clink and a short rising bell
+    noise a 0.2 "lowpass=f=900,volume='exp(-t*22)':eval=frame" 211
+    gen b 0.25 "$(sweep 180 70 0.08 18)"; gen c 0.4 "$(bell 1760 14)"; gen d 0.4 "$(bell 2349 16)"
+    mix om 0.45 a:0:0.9 b:0:0.9 c:25:0.6 d:85:0.5; finish ore/mined om
+}
+
+ALL=(ore/mined ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
      weapons/gun-shot weapons/sword-swing skills/wand-cast
      weapons/rifle-crack weapons/shotgun-blast weapons/gun-impact weapons/gun-impact-block weapons/gun-reload-start

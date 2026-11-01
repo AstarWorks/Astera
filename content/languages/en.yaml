@@ -2783,6 +2783,10 @@ astera:
   armor.diamond-champion-boots.name: "Diamond Champion Boots"
   ore.needs-tier: "<gray>Needs a <white>{tier}</white> tool or better to mine this ore.</gray>"
   ore.needs-level: "<red>Norma level <white>{level}</white> or higher is needed to mine this ore.</red>"
+  ore.mined.ore-iron: "<green>+{amount} Iron Ore</green> <gray>(trade at the shop)</gray>"
+  ore.mined.ore-gold: "<green>+{amount} Gold Ore</green> <gray>(trade at the shop)</gray>"
+  ore.mined.ore-diamond: "<green>+{amount} Diamond Ore</green> <gray>(trade at the shop)</gray>"
+  ore.mined.ore-emerald: "<green>+{amount} Emerald Ore</green> <gray>(trade at the shop)</gray>"
   ore.wrong-tool: "<gray>This tool can barely scratch this ore. Use the right tool (pickaxe / axe / shovel).</gray>"
   # match-ux: staged match-start hints (one action-bar line), result-title reason, re-open link
   match.hint.sidebar: "<gray>The sidebar on the right shows the objective and score</gray>"

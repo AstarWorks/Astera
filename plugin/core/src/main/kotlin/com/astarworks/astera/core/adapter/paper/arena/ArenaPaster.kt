@@ -10,7 +10,6 @@ import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.World
 import org.bukkit.block.data.BlockData
 import org.bukkit.plugin.java.JavaPlugin
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -22,7 +21,6 @@ internal class ArenaPaster(
     private val scheduler: IScheduler,
     private val blocksPerTick: Int,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
 
     sealed interface Error {
         data class WriteFailed(val detail: String) : Error
@@ -55,18 +53,35 @@ internal class ArenaPaster(
     data class Box(val minX: Int, val maxX: Int, val minY: Int, val maxY: Int, val minZ: Int, val maxZ: Int)
 
     /** Sets every non-air block of [box] to air, chunk by chunk under the same per-tick budget as a paste. */
-    fun clear(world: World, box: Box): CompletableFuture<Result<Unit, Error>> {
+    fun clear(world: World, box: Box): CompletableFuture<Result<Unit, Error>> = scan(world, box, null)
+
+    /** Missing cells are air: a foreign block, wrong state or missing planned cell prevents publication. */
+    fun verify(world: World, box: Box, plan: ArenaBuildPlan): CompletableFuture<Result<Unit, Error>> =
+        scan(world, box, plan)
+
+    private fun scan(world: World, box: Box, plan: ArenaBuildPlan?): CompletableFuture<Result<Unit, Error>> {
         val result = CompletableFuture<Result<Unit, Error>>()
         val chunks = ((box.minX shr 4)..(box.maxX shr 4)).flatMap { cx -> ((box.minZ shr 4)..(box.maxZ shr 4)).map { cz -> cx to cz } }
         val pending = AtomicInteger(chunks.size)
+        val matched = AtomicInteger()
         val air = plugin.server.createBlockData("minecraft:air")
         val height = box.maxY - box.minY + 1
+        fun finishedChunk() {
+            if (pending.decrementAndGet() == 0) {
+                check(plan == null || matched.get() == plan.blocks.size) {
+                    "Arena verification failed in '${world.name}': matched ${matched.get()} of ${plan?.blocks?.size} planned blocks in $box"
+                }
+                result.complete(Result.success(Unit))
+            }
+        }
         for ((cx, cz) in chunks) {
             val x0 = maxOf(box.minX, cx shl 4); val x1 = minOf(box.maxX, (cx shl 4) + 15)
             val z0 = maxOf(box.minZ, cz shl 4); val z1 = minOf(box.maxZ, (cz shl 4) + 15)
             val width = x1 - x0 + 1
             val total = width * (z1 - z0 + 1) * height
             var cursor = 0
+            var columnTop = box.minY - 1
+            val expected = HashMap<String, BlockData>()
             val scope = ExecutionScope.Region(WorldId(world.name), cx, cz)
             fun schedule(delay: Duration) {
                 if (result.isDone) return
@@ -81,20 +96,37 @@ internal class ArenaPaster(
                                 val i = cursor++; scanned++
                                 val y = box.minY + i % height
                                 val rest = i / height
-                                val block = world.getBlockAt(x0 + rest % width, y, z0 + rest / width)
-                                if (!block.type.isAir) { block.setBlockData(air, false); writes-- }
+                                val x = x0 + rest % width; val z = z0 + rest / width
+                                // WORLD_SURFACE includes all non-air states, even plants and glass. Empty space
+                                // above its highest block needs no reads; this still covers the full build height.
+                                if (i % height == 0) columnTop = world.getHighestBlockYAt(x, z, org.bukkit.HeightMap.WORLD_SURFACE)
+                                if (y > columnTop) { cursor = (rest + 1) * height; continue }
+                                val block = world.getBlockAt(x, y, z)
+                                if (plan == null) {
+                                    if (!block.type.isAir) { block.setBlockData(air, false); writes-- }
+                                } else {
+                                    val state = plan.stateAt(x, y, z)
+                                    val wanted = state?.let { expected.getOrPut(it) { plugin.server.createBlockData(it) } }
+                                    check(if (wanted == null) block.type.isAir else block.blockData.matches(wanted)) {
+                                        "Arena verification failed in '${world.name}' at ($x,$y,$z): expected=${state ?: "minecraft:air"}, actual=${block.blockData.asString}"
+                                    }
+                                    if (wanted != null) matched.incrementAndGet()
+                                }
                             }
                             if (cursor < total) schedule(TICK)
                             else {
-                                world.getChunkAt(cx, cz).entities.filter(::isArenaDebris).forEach { it.remove() }
-                                if (pending.decrementAndGet() == 0) result.complete(Result.success(Unit))
+                                if (plan == null) world.getChunkAt(cx, cz).entities.filter(::isArenaDebris).forEach { it.remove() }
+                                finishedChunk()
                             }
                         }.onFailure { result.complete(Result.failure(Error.WriteFailed(it.message ?: it.javaClass.simpleName))) }
                     }.onRetired { result.complete(Result.failure(Error.Retired)) }
                 }.onFailure { result.complete(Result.failure(Error.WriteFailed(it.message ?: it.javaClass.simpleName))) }
             }
-            world.getChunkAtAsync(cx, cz, true).whenComplete { _, failure ->
+            // Never generate thousands of empty margin chunks merely to prove they contain no blocks.
+            world.getChunkAtAsync(cx, cz, false).whenComplete { chunk, failure ->
                 if (failure != null) result.complete(Result.failure(Error.WriteFailed(failure.message ?: "chunk load failed")))
+                else if (chunk == null) runCatching { finishedChunk() }
+                    .onFailure { result.complete(Result.failure(Error.WriteFailed(it.message ?: "verification failed"))) }
                 else schedule(Duration.ZERO)
             }
         }
@@ -120,7 +152,7 @@ internal class ArenaPaster(
         val pending = AtomicInteger(chunks.size)
         for ((chunk, entries) in chunks) {
             val scope = ExecutionScope.Region(WorldId(world.name), chunk.first, chunk.second)
-            val cache = HashMap<String, BlockData?>()
+            val cache = HashMap<String, BlockData>()
             var cursor = 0
             fun schedule(delay: Duration) {
                 if (result.isDone) return
@@ -131,13 +163,7 @@ internal class ArenaPaster(
                             val end = minOf(entries.size, cursor + allowance())
                             while (cursor < end) {
                                 val (pos, state) = entries[cursor++]
-                                // An unparseable block-data string must not abort the whole paste (it once left the lobby
-                                // without NPCs/holograms): skip just that block and say so loudly.
-                                val wanted = if (state in cache) cache[state] else runCatching { plugin.server.createBlockData(state) }
-                                    .onFailure { log.error("Invalid block data '{}' at ({}, {}, {}) in world '{}': {}; block skipped",
-                                        state, pos.x, pos.y, pos.z, world.name, it.message) }
-                                    .getOrNull().also { cache[state] = it }
-                                if (wanted == null) continue
+                                val wanted = cache.getOrPut(state) { plugin.server.createBlockData(state) }
                                 val block = world.getBlockAt(pos.x, pos.y, pos.z)
                                 if (capture) journal.before.putIfAbsent(pos, block.blockData.clone())
                                 block.setBlockData(wanted, false)

@@ -117,15 +117,15 @@ public class StarDropService(
     }
 
     /**
-     * First-star guarantee: a team's base lane opens with one star per team member (the lane's own opening star plus the
-     * rest here, each on a spot of the lane, spots reused when the team has more members than spots), so every player has
-     * a star to walk to in the first seconds. Like the lane's opening star these are a one-off outside the buckets
-     * (about one star per player per match, counted as issued by the timer source).
+     * First-star guarantee: a team's base lane opens with team size + 1 stars (the lane's own opening star plus one more per
+     * member here, each on a spot of the lane, spots reused when the team has more members than spots), so even the last
+     * bot to arrive finds a star once the others have taken theirs. Like the lane's opening star these are a one-off
+     * outside the buckets (team-only, counted as issued by the timer source).
      */
     private fun popOpeningStars(event: ResourceSpawned, generator: StarGenerator, world: WorldId, team: com.astarworks.astera.core.domain.match.TeamId?, firstIndex: Int) {
         if (team == null) return
         val members = matches.findById(event.matchId)?.teams?.firstOrNull { it.id == team }?.members?.size ?: return
-        for (i in 1 until members) {
+        for (i in 1..members) {
             val index = (firstIndex + i) % generator.spots.size
             val at = generator.spots[index]
             val drop = StarDrop(nextId.getAndIncrement(), event.matchId, world, at, 1, generator.pickupRadius, generator.id, team = team)
