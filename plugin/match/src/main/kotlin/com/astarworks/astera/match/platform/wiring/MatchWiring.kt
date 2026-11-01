@@ -130,7 +130,7 @@ internal class MatchWiringEnv(
     /**
      * Whether the Norma layer (stars, kill burst, Norma levels, time-limit ranking) runs in this match. It is a
      * standard layer of every game mode: on unless the mode's `default_config` says `norma_layer: "false"`. The
-     * layer's tunables are the same merged config (`norma_*`, `time_limit_seconds`, `death_drop_ratio`).
+     * layer's tunables are the same merged config (`norma_*`, `time_limit_seconds`).
      */
     val normaLayerOf: (com.astarworks.astera.core.domain.match.MatchId) -> Boolean,
     val scheduledTasks: MutableList<IScheduler.TaskHandle>,
