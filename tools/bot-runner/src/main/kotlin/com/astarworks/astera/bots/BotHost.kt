@@ -53,6 +53,8 @@ interface BotHost {
     val actionBars: List<HostLine>
     val screens: List<HostScreen>
     val bossBarTitles: List<String>
+    /** Colour names (`GREEN`, `BLUE`, ...) of the boss bars on screen, one per bar, in the order of [bossBarTitles]; the locale-independent half of a bar. */
+    val bossBarColors: List<String> get() = emptyList()
     val sounds: List<String>
     val damageNumbers: List<String>
 
@@ -135,6 +137,7 @@ class ProtocolBotHost(val bot: Bot) : BotHost {
         override fun get(index: Int) = HostScreen(bot.screens[index].containerId)
     }
     override val bossBarTitles get() = bot.bossBars.values.map { it.title }
+    override val bossBarColors get() = bot.bossBars.values.map { it.color ?: "" }
     override val sounds: List<String> get() = bot.sounds
     override val damageNumbers: List<String> get() = bot.damageNumbers
     override var lift: Double

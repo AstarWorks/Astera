@@ -44,6 +44,10 @@ public class SimObjectiveStage : IObjectiveStage {
     public fun plainTitles(player: PlayerId): List<String> =
         bars.filterKeys { it.first == player }.entries.sortedBy { it.key.second }.map { TAG.replace(it.value.title, "") }
 
+    /** The colour name of every boss bar [player] sees, in the order of [plainTitles]. */
+    public fun barColors(player: PlayerId): List<String> =
+        bars.filterKeys { it.first == player }.entries.sortedBy { it.key.second }.map { it.value.color.name }
+
     override fun setCarrying(player: PlayerId, look: ObjectiveLook?, count: Int) {
         if (look == null) {
             carrying.remove(player)
