@@ -9,6 +9,9 @@ import com.astarworks.astera.gamesim.GameSim
 interface MatchRun {
     val sim: GameSim
 
+    /** The real order players were seated (joined, then entered into their team): `name@team`. Empty for runs without seats. */
+    val seatOrder: List<String> get() = emptyList()
+
     /** The bot brain behind [player] (role / decision kind for the metrics); null for runs without brains. */
     fun brainOf(player: com.astarworks.astera.core.domain.player.PlayerId): com.astarworks.astera.bots.BotBrain? = null
 

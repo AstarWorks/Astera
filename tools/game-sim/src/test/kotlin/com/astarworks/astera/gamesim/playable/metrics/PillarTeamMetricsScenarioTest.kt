@@ -158,6 +158,22 @@ class PillarTeamMetricsScenarioTest {
                 assertThat(v.jsonObject.num("pillar_damage_dealt")).`as`("dealt by $team").isEqualTo(0.0)
                 assertThat(v.jsonObject.num("pillar_damage_taken_unattributed")).isEqualTo(v.jsonObject.num("pillar_damage_taken"), within(1e-6))
             }
+
+            // The unattributed bucket is split by real source: all of it is bleed here (no player hit anything), none unknown.
+            assertThat(json.num("pillar_damage_bleed")).isEqualTo(unattributed, within(1e-6))
+            assertThat(json.num("pillar_damage_unknown")).isEqualTo(0.0, within(1e-6))
+            assertThat(json.num("bleed_applications")).isGreaterThan(0.0)
+
+            // Batch aggregate over two identical runs: sums double, shares stay, draws are separate from wins.
+            val result = metrics.finish()
+            val runs = listOf(MassPlay.RunResult("seed-1", 1, result, "draw", listOf("a@red")), MassPlay.RunResult("seed-2", 2, result, "draw", listOf("b@red")))
+            val summary = MassPlay.summary(runs)
+            assertThat(summary).contains("## Batch aggregate (2 runs)").contains("Draws: 2 of 2")
+            val taken2 = 2 * takenSum
+            assertThat(summary).contains("Player share of pillar damage (sum dealt / sum taken): 0 / ${if (taken2 == Math.floor(taken2)) taken2.toLong().toString() else "%.2f".format(taken2)} = 0.0%")
+            val redRow = summary.lines().first { it.startsWith("| red | 0 | 2 | 0.0% |") }
+            assertThat(redRow).contains("(100.0%)")
+            assertThat(summary).contains("| seed-1 | 1 | a@red |")
         }
     }
 }
