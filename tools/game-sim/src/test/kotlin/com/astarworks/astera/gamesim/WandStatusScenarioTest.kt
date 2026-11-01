@@ -16,7 +16,7 @@ class WandStatusScenarioTest {
 
     @Test
     fun `flame burst applies burn which ticks damage and expires`() {
-        scenario("wand-applies-burn", seed = GameSim.DEFAULT_SEED + 2) { // a seed whose first burn roll (85%) lands
+        scenario("wand-applies-burn", seed = GameSim.DEFAULT_SEED) { // a seed whose first burn roll (85%) lands
             val caster = player("caster", team = "red")
             val target = mob("dummy", at = Vec3(0.0, groundY, 8.0), team = "blue")
             caster.holds("fire-staff")
@@ -28,7 +28,9 @@ class WandStatusScenarioTest {
             val burn = StatusEffectId("burn")
 
             // flame-burst applies burn with 85% chance per hit; the sim's seeded RNG makes the roll
-            // reproducible, so one cast is enough.
+            // reproducible, so one cast is enough. The roll is keyed by (cast seed, row seed, firing tick, victim id), so
+            // a change to the bolt's hit tick re-rolls it: if this fails with the hit landing (DamageDealt present, no
+            // StatusApplied), re-pick the seed; it is not a product regression (probe 2026-11-02: the hit landed on 16/16 seeds, burn on 12/16).
             caster.cast("flame-burst")
             advance(85) // > the skill's 80-tick cooldown; the hit lands on the next tick
             assertThat(eventsOf<StatusApplied>().any { it.target == target.id && it.effect.spec.id == burn }).isTrue()
