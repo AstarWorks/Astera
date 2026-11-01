@@ -102,7 +102,7 @@ class OreNodeToolSkillScenarioTest : SkillEngineScenario() {
             val emerald = Vec3(origin.x + 4, 65.0, origin.z)
             cast("diamond-pickaxe", "pickaxe", emerald, 5L)
             assertThat(sim.oreNodes.crackAt(emerald.x.toInt(), 65, emerald.z.toInt())).isNull()
-            assertThat(sim.oreNodes.denied).contains(Triple(emerald.x.toInt(), 65, emerald.z.toInt()))
+            assertThat(sim.oreNodes.refusals).contains(Triple(emerald.x.toInt(), 65, emerald.z.toInt()))
 
             sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.AdminEnded)
         }

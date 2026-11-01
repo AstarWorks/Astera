@@ -144,7 +144,7 @@ public class OreNodeService(
         val node = nodes[keyOf(worldId, pos)] ?: return Outcome.NotANode
         if (node.regrowing) return Outcome.Regrowing
         val tool = held?.let { HitCustomBlockUseCase.toolOf(items, it) }
-        gate(player, node)?.let { return it }
+        gate(player, node, throttled = false)?.let { return it }
         if (tool == null || tool.tier.ordinal < node.spec.requiredTier.ordinal) {
             refuse(player, node, NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()), throttled = false)
             return Outcome.TooWeak
@@ -164,29 +164,24 @@ public class OreNodeService(
     }
 
     /**
-     * Phase gate (ADR-0319), then level gate: a refusal [Outcome] (deny sound + action bar) or null when [player] may damage [node].
+     * Phase gate (ADR-0319), then level gate: a refusal [Outcome] (via [refuse]: action bar, cue, puff) or null when [player] may damage [node].
      * The phase gate is the same for everyone: "opens in phase N (in mm:ss)".
      */
-    private fun gate(player: PlayerId, node: Node): Outcome? {
-        phaseGate(player, node)?.let { return it }
+    private fun gate(player: PlayerId, node: Node, throttled: Boolean): Outcome? {
+        phaseGate(player, node, throttled)?.let { return it }
         val level = levelOf(player) ?: return null
         if (level >= node.spec.minNormaLevel) return null
-        server.findPlayer(player)?.postActionBar(NEEDS_LEVEL, mapOf("level" to node.spec.minNormaLevel.toString()))
-        world?.deny(node.world, node.pos)
+        refuse(player, node, NEEDS_LEVEL, mapOf("level" to node.spec.minNormaLevel.toString()), throttled)
         return Outcome.LevelLocked(node.spec.minNormaLevel)
     }
 
-    private fun phaseGate(player: PlayerId, node: Node): Outcome? {
+    private fun phaseGate(player: PlayerId, node: Node, throttled: Boolean): Outcome? {
         val required = node.spec.minPhase
         if (required <= 1) return null
         val target = NexusPhase.byNumber(required) ?: return null
         val remaining = phases()?.ticksUntil(node.matchId, target) ?: return null
         if (remaining <= 0L) return null
-        server.findPlayer(player)?.postActionBar(
-            NEEDS_PHASE,
-            mapOf("phase" to required.toString(), "time" to formatClock(remaining)),
-        )
-        world?.deny(node.world, node.pos)
+        refuse(player, node, NEEDS_PHASE, mapOf("phase" to required.toString(), "time" to formatClock(remaining)), throttled)
         return Outcome.PhaseLocked(required)
     }
 
@@ -196,7 +191,7 @@ public class OreNodeService(
     override fun strike(player: PlayerId, world: WorldId, pos: Vec3, tool: ToolType, blockDamage: Int): IOreNodeStrikes.Result {
         val node = nodes[keyOf(world, pos)] ?: return IOreNodeStrikes.Result.NONE
         if (node.regrowing) return IOreNodeStrikes.Result.NONE
-        if (gate(player, node) != null) return IOreNodeStrikes.Result.NONE
+        if (gate(player, node, throttled = true) != null) return IOreNodeStrikes.Result.NONE
         if (tool.tier.ordinal < node.spec.requiredTier.ordinal) {
             refuse(player, node, NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()), throttled = true)
             return IOreNodeStrikes.Result.NONE

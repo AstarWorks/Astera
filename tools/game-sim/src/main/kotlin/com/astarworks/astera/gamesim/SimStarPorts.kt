@@ -153,13 +153,6 @@ public class SimOreNodeWorld(
         bursts += listOf(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt(), material)
     }
 
-    /** Cells a level-locked swing was denied at, in order (x, y, z). */
-    public val denied: MutableList<Triple<Int, Int, Int>> = java.util.concurrent.CopyOnWriteArrayList()
-
-    override fun deny(world: WorldId, pos: Vec3) {
-        denied += Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())
-    }
-
     /** Cells a refused swing (tool too weak or wrong) puffed at, in order (x, y, z). */
     public val refusals: MutableList<Triple<Int, Int, Int>> = java.util.concurrent.CopyOnWriteArrayList()
 
