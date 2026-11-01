@@ -117,7 +117,7 @@ enum class PackPolicy { LOAD, DECLINE, FAIL_DOWNLOAD, IGNORE }
 
 data class PackPush(val id: UUID, val url: String, val hash: String, val required: Boolean, val prompt: String?)
 data class ChatLine(val text: String, val overlay: Boolean, val at: Long = System.currentTimeMillis())
-data class BossBarView(val id: UUID, var title: String, var progress: Float, val titles: MutableList<String> = mutableListOf(), val progresses: MutableList<Float> = mutableListOf())
+data class BossBarView(val id: UUID, var title: String, var progress: Float, var color: String? = null, val titles: MutableList<String> = mutableListOf(), val progresses: MutableList<Float> = mutableListOf())
 data class ScoreView(var value: Int, var display: String?)
 data class TeamView(var prefix: String, var suffix: String, val players: MutableSet<String> = mutableSetOf(), var color: String? = null)
 data class ScreenView(val containerId: Int, val type: String, val title: String)
@@ -540,7 +540,8 @@ class Bot private constructor(
     private fun handleBossBar(p: ClientboundBossEventPacket) {
         val view = bossBars.computeIfAbsent(p.uuid) { BossBarView(p.uuid, "", 0f) }
         when (p.action.name) {
-            "ADD" -> { view.title = plain(p.title); view.progress = p.health }
+            "ADD" -> { view.title = plain(p.title); view.progress = p.health; view.color = p.color?.name }
+            "UPDATE_STYLE" -> view.color = p.color?.name
             "UPDATE_TITLE" -> view.title = plain(p.title)
             "UPDATE_HEALTH" -> view.progress = p.health
             "REMOVE" -> bossBars.remove(p.uuid)
