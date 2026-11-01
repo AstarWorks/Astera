@@ -21,9 +21,12 @@ import java.util.zip.ZipFile
  *  3. download of the client jar named by Mojang's version manifest (SHA-1 verified), shader files extracted
  *     into the cache, jar discarded.
  */
-public fun interface VanillaShaders {
+public interface VanillaShaders {
     /** Text of `assets/minecraft/shaders/core/<file>` in the vanilla client. */
     public fun coreShader(file: String): String
+
+    /** Vanilla dust sprite, used to preserve its shape/age frames in the reserved particle protocol. */
+    public fun particleSprite(file: String): ByteArray
 
     public companion object {
         /** `-Dastera.minecraftVersion=<v>` (set by Gradle from the version catalog) selects the client version. */
@@ -45,6 +48,13 @@ internal class ClientJarShaders(private val version: String) : VanillaShaders {
         if (!Files.isRegularFile(cached)) fill()
         check(Files.isRegularFile(cached)) { "vanilla $version client has no $ENTRY_DIR$file" }
         return Files.readString(cached)
+    }
+
+    override fun particleSprite(file: String): ByteArray {
+        require(Regex("generic_[0-7]\\.png").matches(file)) { "unsupported dust sprite $file" }
+        val path = cacheDir.resolve("particle").resolve(file)
+        if (!Files.isRegularFile(path)) fill()
+        return Files.readAllBytes(path)
     }
 
     private fun fill() {
@@ -78,6 +88,11 @@ internal class ClientJarShaders(private val version: String) : VanillaShaders {
         ZipFile(jar.toFile()).use { zip ->
             var found = 0
             for (entry in zip.entries().asSequence()) {
+                if (entry.name.matches(Regex("assets/minecraft/textures/particle/generic_[0-7]\\.png"))) {
+                    val target = cacheDir.resolve("particle").resolve(entry.name.substringAfterLast('/'))
+                    Files.createDirectories(target.parent)
+                    zip.getInputStream(entry).use { Files.copy(it, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING) }
+                }
                 if (entry.isDirectory || !entry.name.startsWith(ENTRY_DIR)) continue
                 val name = entry.name.removePrefix(ENTRY_DIR)
                 if ('/' in name) continue

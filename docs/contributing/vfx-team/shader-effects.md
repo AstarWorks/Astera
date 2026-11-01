@@ -1,6 +1,6 @@
 # Shader effects: add an effect in 3 steps
 
-Effects are local to an authored pack mesh display. Existing skin/weapon rigs keep their own reserved markers. Start by copying `content/shader-patches/effects/emissive-pulse/`.
+Item effects are local to an authored pack mesh display; the particle prototype below reserves a paired dust protocol. Existing skin/weapon rigs keep their own reserved markers. Start by copying `content/shader-patches/effects/emissive-pulse/`.
 
 1. Create `content/shader-patches/effects/<id>/effect.yaml`. Set `id` to the directory name, `programs: [item]`, a unique `vfx-tint` RGB decimal, and numeric `constants`. Inspect other manifests first; all marker claims are exclusive, including weapon tint `16711422`. The VFX light pair block 13 / sky 11 is reserved in `ShaderEffect`.
 2. Write `item.vsh.patch` and `item.fsh.patch` with `@@ hook: <name>`. `hooks.yaml` maps names to unique vanilla anchors; authors normally need only `declarations`, `shade`, `light` and `surface`. Copy the marker decoder and choose free matching varying locations in both stages. `${MARKER_R}`, `${MARKER_G}`, `${MARKER_B}`, `${BLOCK_UV}`, `${SKY_UV}` and `${CONSTANT_NAME}` expand at pack build. Prefix GLSL names per effect. Execute alpha/discard logic in OIT alpha-only passes too; lighting outputs exist only outside `OIT_ALPHA_ONLY`.
@@ -13,7 +13,7 @@ Effects are local to an authored pack mesh display. Existing skin/weapon rigs ke
 
    ```sh
    ./gradlew :tools:resource-pack:buildResourcePack
-   make vfx-shot SKILL=demo-shader-emissive-pulse VIEW=side TICKS=100
+   make vfx-shot SKILL=demo-shader-emissive-pulse ITEM=none VIEW=side TICKS=100
    ```
 
 Playable VFX demos in `content/vfx/` use the same Skill YAML schema as `content/skills/`. They are loaded by the same runtime and can be cast/filmed by id. Duplicate skill/demo ids and unknown shader ids fail content loading. Reloading the registry changes id validation; changing markers/constants/snippets also requires rebuilding and reloading the pack.
@@ -59,3 +59,34 @@ animated sprite surface. Those sprite sources still live under `content/sprites/
 and `content/textures/` until the textures owner removes them.
 
 Browser review uses `make skill-compare-up`; the 「スプライト」 tab retains source YAML and node intermediates. Shader appearance must be checked with the real-client sheets or the 「ライブ」 tab, rather than the dimension approximation.
+
+## Particle prototype: emissive-particle (SKL-07)
+
+The registry also supports the `particle` program. Its paired claim is
+`particle-tint-rgb: 255` (the **whole pure-blue hue family**, since dust jitters
+RGB independently) AND `particle-sprite-alpha: 254`. Neither confirmation alone
+selects emission. Do not use pure-blue dust as an ordinary colour while this
+prototype is installed. Natural light is not a marker.
+
+The builder derives all eight dust age sprites from the target vanilla client,
+preserving RGB, dimensions, silhouettes and ordering; opaque alpha 255 becomes
+254. No Mojang image is committed. All dust uses these copies (a 1/255 alpha
+change); a pack-authored dust skin conflicts and fails the build. Other particle
+types and their sprites stay untouched. The fragment keeps vanilla lighting
+until both confirmations match, then draws a four-step orange pixel ramp,
+retaining alpha, OIT and fog. Pure blue + another alpha remains ordinary; an
+orange dust control shares the marked sprite but keeps vanilla light.
+
+Cast `demo-glow-comparison`: A = 12 white block displays with cyan vanilla
+outline, B = 40 shader dust, C = 6 existing emissive-pulse item displays, D = 40
+ordinary orange dust. There are 18 server entities per cast. `glowing` defaults
+to false and controls Entity Glowing; `glow_color` only overrides its colour,
+independently, for every display kind. B's visible palette is pack-wide; A's
+outline and ordinary dust RGB are authorable. Emission is fullbright shading,
+not world light or bloom. Only A's outline is intended to survive occlusion.
+
+Capture with `make vfx-shot SKILL=demo-glow-comparison ITEM=none VIEW=side TICKS=40
+DISTANCE=8 TIME_OF_DAY=6000` (then 18000; then `SHOT_WALL=1`). Run
+`make vfx-shot-down` before a changed pack. Display rows use CORE (kept even at
+minimal `vfx_intensity`) and the existing audience filter. Direct particle
+emission bypasses `vfx_intensity` and follows the client particle setting.
