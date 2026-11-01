@@ -1,0 +1,109 @@
+package com.astarworks.astera.gamesim.playable.metrics
+
+import kotlinx.serialization.json.Json
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.math.floor
+
+/**
+ * Runs N headless matches (one per seed), writes `<outDir>/<run>/metrics.json` per match and `<outDir>/summary.md`
+ * (min / median / max and a short distribution per metric). Same content, only the seed differs (design 4.1).
+ */
+object MassPlay {
+    private val pretty = Json { prettyPrint = true }
+
+    class Config(
+        /** Hard cap of one match, ticks (20/s). A match still running then is reported as `running`. */
+        val maxTicks: Int = 24_000,
+        /** Render a PNG every this many ticks (0 = only the final frame). */
+        val frameEveryTicks: Int = 1_200,
+        val renderFrames: Boolean = true,
+    )
+
+    class RunResult(val run: String, val seed: Long, val result: MatchMetricsResult, val endReason: String)
+
+    fun run(
+        seeds: List<Long>,
+        outDir: Path,
+        config: Config = Config(),
+        newMatch: (seed: Long) -> MatchRun,
+    ): List<RunResult> {
+        Files.createDirectories(outDir)
+        val results = seeds.map { seed -> playOne(seed, outDir, config, newMatch) }
+        Files.writeString(outDir.resolve("summary.md"), summary(results))
+        return results
+    }
+
+    private fun playOne(seed: Long, outDir: Path, config: Config, newMatch: (Long) -> MatchRun): RunResult {
+        val run = "seed-$seed"
+        val dir = outDir.resolve(run)
+        Files.createDirectories(dir)
+        val match = newMatch(seed)
+        try {
+            val metrics = MatchMetrics(match.sim)
+            var frames: FrameRenderer? = null
+            fun frame(tick: Long) {
+                if (!config.renderFrames) return
+                val r = frames ?: run {
+                    val m = metrics.currentMatchId ?: return
+                    val s = metrics.currentStageId ?: return
+                    FrameRenderer(match.sim, s, m).also { frames = it }
+                }
+                r.render(tick, dir)
+            }
+            match.onTick { tick ->
+                metrics.onTick(tick)
+                if (config.frameEveryTicks > 0 && tick % config.frameEveryTicks == 0L) frame(tick)
+            }
+            var ticks = 0
+            while (!match.ended && ticks < config.maxTicks) { match.step(20); ticks += 20 }
+            frame(match.sim.tick)
+            val result = metrics.finish()
+            Files.writeString(dir.resolve("metrics.json"), pretty.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), result.json))
+            val reason = (result.json["endReason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "?"
+            return RunResult(run, seed, result, reason)
+        } finally {
+            match.sim.shutdown()
+        }
+    }
+
+    private const val SPARK = "▁▂▃▄▅▆▇█"
+
+    private fun spark(values: List<Double>): String {
+        val lo = values.min(); val hi = values.max()
+        if (hi - lo < 1e-9) return SPARK[3].toString().repeat(values.size.coerceAtMost(12))
+        val bins = IntArray(8)
+        for (v in values) bins[floor((v - lo) / (hi - lo) * 7.999).toInt().coerceIn(0, 7)]++
+        val top = bins.max()
+        return bins.joinToString("") { SPARK[(it * 7 / top).coerceIn(0, 7)].toString() }
+    }
+
+    private fun fmt(v: Double) = if (v == floor(v) && kotlin.math.abs(v) < 1e9) v.toLong().toString() else "%.2f".format(v)
+
+    fun summary(results: List<RunResult>): String = buildString {
+        appendLine("# Mass play summary")
+        appendLine()
+        appendLine("Matches: ${results.size} (seeds ${results.joinToString { it.seed.toString() }}). End reasons: " +
+            results.groupingBy { it.endReason }.eachCount().entries.joinToString { "${it.key} x${it.value}" })
+        appendLine()
+        appendLine("| metric | n | min | median | max | distribution (low to high) |")
+        appendLine("|---|---:|---:|---:|---:|---|")
+        val keys = results.flatMap { it.result.scalars.keys }.distinct()
+        for (key in keys) {
+            val values = results.mapNotNull { it.result.scalars[key] }.sorted()
+            if (values.isEmpty()) {
+                val reason = results.firstNotNullOfOrNull { it.result.notAvailable[key] } ?: "no value"
+                appendLine("| $key | 0 | n/a | n/a | n/a | n/a: $reason |")
+                continue
+            }
+            val median = if (values.size % 2 == 1) values[values.size / 2] else (values[values.size / 2 - 1] + values[values.size / 2]) / 2
+            appendLine("| $key | ${values.size} | ${fmt(values.first())} | ${fmt(median)} | ${fmt(values.last())} | ${spark(values)} |")
+        }
+        val notes = results.flatMap { it.result.notAvailable.entries }.groupBy({ it.key }, { it.value }).filterKeys { it !in keys }
+        if (notes.isNotEmpty()) {
+            appendLine()
+            appendLine("Notes / n/a columns:")
+            for ((k, v) in notes) appendLine("- $k: ${v.first()}")
+        }
+    }
+}
