@@ -225,12 +225,12 @@ class MatchMetrics(
     private fun group(id: PlayerId?): String =
         if (id == null) "environment" else roleOf?.invoke(id) ?: "team:${sim.world.find(id)?.team?.value ?: "?"}"
 
-    /** A kill in phase 1 (build) whose victim stood within [BASE_KILL_RADIUS] blocks (horizontal) of a pillar of a team other than the killer's. */
-    class BaseKill(val tick: Long, val killer: String, val victim: String, val distance: Double)
+    /** A kill in phase 1 (build) whose victim (killer on another team) stood within [ENEMY_BASE_RADIUS] blocks (horizontal) of a pillar of the victim's own team. */
+    class EnemyBaseKill(val tick: Long, val killer: String, val victim: String, val distance: Double)
 
-    private val baseKills = mutableListOf<BaseKill>()
+    private val enemyBaseKills = mutableListOf<EnemyBaseKill>()
 
-    private fun recordBaseKill(e: PlayerKilled) {
+    private fun recordEnemyBaseKill(e: PlayerKilled) {
         val killerEntity = e.killer?.let { sim.world.find(it) } ?: return
         val victim = sim.world.find(e.victim) ?: return
         val mid = matchId ?: return
@@ -238,17 +238,19 @@ class MatchMetrics(
         if (phase != NexusPhase.Phase1Build) return
         val st = stage ?: return
         val killerTeam = killerEntity.team ?: return
-        val d = st.pillars.filter { it.team != killerTeam }.minOfOrNull { p ->
+        val victimTeam = victim.team ?: return
+        if (killerTeam == victimTeam) return
+        val d = st.pillars.filter { it.team == victimTeam }.minOfOrNull { p ->
             val dx = p.centre.x - victim.position.x
             val dz = p.centre.z - victim.position.z
             sqrt(dx * dx + dz * dz)
         } ?: return
-        if (d <= BASE_KILL_RADIUS) baseKills += BaseKill(e.atTick, killerEntity.name, victim.name, d)
+        if (d <= ENEMY_BASE_RADIUS) enemyBaseKills += EnemyBaseKill(e.atTick, killerEntity.name, victim.name, d)
     }
 
     private fun onKill(e: PlayerKilled) {
         if (!isPlayer(e.victim)) return
-        recordBaseKill(e)
+        recordEnemyBaseKill(e)
         killTotal++
         kills.merge(group(e.killer), 1, Int::plus)
         e.killer?.let { k ->
@@ -403,7 +405,7 @@ class MatchMetrics(
         scalars["never_bought"] = playerList.count { it.id !in firstPurchase }.toDouble()
         if (buyerSeconds.isEmpty()) na["first_buy_median_s"] = "no player completed a match-shop purchase"
 
-        scalars["p1_base_kills"] = baseKills.size.toDouble()
+        scalars["p1_kills_in_enemy_base"] = enemyBaseKills.size.toDouble()
 
         scalars["kills_total"] = killTotal.toDouble()
         scalars["pillar_damage_total"] = pillarDamageTotal
@@ -487,8 +489,8 @@ class MatchMetrics(
             put("starsSupplied", starsSupplied)
             put("starsCollected", starsCollected)
             put("starsSuppliedPerPlayerMinute", perPlayerMinute)
-            put("p1BaseKills", baseKills.size)
-            put("p1BaseKillList", JsonArray(baseKills.map { k ->
+            put("p1KillsInEnemyBase", enemyBaseKills.size)
+            put("p1KillsInEnemyBaseList", JsonArray(enemyBaseKills.map { k ->
                 buildJsonObject {
                     put("tick", k.tick)
                     put("killer", k.killer)
@@ -539,7 +541,7 @@ class MatchMetrics(
 private const val TAP_PRIORITY = 1_000
 
 /** Phase-1 base-kill radius, blocks (horizontal). */
-private const val BASE_KILL_RADIUS = 35.0
+private const val ENEMY_BASE_RADIUS = 35.0
 
 private fun medianOf(sorted: List<Double>): Double? = when {
     sorted.isEmpty() -> null

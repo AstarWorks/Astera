@@ -41,8 +41,8 @@ class MatchMetricsScenarioTest {
             }
             assertThat(r.result.scalars["duration_s"]).isGreaterThan(0.0)
             assertThat(r.result.scalars["players"]).isEqualTo(6.0)
-            assertThat(r.result.scalars["p1_base_kills"]).`as`("p1_base_kills of ${r.run} is a count, with a per-kill list in metrics.json").isNotNull().isGreaterThanOrEqualTo(0.0)
-            assertThat(Files.readString(out.resolve(r.run).resolve("metrics.json"))).contains("\"p1BaseKillList\"")
+            assertThat(r.result.scalars["p1_kills_in_enemy_base"]).`as`("p1_kills_in_enemy_base of ${r.run} is a count, with a per-kill list in metrics.json").isNotNull().isGreaterThanOrEqualTo(0.0)
+            assertThat(Files.readString(out.resolve(r.run).resolve("metrics.json"))).contains("\"p1KillsInEnemyBaseList\"")
         }
         assertThat(results.map { it.result.scalars["pillar_damage_total"] ?: 0.0 }.sum()).`as`("the scripted attackers hurt pillars").isGreaterThan(0.0)
         val summary = Files.readString(out.resolve("summary.md"))
