@@ -13,12 +13,22 @@ The hand row's `reach=` (how far the pinned target lies beyond / inside the stra
 checked too: a pin the arm cannot reach means the body clip and the frame table are not on one clock (dev 2026-11-01,
 second cause: a cast started on a tick the engine had already run put the frames a tick ahead of the rows, reach +0.79).
 
-Usage: rig_trace_check.py <trace.log> <rig-check.txt>   (exit 1 = contract broken; a log without rig rows passes)
+The weapon display is not placed AT the hand grip: the engine puts the table's `grip` point of the held mesh on the
+pin (ADR-0315), so the display origin sits `PLAYER_SCALE * |grip|` from the pin (the aim rotation only turns that
+offset, it does not change its length). The check therefore expects `distance == PLAYER_SCALE * |grip|` of the item's
+`held_hand` part (content/frames/<item>.yaml, the point table RigHeldParityScenarioTest holds to the model JSON's
+display chain), within TOL_GRIP; a hold that moves the pin off the hand, or a mesh not placed by its grip, still breaks it.
+
+Usage: rig_trace_check.py <trace.log> <rig-check.txt> [<content/frames/ITEM.yaml>]   (exit 1 = contract broken; a log
+without rig rows passes; without the frames file the grip offset is taken as 0)
 """
 import re
 import sys
 
 TOL = 0.05
+TOL_GRIP = 0.01
+PLAYER_SCALE = 0.9375
+GRIP = re.compile(r"grip:\s*\[([^\]]+)\]")
 ROW = re.compile(r"\[vfx-trace\] rig (hand|mesh) (.*)$")
 KV = re.compile(r"(\w+)=(\S+)")
 
@@ -31,7 +41,19 @@ def dist(a, b):
     return sum((x - y) ** 2 for x, y in zip(a, b)) ** 0.5
 
 
-def main(trace_path, out_path):
+def held_hand_grip_offset(frames_path):
+    """PLAYER_SCALE * |grip| of the `held_hand` part (blocks): how far the engine puts the display origin from the pin."""
+    if not frames_path:
+        return 0.0
+    part = open(frames_path, encoding="utf-8").read().split("held_hand:", 1)
+    m = GRIP.search(part[1]) if len(part) == 2 else None
+    if not m:
+        return 0.0
+    return PLAYER_SCALE * sum(float(x) ** 2 for x in m.group(1).split(",")) ** 0.5
+
+
+def main(trace_path, out_path, frames_path=None):
+    grip_offset = held_hand_grip_offset(frames_path)
     hands = {}  # (tick, player, side) -> fields; side is "r" (the main hand) or "l" (a `hand: off` rig)
     meshes = {}  # (tick, player, side) -> fields
     for line in open(trace_path, encoding="utf-8", errors="replace"):
@@ -81,15 +103,16 @@ def main(trace_path, out_path):
         for field in ("at", "yaw", "tp", "ip"):
             if mesh.get(field) != hand.get(field):
                 problems.append(f"{field} mesh={mesh.get(field)} hand={hand.get(field)}")
-        gap = dist(vec(mesh["origin"]), vec(hand["grip"]))
+        raw = dist(vec(mesh["origin"]), vec(hand["grip"]))
+        gap = abs(raw - grip_offset) if side == "r" else raw
         if side == "l":
             left_checked += 1
             if gap > worst_left:
                 worst_left, worst_left_tick = gap, tick
         elif gap > worst:
             worst, worst_tick = gap, tick
-        if gap > TOL:
-            problems.append(f"origin {mesh['origin']} vs grip {hand['grip']} gap={gap:.4f}")
+        if gap > (TOL_GRIP if side == "r" else TOL):
+            problems.append(f"origin {mesh['origin']} vs pin {hand['grip']} is {raw:.4f} apart, the held grip offset is {grip_offset:.4f} (gap={gap:.4f})")
         reach = float(hand["reach"]) if hand.get("reach") not in (None, "null") else 0.0
         if abs(reach) > abs(worst_reach):
             worst_reach, worst_reach_tick = reach, tick
@@ -115,7 +138,7 @@ def main(trace_path, out_path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) not in (3, 4):
         print(__doc__)
         sys.exit(2)
-    sys.exit(main(sys.argv[1], sys.argv[2]))
+    sys.exit(main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) == 4 else None))

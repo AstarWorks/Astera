@@ -63,7 +63,7 @@ class EconomyPlanner(
 
     /** Whether the bot can ever fill [ore] now: an own base generator drops it, or it can dig a Mid node of it that is not resting. */
     private fun sourceable(ore: String, now: Long, hasPickaxe: Boolean): Boolean =
-        sites.generators.any { it.ore == ore } ||
+        sites.generators.any { it.ore == ore && genFree(it, now) } ||
             (hasPickaxe && (oreBlockedUntil[ore] ?: 0L) <= now && sites.nodes.any { it.ore == ore && (blockedUntil[blockOf(it)] ?: 0L) <= now })
 
     /**
@@ -95,7 +95,7 @@ class EconomyPlanner(
             if (passed[i]) continue
             val lacking = ladder[i].entries.firstOrNull { (have[it.key] ?: 0) < it.value }?.key ?: continue // affordable but snoozed: the shop did not sell it
             if (!sourceable(lacking, now, hasPickaxe)) continue
-            val own = sites.generators.filter { it.ore == lacking }
+            val own = sites.generators.filter { it.ore == lacking && genFree(it, now) }
             if (own.isNotEmpty()) {
                 mineTarget = null
                 val g = own.minBy { hypot(it.x - x, it.z - z) }
@@ -105,6 +105,28 @@ class EconomyPlanner(
         }
         return null
     }
+
+    /**
+     * The walk to the step just returned found no path (a node on a sealed island, a generator behind a gap): drop that source for
+     * [UNREACHABLE_BLOCK_MS] (terrain does not change) so [step] picks the next reachable one instead of asking the pathfinder for the same dead goal every tick.
+     */
+    fun unreachable(step: Step, now: Long) {
+        when (step.kind) {
+            "mine" -> {
+                val block = step.strike ?: return
+                blockedUntil[block] = now + UNREACHABLE_BLOCK_MS
+                if (mineTarget == block) mineTarget = null
+                nodesGivenUp++
+            }
+            "collect" -> sites.generators.filter { it.ore == step.ore && it.x == step.x && it.z == step.z }
+                .forEach { genBlockedUntil[Triple(Math.floor(it.x).toInt(), Math.floor(it.y).toInt(), Math.floor(it.z).toInt())] = now + UNREACHABLE_BLOCK_MS }
+        }
+    }
+
+    private val genBlockedUntil = HashMap<Triple<Int, Int, Int>, Long>()
+
+    private fun genFree(g: Site, now: Long) =
+        (genBlockedUntil[Triple(Math.floor(g.x).toInt(), Math.floor(g.y).toInt(), Math.floor(g.z).toInt())] ?: 0L) <= now
 
     private fun finishCommitted() {
         if (committed >= 0) passed[committed] = true
@@ -168,6 +190,7 @@ class EconomyPlanner(
         const val MINE_REACH = 4.5
         const val MINE_GIVE_UP_MS = 15_000L
         const val BLOCK_MS = 120_000L
+        const val UNREACHABLE_BLOCK_MS = 3_600_000L
         const val REGROW_BLOCK_MS = 30_000L
         const val ORE_RETRY_MS = 90_000L
 

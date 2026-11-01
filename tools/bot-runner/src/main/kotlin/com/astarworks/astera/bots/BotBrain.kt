@@ -431,12 +431,14 @@ class BotBrain(
                 if (st != Navigator.Status.MOVING) endTravel()
                 lastKind = "go>${dest.kind}:$st"
                 if (st == Navigator.Status.ARRIVED) stuck.reset()
+                if (st != Navigator.Status.NO_PATH) noPathStreak = 0
                 when (st) {
                     Navigator.Status.MOVING -> { dwellOn(dest, now); return }
                     Navigator.Status.ARRIVED -> {
                         arrivedAt(dest, now)
                     }
                     Navigator.Status.NO_PATH -> {
+                        if (dest.kind.startsWith("econ-") && noPathGivesUp(dest, st)) lastEconStep?.let { economy?.unreachable(it, now) }
                         if (dest.kind == "mode") modePausedUntil = now + 5_000 // unreachable for now: patrol / roam meanwhile
                         if (dest.kind == "star") ignoreStar(dest.starId, now) else if (dest.kind != "enemy-seen") arrivedAt(dest, now, unreachable = true)
                     }
@@ -560,11 +562,11 @@ class BotBrain(
         }
         economyDest(now)?.let { return it }
         // A cache close by is a short detour even while the mode plan runs (never while carrying the objective).
-        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             nearestCache(now, CACHE_DETOUR_RANGE)?.let { return it }
         }
         // A paying block close by (barrel / chest / crafting table) is a short detour while nothing is in sight (never while carrying the objective).
-        if (!starBlocksDry && goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (!starBlocksDry && goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             starBlocks.tick(now, bot.x, bot.y, bot.z)
             starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z)
             starBlockTarget?.let { return Dest(it.first + 0.5, it.third + 0.5, it.second.toDouble(), STAR_BLOCK_ARRIVE, "block") }
@@ -720,7 +722,9 @@ class BotBrain(
         // Face the block: the tool skill is aimed with the look direction.
         val dx = block.first + 0.5 - bot.x
         val dz = block.third + 0.5 - bot.z
-        val dy = block.second + 0.5 - (bot.y + 1.62)
+        // Aim at the pillar entity's position (block y), the centre of its hit box (y-0.5..y+0.5); the block centre (y+0.5) is the
+        // box's top edge and the ray there lands on the block face above it, which deals no pillar damage.
+        val dy = block.second.toDouble() - (bot.y + 1.62)
         val yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
         val pitch = (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
         strikeLook = yaw to pitch
@@ -787,6 +791,18 @@ class BotBrain(
      * [ECON_SLICE_MS] after [ECON_OPENING_MS] of match start, never while carrying the objective or with an enemy seen in the last
      * [LULL_MS], and hands over to the plan for [OBJECTIVE_SLICE_MS] after each slice. (Enemies in sight never reach here: the fight branch wins.)
      */
+    private var lastEconStep: EconomyPlanner.Step? = null
+    private var noPathStreak = 0
+    private var noPathKey = ""
+
+    /** Consecutive NO_PATH ticks towards the same goal; [NO_PATH_GIVE_UP_TICKS] of them mean the goal is not reachable, not a chunk still loading. */
+    private fun noPathGivesUp(dest: Dest, st: Navigator.Status): Boolean {
+        if (st != Navigator.Status.NO_PATH) { noPathStreak = 0; return false }
+        val key = "${dest.kind}:${dest.x.toInt()}:${dest.z.toInt()}"
+        if (key != noPathKey) { noPathKey = key; noPathStreak = 0 }
+        return ++noPathStreak >= NO_PATH_GIVE_UP_TICKS
+    }
+
     private fun economyDest(now: Long): Dest? {
         val eco = economy ?: return null
         val pl = planner
@@ -802,6 +818,7 @@ class BotBrain(
         if (st == null) { econSliceStart = 0L; return null }
         if (pl != null && econSliceStart == 0L) econSliceStart = now
         economyKind = st.kind
+        lastEconStep = st
         return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
     }
 
@@ -831,6 +848,7 @@ class BotBrain(
      * dig through. Returns true when this tick was spent on a sidestep.
      */
     private fun escapeStuck(dest: Dest, now: Long): Boolean {
+        unbury(now)
         val moving = hypot(dest.x - bot.x, dest.z - bot.z) > dest.arrive
         when (stuck.update(now, bot.x, bot.z, moving)) {
             StuckEscapePolicy.Action.NONE -> Unit
@@ -848,6 +866,22 @@ class BotBrain(
             return true
         }
         return false
+    }
+
+    /**
+     * A block placed over the bot (arena restore, a rebuilt pillar ring) leaves it inside solid terrain, where no start cell exists
+     * and every plan is NO_PATH for good. Dig the block at head height, then at the feet, until the bot stands in air again.
+     */
+    private fun unbury(now: Long) {
+        if (now - lastBreakAt < 1_500) return
+        val bx = Math.floor(bot.x).toInt()
+        val bz = Math.floor(bot.z).toInt()
+        val by = Math.floor(bot.y + 0.05).toInt()
+        val y = listOf(by + 1, by).firstOrNull { bot.terrain.isSolid(bx, it, bz) == true } ?: return
+        lastBreakAt = now
+        blocksBroken.incrementAndGet()
+        bot.digAsync(bx, y, bz, 400)
+        nav.clear()
     }
 
     /** Digs the first solid block (head height, then feet height) in front towards [dest]; the server decides whether it breaks. */
@@ -888,7 +922,9 @@ class BotBrain(
 
     /** The star pick-up to fetch: nearest dropped star item within reach (any distance with the STAR goal, a short detour with KILL). */
     private fun starTarget(now: Long): Dest? {
-        val limit = if (goal == Goal.STAR) STAR_SIGHT_RANGE else KILL_DETOUR_RANGE
+        // A pillar attacker is the team's offence: it only picks up a star on its way (ATTACKER_STAR_RANGE) instead of chasing
+        // every star on the stage while the enemy pillars stand untouched.
+        val limit = if (goal != Goal.STAR) KILL_DETOUR_RANGE else if (planner?.role == Role.PILLAR_ATTACKER) ATTACKER_STAR_RANGE else STAR_SIGHT_RANGE
         var best: Seen? = null
         var bestD = Double.MAX_VALUE
         for (e in bot.entities.values) {
@@ -1213,6 +1249,7 @@ class BotBrain(
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5
+        const val NO_PATH_GIVE_UP_TICKS = 10
         const val STAR_BLOCK_ARRIVE = 2.2
         const val STAR_BLOCK_PAY_WINDOW_MS = 3_000L
         const val STAR_BLOCK_UNPAID_LIMIT = 2
@@ -1232,6 +1269,8 @@ class BotBrain(
         const val LULL_MS = 10_000L
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0
+        /** How far a pillar attacker leaves its route for a visible star. */
+        const val ATTACKER_STAR_RANGE = 14.0
         const val NORMA_HOME_ARRIVE = 6.0
         val NORMA_READY = Regex("Norma goal met|ノルマ達成")
         const val STAR_CHASE_MS = 20_000L
