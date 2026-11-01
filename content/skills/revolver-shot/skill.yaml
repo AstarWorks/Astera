@@ -7,6 +7,7 @@
 # is pinned onto the frame origin by look-at and the gun points along `v`: nothing is authored on the body. The arm is one rigid bone, so
 # every hand point lies on the 0.60 sphere about the shoulder: recoil is a swing on it, not a pull-back. `move:` kicks the hand up 0.05 and
 # forward 0.02 (the arm 5 degrees up) over 2 ticks and settles over 4, `rotate:` about `s` flips the muzzle up 20 degrees and back.
+# `shot` is rooted on the bullet's body (the `bolt` op), v the way it flies: the trail rows draw along `tail`, the 0.4 behind it.
 # `hit` one per victim at the victim's centre, v facing the way the bullet came in; `blk` one per block contact at the contact point,
 # v the way the bullet came in.
 # Everything drawn or heard is a point of one of them: the flash and the bolt at the muzzle (v 0.65, w 0.27 from the grip, see
@@ -38,6 +39,11 @@ frames:
     rotate:
       - {at: 0, for: 2, about: s, to: 20, ease: out_quad}                      # muzzle flip
       - {at: 2, for: 4, about: s, to: 0, ease: in_out_sine}
+  - id: shot
+    origin: bolt
+    v: velocity
+    w: up
+    s: v x w
   - id: hit
     on: event.victim
     each: true
@@ -52,6 +58,8 @@ frames:
     v: incoming
     w: up
     s: v x w
+lines:
+  tail: {frame: shot, from: {}, to: {v: -0.4}}                  # the bullet's last 0.4
 machine:
   start: fire
   tail: 10
@@ -84,6 +92,6 @@ machine:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
               - {id: spark_blk, op: particle, particle: dust, frame: blk, pos: {v: -0.2}, count: 4, offset: [0.06, 0.06, 0.06], color: "#ffd060", size: 0.45, detach: true}
               - {id: dust_blk, op: particle, particle: dust, frame: blk, pos: {v: -0.2, w: 0.1}, count: 3, offset: [0.12, 0.12, 0.12], color: "#8c8c8c", size: 0.6, detach: true}
-        - {id: trail0, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 2, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 2, every: 1, until: bolt.end}
+        - {id: trail0, op: particle, particle: dust, along: tail, samples: 2, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 2, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, along: tail, samples: 2, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 2, every: 1, until: bolt.end}
     end: {final: true}
