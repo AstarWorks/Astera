@@ -4,7 +4,9 @@
 #   pre     - the caster at tick 2 (held in the world): the white line and the lavender haze. c1 / wisp - the caster at ticks 7 and 15: the coin1 cut.
 #   raise   - the right hand, lifted 0.9 over 6 ticks: the held shears go overhead before they come apart.
 #   spin    - the right hand: the three pieces whirl about s (54 degrees a tick, ticks 4..34, one turn is 360 so 30 ticks make 4.5 turns). The blades
-#             open 35 degrees either side about their own edge; that opening is static (the old 4-tick opening is gone under the whirl).
+#   spin_a / spin_b - the same whirl, with the blade opening listed AFTER the s sweep so it turns about the swept edge (w): 35 / -35 degrees over ticks 4..8.
+#             The body rides plain `spin`. (The whoosh volume and pitch read the tip speed spin_dpt x 0.0175 (radians) x the 0.77 tip radius: Paper gives a
+#             frame no live velocity, only caster / victim / target, so the old speed(piece_a.tip) had no frame equivalent; it varied only with the hand.)
 #   hand    - the right hand again, unrotated: the start of the three threads.
 #   over_a / over_b - 2.5 above the caster: the overhead slash loops turn about v (+-600 degrees over ticks 22..32).
 #   shot    - the thrown volley (release at tick 34), upright: the flight fan and the tip glints. vol - the same, but it spins about v by 378 degrees
@@ -62,16 +64,32 @@ frames:
     s: v x w
     rotate:
       - {at: 4, for: 30, about: s, to: 1620}
+  - id: spin_a
+    origin: body_anim.hand_r
+    v: up
+    w: forward
+    s: v x w
+    rotate:
+      - {at: 4, for: 30, about: s, to: 1620}
+      - {at: 4, for: 4, about: w, to: 35}
+  - id: spin_b
+    origin: body_anim.hand_r
+    v: up
+    w: forward
+    s: v x w
+    rotate:
+      - {at: 4, for: 30, about: s, to: 1620}
+      - {at: 4, for: 4, about: w, to: -35}
   - {id: hand, origin: body_anim.hand_r, v: forward, w: up, s: v x w}
   - id: over_a
-    origin: {frame: body, pos: {w: 2.5}}
+    origin: {frame: body, pos: {w: 2.5, v: 2.2}}
     v: forward
     w: up
     s: v x w
     rotate:
       - {at: 22, for: 10, about: v, to: -600}
   - id: over_b
-    origin: {frame: body, pos: {w: 2.5}}
+    origin: {frame: body, pos: {w: 2.5, v: 2.2}}
     v: forward
     w: up
     s: v x w
@@ -84,6 +102,8 @@ frames:
     w: forward
     s: v x w
     rotate:
+      - {at: 0, for: 1, about: s, to: 180}
+      - {at: 34, for: 3, reset: true, ease: out_cubic}
       - {at: 38, for: 7, about: v, to: 378}
   - {id: flash, on: event.victim, each: true, origin: victim.feet, v: forward, w: up, s: v x w}
   - {id: blow, on: event.victim, each: true, origin: victim.center, v: forward, w: up, s: v x w}
@@ -147,12 +167,12 @@ machine:
         # the held shears rise overhead for 4 ticks, then the three real pieces whirl on `spin`
         - {id: held_m, op: display, kind: item, item: "astera:couture-rapier", part: held, frame: raise, for: 4}
         - {id: piece_body_m, op: display, kind: item, item: "astera:couture-rapier", part: body, frame: spin, at: 4, for: 30}
-        - {id: piece_a_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_a, frame: spin, rotate: [{axis: edge, deg: 35}], at: 4, for: 30}
-        - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_b, frame: spin, rotate: [{axis: edge, deg: -35}], at: 4, for: 30}
+        - {id: piece_a_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_a, frame: spin_a, at: 4, for: 30}
+        - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_b, frame: spin_b, at: 4, for: 30}
         # trails: the blade tip (0.77 up, 0.54 to the side) behind the root; alpha 0.35 = byte 0x59 of the colour, fade 1.5
         - {id: trail_a, op: ribbon, of: {frame: spin, pos: {v: 0.77, s: -0.54}}, root: {frame: spin, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
         - {id: trail_b, op: ribbon, of: {frame: spin, pos: {v: 0.77, s: 0.54}}, root: {frame: spin, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
-        - {id: whoosh, op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: 0.6, pitch: 1.1}
+        - {id: whoosh, op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(spin_dpt * 0.0175 * 0.77 / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(spin_dpt * 0.0175 * 0.77 / 2.0, 0.0, 1.0)"}
         # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (delay op)
         - {id: slash, op: frame, anchor: caster, mode: snapshot, at: 8, for: 1}
         - id: c1_hit
@@ -204,8 +224,12 @@ machine:
         - {id: wisp, op: display, kind: sprite, sprite: couture-s2-crescent-core, frame: wisp, pos: {v: -1.6, w: 1.3}, at: 15, for: 6, size: [0.51, 3.2], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [1, 1, 1], alpha: 0.8, ease: out_expo}, {t: 6, scale: [1.4, 0.6, 1], alpha: 0, ease: in_quad}]}]}
 
         # --- tick 22..32: the overhead slash loop turns about the caster's forward axis, one each way, shrinking away
-        - {id: over_a_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_a, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 1}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
-        - {id: over_b_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_b, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 1}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
+        - {id: over_a0_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_a, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, pos: {w: 0.1}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
+        - {id: over_a1_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_a, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, pos: {w: -0.1}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
+        - {id: over_a2_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_a, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, pos: {w: 0}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
+        - {id: over_b0_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_b, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, pos: {w: 0.1}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
+        - {id: over_b1_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_b, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, pos: {w: -0.1}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
+        - {id: over_b2_m, op: display, kind: sprite, sprite: couture-s2-overhead-slash, frame: over_b, at: 22, for: 10, size: [1.65, 1.65], billboard: fixed, pos: {w: 0}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}]}
     throw:
       # release: volley placed at the shears, fly tip-first at throw_speed, gravity 0, drag 0, max_ticks = ceil(range / speed) + 2
       for: 7   # = ceil(throw_range / throw_speed) + 2 = ceil(7 / 1.7) + 2 = 5 + 2 = 7 with the current params (C5: for is a compile-time tick count)
