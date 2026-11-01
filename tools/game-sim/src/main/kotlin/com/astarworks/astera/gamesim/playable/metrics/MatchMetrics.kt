@@ -181,7 +181,8 @@ class MatchMetrics(
         val targets = sim.services.get<IStructureTargets>() ?: return
         var delta = 0.0
         for (id in pillarIds.keys) {
-            val hp = targets.hitPoints(id) ?: 0.0
+            // null = the match no longer tracks the pillar (ended/cleaned up): not damage, so the remaining HP must not count.
+            val hp = targets.hitPoints(id) ?: continue
             val prev = pillarHp[id]
             if (prev != null && hp < prev) delta += prev - hp
             pillarHp[id] = hp
