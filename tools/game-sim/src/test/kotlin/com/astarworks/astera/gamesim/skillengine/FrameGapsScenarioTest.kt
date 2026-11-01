@@ -206,4 +206,49 @@ class FrameGapsScenarioTest : SkillEngineScenario() {
         assertThat(viaFrame.first()).describedAs("the hand moves with the clip").isNotEqualTo(viaFrame.last())
         assertThat(viaFrame).describedAs("a frame on the hand reads the same point as the anchor").isEqualTo(viaAnchor)
     }
+
+    @Test
+    fun aProjectileBodyFrameSpinsAboutItsOwnLongAxis() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: projectile-spin
+            anchors:
+              - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: follow}
+            frames:
+              - {id: body, origin: ball, v: up, w: forward, s: v x w, rotate: [{at: 4, for: 7, about: v, from: 0, to: 378}]}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 14
+                  then: end
+                  do:
+                    - {id: mark, op: particle, particle: flame, frame: body, pos: {w: 1.0}, count: 1, at: 0, every: 1, until: ball.end}
+                    - {id: centre, op: particle, particle: crit, frame: body, pos: {}, count: 1, at: 0, every: 1, until: ball.end}
+                    - id: ball
+                      op: projectile
+                      at: 0
+                      origin: muzzle
+                      velocity: "= look(caster)"
+                      speed: 0.5
+                      range: 30
+                      for: 14
+                      radius: 0.3
+                      hit: {targets: enemies, once: true, attach: false}
+                      block: {mode: despawn}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 14, rec)
+        fun offset(tick: Int): List<Double> {
+            val m = rec.emittedAt.first { it.first == tick && it.second == "flame" }.third
+            val c = rec.emittedAt.first { it.first == tick && it.second == "crit" }.third
+            return listOf(m.x - c.x, m.y - c.y, m.z - c.z)
+        }
+        assertThat(offset(3)).describedAs("before the spin").isNotEqualTo(offset(6))
+        assertThat(offset(6)).describedAs("the spin keeps the radius").satisfies({ o -> assertThat(Math.sqrt(o.sumOf { it * it })).isCloseTo(1.0, org.assertj.core.data.Offset.offset(1e-6)) })
+    }
 }
