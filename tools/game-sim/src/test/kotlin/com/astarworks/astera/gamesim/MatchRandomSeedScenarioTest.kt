@@ -16,6 +16,8 @@ import com.astarworks.astera.match.domain.anomaly.AnomalyType
 import com.astarworks.astera.match.domain.event.AnomalyTriggered
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.mode.GameModeId
+import com.astarworks.astera.gamesim.playable.MatchConfig
+import com.astarworks.astera.gamesim.playable.MatchDriver
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -57,6 +59,27 @@ class MatchRandomSeedScenarioTest {
         val b = sample(1111L)
         val c = sample(2222L)
         assertThat(a.count { it.startsWith("anomaly") }).`as`("anomalies fired").isPositive()
+        assertThat(b).isEqualTo(a)
+        assertThat(c).isNotEqualTo(a)
+    }
+
+    /** MatchId, per-bot loadouts and the star spots lying after 1200 ticks, brains off (only the plugin's own random draws). */
+    private fun playableSample(seed: Long): List<String> {
+        MatchDriver.boot(MatchConfig(botsPerTeam = 2, seed = seed)).use { driver ->
+            driver.sim.step(1200)
+            val out = mutableListOf("match ${driver.matchId.value}")
+            driver.seats.forEach { out += "${it.name} ${checkNotNull(driver.sim.server.view(it.entity.id)).givenItems}" }
+            driver.sim.starDrops.lying().sortedBy { it.handle }.forEach { out += "star ${it.position} x${it.amount}" }
+            return out
+        }
+    }
+
+    @Test
+    fun `same seed gives identical match id, bot loadouts and star spots, another seed differs`() {
+        val a = playableSample(3131L)
+        val b = playableSample(3131L)
+        val c = playableSample(4242L)
+        assertThat(a.count { it.startsWith("star") }).`as`("stars dropped").isPositive()
         assertThat(b).isEqualTo(a)
         assertThat(c).isNotEqualTo(a)
     }

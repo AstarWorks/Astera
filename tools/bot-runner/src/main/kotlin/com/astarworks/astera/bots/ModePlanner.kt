@@ -170,7 +170,7 @@ class ModePlanner(
             else -> null
         }
         role = s?.role
-        lastEngage = s?.engage ?: Double.MAX_VALUE
+        lastEngage = s?.engage ?: if (preparing(now)) ATTACK_ENGAGE_FAR else Double.MAX_VALUE
         return s
     }
 
@@ -265,8 +265,10 @@ class ModePlanner(
         val goalName = Regions.goal(enemy, zones) ?: return null
         val goal = zones.point(goalName) ?: return null
         val myDist = hypot(goal.first - x, goal.third - z)
+        // A checkpoint the bot stands on is still ahead: without that, arriving at it (within CHECKPOINT_RADIUS) drops it from the
+        // list before the hold ever runs, the checkpoint is never secured and the server refuses the delivery.
         val ahead = Regions.checkpoints(enemy, zones).filter { it !in secured }.firstOrNull { cp ->
-            zones.point(cp)?.let { hypot(goal.first - it.first, goal.third - it.third) < myDist - CHECKPOINT_RADIUS } == true
+            zones.point(cp)?.let { hypot(it.first - x, it.third - z) <= CHECKPOINT_RADIUS || hypot(goal.first - it.first, goal.third - it.third) < myDist - CHECKPOINT_RADIUS } == true
         }
         if (ahead != null) {
             val s = step(ahead, "checkpoint", CHECKPOINT_RADIUS, Role.CARRIER, CARRY_ENGAGE) ?: return null
@@ -419,6 +421,8 @@ class ModePlanner(
      * no new far fight starts for [FAR_COOLDOWN_MS] (no flip-flop between walking and fighting).
      */
     fun engages(enemy: Sighting, now: Long, x: Double, z: Double): Boolean {
+        // Preparation phase: an enemy inside an enemy base is not worth following (nothing to win there); one in the field is fought as usual.
+        if (offLimits(now, enemy.x, enemy.z) && !offLimits(now, x, z)) { farFightSince = NEVER; return false }
         val d = hypot(enemy.x - x, enemy.z - z)
         if (d <= lastEngage) { farFightSince = NEVER; return true }
         if (role != Role.PILLAR_ATTACKER || d > ATTACK_ENGAGE_FAR || now < farBlockedUntil) { farFightSince = NEVER; return false }
@@ -450,8 +454,27 @@ class ModePlanner(
         }
     }
 
+    private var firstAskedAt = NEVER
+    private var phaseSeen = 0
+
+    /**
+     * Annihilation Preparation phase (pillars immune): [ModeFacts.phase] says which phase runs (the boss bar); a host that
+     * shows no bar falls back to the [BUILD_PHASE_MS] timer from the first question. The highest phase seen sticks.
+     */
+    fun preparing(now: Long): Boolean {
+        if (modeId != "annihilation") return false
+        if (firstAskedAt == NEVER) firstAskedAt = now
+        facts.phase()?.let { phaseSeen = maxOf(phaseSeen, it) }
+        return if (phaseSeen > 0) phaseSeen == 1 else now - firstAskedAt < BUILD_PHASE_MS
+    }
+
+    /** Preparation phase and ([x], [z]) lies within [BASE_AVOID_RADIUS] of an enemy pillar: bots keep out (no pillar to break there yet). */
+    fun offLimits(now: Long, x: Double, z: Double): Boolean =
+        preparing(now) && zones.pillars().any { it.team != ownTeam && hypot(it.x + 0.5 - x, it.z + 0.5 - z) <= BASE_AVOID_RADIUS }
+
     /** A chase step to the target's last known spot, or null when there is nothing (any more) to chase. */
     private fun chase(now: Long, x: Double, z: Double): Step? {
+        if (lastSeenAt != NEVER && offLimits(now, lastSeenX, lastSeenZ)) { chaseSince = NEVER; lastSeenAt = NEVER; return null }
         if (lastSeenAt == NEVER || now < chaseBlockedUntil || now - lastSeenAt > CHASE_MEMORY_MS) { chaseSince = NEVER; return null }
         if (chaseSince == NEVER) { chaseSince = now; chaseOriginX = x; chaseOriginZ = z }
         val arrived = hypot(lastSeenX - x, lastSeenZ - z) <= CHASE_ARRIVE
@@ -479,6 +502,8 @@ class ModePlanner(
             // Switched defenders run to the hit pillar and fight on top of it; the regular guard keeps its post radius.
             return Step("pillar-$ownTeam-${p.tier}", p.x + 0.5, p.y.toDouble(), p.z + 0.5, GUARD_RADIUS, "guard", Role.PILLAR_DEFENDER, GUARD_ENGAGE)
         }
+        // Preparation: attackers gather (ore, stars, caches, shop, norma) until the pillars open; the brain falls through to those.
+        if (preparing(now)) return null
         val target = RoleAssigner.weakestTeam(enemyTeams) { t -> all.count { it.team == t && standing(it) } } ?: return null
         val p = all.filter { it.team == target && standing(it) }.minByOrNull { it.tier } ?: return null
         objectiveX = p.x + 0.5; objectiveZ = p.z + 0.5
@@ -538,6 +563,12 @@ class ModePlanner(
         const val FAR_FIGHT_MS = 12_000L
         const val FAR_COOLDOWN_MS = 6_000L
         const val OBJECTIVE_LEASH = 80.0
+
+        /** Preparation phase: blocks around every enemy pillar (tier 1 sits ~25 from the spawn) that bots do not enter. */
+        const val BASE_AVOID_RADIUS = 35.0
+
+        /** Timer fallback for hosts without a phase bar: the `annihilation.yaml` build phase, 7200 ticks. */
+        const val BUILD_PHASE_MS = 360_000L
         /** Chase: remembered target spot lifetime, max duration, max distance from where it began, arrive radius, pause after. */
         const val CHASE_MEMORY_MS = 4_000L
         const val CHASE_MS = 8_000L

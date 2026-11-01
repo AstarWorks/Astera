@@ -1,6 +1,7 @@
-# tool skill hit area (pickaxe: sparks off the rock); heavier at iron tier
+# Typical material accent; impact layout is authored in each skill.
 id: tool-pick-iron
-particle: electric_spark
-count: 20
-offset: [0.35, 0.35, 0.35]
-extra: 0.35
+particle: block
+block: minecraft:stone
+count: 14
+offset: [0.22, 0.22, 0.22]
+extra: 0.08

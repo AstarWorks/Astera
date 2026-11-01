@@ -74,7 +74,7 @@ tasks.register<JavaExec>("massPlay") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("com.astarworks.astera.gamesim.playable.metrics.MassPlayMainKt")
     workingDir = rootDir
-    jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
+    jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.massplay.maxTicks=${providers.gradleProperty("maxTicks").getOrElse("24000")}", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
     val out = layout.buildDirectory.dir("play").get().asFile.absolutePath
     args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seeds").getOrElse(""))
 }

@@ -5,8 +5,13 @@ import com.astarworks.astera.bots.StageObjectives
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMatchLevelGate
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.event.MatchEnded
@@ -19,13 +24,13 @@ import com.astarworks.astera.core.domain.stage.ArenaBuildPlan
 import com.astarworks.astera.core.domain.stage.SpawnRole
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.economy.application.service.MatchShopLoaderService
-import com.astarworks.astera.economy.domain.matchshop.MatchShopOffer
 import com.astarworks.astera.gamesim.GameSim
 import com.astarworks.astera.gamesim.SimEntity
 import com.astarworks.astera.gamesim.SimEntityKind
 import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
 import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
+import com.astarworks.astera.match.application.service.NormaLevelService
 import com.astarworks.astera.match.application.service.OreNodeService
 import com.astarworks.astera.match.domain.event.NormaCheckReady
 import com.astarworks.astera.match.domain.event.NormaLevelUp
@@ -35,7 +40,18 @@ import kotlin.math.floor
 import kotlin.math.hypot
 
 /** What one `act` / `skip` did: [stopped] is the reason it returned, [note] the human-readable outcome. */
-data class StepOutcome(val ok: Boolean, val stopped: String, val note: String)
+data class StepOutcome(val ok: Boolean, val stopped: String, val note: String, val shop: List<ShopLine>? = null, val failed: Boolean = false)
+
+/** One shop offer as the seat sees it: the real price (ore name -> count), what it still lacks and whether the norma level locks it. */
+data class ShopLine(
+    val id: String, val tab: String, val price: Map<String, Int>, val missing: Map<String, Int>, val lockedUntilLevel: Int?, val needsBase: String?,
+) {
+    val affordable: Boolean get() = missing.isEmpty() && needsBase == null
+    val priceText: String get() = price.entries.joinToString("+") { "${it.value} ${it.key} ore" }
+}
+
+/** A tick and the seconds it is into the match (20 ticks/s). */
+data class Moment(val tick: Long) { val seconds: Double get() = tick / 20.0 }
 
 /**
  * One agent-controlled seat of one match (ADR-0316): the action vocabulary, the stop conditions, the event digest and
@@ -57,6 +73,10 @@ class Session(private val host: MatchHost, contentDir: File) {
     private val nodes = sim.services.getOrThrow<OreNodeService>()
     private val stars = sim.services.getOrThrow<IMatchStarStore>()
     private val normaStore = sim.services.getOrThrow<IMatchNormaStore>()
+    private val normaService = sim.services.get<NormaLevelService>()
+    private val levelGate = sim.services.get<IMatchLevelGate>()
+    private val itemRegistry = sim.services.get<IItemRegistry>()
+    private val ledger = sim.services.getOrThrow<ICurrencyLedger>()
     private val worldId = sim.services.getOrThrow<IMatchWorldRepository>().findByMatch(host.matchId)?.worldId ?: me.world
     private val baseCentres: Map<String, Triple<Double, Double, Double>> = stage.spawnPoints
         .filter { it.role == SpawnRole.TEAM && it.team != null }
@@ -93,6 +113,11 @@ class Session(private val host: MatchHost, contentDir: File) {
     var kills = 0; private set
     var deaths = 0; private set
     val starMoments = ArrayList<String>()
+    var decisionsFailed = 0; private set
+    val failures = ArrayList<String>()
+    var firstStar: Moment? = null; private set
+    var firstKill: Moment? = null; private set
+    var firstNormaLevelUp: Moment? = null; private set
 
     init {
         host.step(1)
@@ -151,16 +176,17 @@ class Session(private val host: MatchHost, contentDir: File) {
                 }
                 is PlayerKilled -> when {
                     e.victim == me.id -> { deaths++; deadSince = host.tick; deathUnreported = true; pending += "died (${name(e.killer)}), respawn in ~$RESPAWN_TICKS ticks" }
-                    e.killer == me.id -> { kills++; pending += "killed ${name(e.victim)}" }
+                    e.killer == me.id -> { kills++; if (firstKill == null) firstKill = Moment(host.tick); pending += "killed ${name(e.victim)}" }
                 }
                 is PlayerRespawned -> if (e.playerId == me.id) { deadSince = null; pending += "respawned" }
                 is StarsCollected -> if (e.playerId == me.id) {
                     starsGained += e.amount
+                    if (firstStar == null) firstStar = Moment(host.tick)
                     pending += "star +${e.amount} (${e.total})"
                     starMoments += "t=${host.tick} star +${e.amount} total ${e.total}"
                 }
                 is NormaCheckReady -> if (e.playerId == me.id) { readySeen = true; pending += "norma check ready for lv${e.level}: go home, norma" }
-                is NormaLevelUp -> if (e.playerId == me.id) { pending += "norma level ${e.level}"; starMoments += "t=${host.tick} norma lv${e.level}" }
+                is NormaLevelUp -> if (e.playerId == me.id) { if (firstNormaLevelUp == null) firstNormaLevelUp = Moment(host.tick); pending += "norma level ${e.level}"; starMoments += "t=${host.tick} norma lv${e.level}" }
                 is AnnihilationPhaseTransitioned -> if (e.matchId == host.matchId) { phase = e.newPhase.id; pending += "phase ${e.newPhase.id}" }
                 is MatchEnded -> if (e.matchId == host.matchId) { ended = true; pending += "match ended, winner ${e.winningTeam?.value ?: "none"}" }
                 else -> {}
@@ -212,7 +238,22 @@ class Session(private val host: MatchHost, contentDir: File) {
     }
 
     // --- stepping ops ---------------------------------------------------------------------------------------------
-    fun skip(untilText: String?, max: Int, interrupts: Boolean): StepOutcome {
+    fun skip(untilText: String?, max: Int, interrupts: Boolean): StepOutcome = track("skip ${untilText ?: ""}") { skipInner(untilText, max, interrupts) }
+
+    fun act(text: String, untilText: String?, max: Int, interrupts: Boolean): StepOutcome = track(text) { actInner(text, untilText, max, interrupts) }
+
+    /** Counts a decision that failed for a reason of its own (bad target, refusal, ...), not one an interrupt or a timeout ended. */
+    private fun track(label: String, body: () -> StepOutcome): StepOutcome {
+        var out = body()
+        if (!out.ok && out.stopped !in SOFT_STOPS && !out.stopped.startsWith("until:")) {
+            decisionsFailed++
+            failures += "t=${host.tick} '$label': ${out.stopped} (${out.note.take(100)})"
+            out = out.copy(failed = true)
+        }
+        return out
+    }
+
+    private fun skipInner(untilText: String?, max: Int, interrupts: Boolean): StepOutcome {
         val until = untilText?.let { UntilDsl.parse(it).getOrElse { e -> return StepOutcome(false, "bad_until", e.message ?: "bad until") } }
         arrivedFlag = false
         val t0 = host.tick
@@ -226,7 +267,7 @@ class Session(private val host: MatchHost, contentDir: File) {
         if (ticks > longestWait) { longestWait = ticks; longestWaitAt = "t=${host.tick - ticks}..${host.tick} $label" }
     }
 
-    fun act(text: String, untilText: String?, max: Int, interrupts: Boolean): StepOutcome {
+    private fun actInner(text: String, untilText: String?, max: Int, interrupts: Boolean): StepOutcome {
         val until = untilText?.let { UntilDsl.parse(it).getOrElse { e -> return StepOutcome(false, "bad_until", e.message ?: "bad until") } }
         val verb = text.trim().substringBefore(' ')
         val arg = text.trim().substringAfter(' ', "").trim()
@@ -322,7 +363,11 @@ class Session(private val host: MatchHost, contentDir: File) {
     }
 
     private fun attack(arg: String, until: UntilDsl?, max: Int, interrupts: Boolean): StepOutcome {
-        val target = others().firstOrNull { it.name.equals(arg, ignoreCase = true) } ?: return StepOutcome(false, "unknown_target", "no living '$arg' (see enemies)")
+        val target = (if (arg.equals("nearest", ignoreCase = true)) {
+            others().filter(::hostile).minByOrNull { hypot(it.position.x - me.position.x, it.position.z - me.position.z) }
+        } else {
+            others().firstOrNull { it.name.equals(arg, ignoreCase = true) }
+        }) ?: return StepOutcome(false, "unknown_target", "no living '$arg' (see enemies; `attack nearest` picks the closest live enemy)")
         ensureWeapon()
         var nextSwing = 0L
         val why = run(max, until, interrupts) {
@@ -366,9 +411,35 @@ class Session(private val host: MatchHost, contentDir: File) {
         return StepOutcome(true, "done", "holding $item")
     }
 
+    /** Every offer the seat could consider, priced from the real catalogue against the real inventory and norma level. */
+    private fun shopLines(): List<ShopLine> {
+        val have = inventory()
+        val level = normaLevel()
+        return catalog.offers.map { o ->
+            val base = o.upgradeFrom?.value
+            val rarity = itemRegistry?.find(o.itemId)?.rarity
+            val required = rarity?.let { levelGate?.requiredLevel(it) }?.takeIf { it > level }
+            ShopLine(
+                id = o.itemId.value, tab = o.tab.key,
+                price = o.price.entries.associate { it.key.value.removePrefix("ore-") to it.value },
+                missing = o.price.entries.mapNotNull { (ore, n) -> ((n - (have[ore.value] ?: 0)).takeIf { it > 0 })?.let { ore.value.removePrefix("ore-") to it } }.toMap(),
+                lockedUntilLevel = required,
+                needsBase = base?.takeIf { (have[it] ?: 0) < 1 },
+            )
+        }
+    }
+
+    /** Buyable lines, closest to affordable first; norma-locked and base-less upgrades sink to the end. */
+    private fun shopRanking(): List<ShopLine> =
+        shopLines().sortedWith(compareBy({ it.lockedUntilLevel != null }, { it.needsBase != null }, { it.missing.values.sum() }, { it.price.values.sum() }))
+
     private fun buy(arg: String, until: UntilDsl?, max: Int, interrupts: Boolean): StepOutcome {
+        if (arg.isEmpty()) {
+            val lines = shopRanking().take(SHOP_LIST_MAX)
+            return StepOutcome(true, "listing", "${lines.count { it.affordable }} of ${catalog.offers.size} offers affordable now (closest first; `buy <id>`)", lines)
+        }
         val offer = catalog.offers.firstOrNull { it.itemId.value == arg }
-            ?: return StepOutcome(false, "unknown_item", "shop sells: ${catalog.offers.joinToString { it.itemId.value }}")
+            ?: return StepOutcome(false, "unknown_item", "the shop does not sell '$arg' (bare `buy` lists what you can get)")
         val shop = pois.find("shop:$team")
         if (shop != null && hypot(shop.x - me.position.x, shop.z - me.position.z) > 5.0) {
             val walk = goto("shop:$team", until, max, interrupts, arrive = 3.0, target = shop)
@@ -435,7 +506,7 @@ class Session(private val host: MatchHost, contentDir: File) {
 
     data class View(
         val hp: Int, val pos: IntArray, val held: String?, val stars: Int, val ore: Map<String, Int>, val inv: Map<String, Int>,
-        val normaLevel: Int, val normaGoal: String, val tool: String?,
+        val normaLevel: Int, val normaGoal: String, val normaHave: Int, val normaNeed: Int, val wallet: Map<String, Long>, val tool: String?,
         val team: List<Triple<String, IntArray, String>>, val enemies: List<Triple<String, IntArray, String>>,
         val ready: Boolean, val cooldowns: Map<String, Int>, val dead: Boolean, val respawnIn: Int,
     )
@@ -448,6 +519,7 @@ class Session(private val host: MatchHost, contentDir: File) {
     fun view(): View {
         val inv = inventory()
         val progress = normaStore.get(host.matchId, me.id)
+        val hud = normaService?.hudOf(me.id)
         fun entry(e: SimEntity) = Triple(e.name, intArrayOf(floor(e.position.x).toInt(), floor(e.position.y).toInt(), floor(e.position.z).toInt()), hpBand(e))
         val ally = others().filter { !hostile(it) && it.kind == SimEntityKind.PLAYER }
         val foes = others().filter(::hostile).sortedBy { hypot(it.position.x - me.position.x, it.position.z - me.position.z) }.take(6)
@@ -460,6 +532,9 @@ class Session(private val host: MatchHost, contentDir: File) {
             inv = inv.filterKeys { !it.startsWith("ore-") },
             normaLevel = progress.level,
             normaGoal = progress.goal.name.lowercase(),
+            normaHave = hud?.progress ?: 0,
+            normaNeed = hud?.target ?: 0,
+            wallet = wallet(),
             tool = inventoryTool("pickaxe"),
             team = ally.map(::entry),
             enemies = foes.map(::entry),
@@ -531,20 +606,25 @@ class Session(private val host: MatchHost, contentDir: File) {
             emptyMenus++
             return listOf("wait <ticks> (dead, respawn in ~${v.respawnIn} ticks; skip / act wait for it by themselves)")
         }
-        val have = inventory()
-        catalog.offers.filter { o -> o.upgradeFrom == null || (have[o.upgradeFrom!!.value] ?: 0) > 0 }
-            .filter { affordable(it, have) }.take(4).forEach { m += "buy ${it.itemId.value}" }
+        val atShop = pois.find("shop:$team")?.let { hypot(it.x - px, it.z - pz) <= SHOP_NEAR } ?: false
+        val buyable = shopRanking().filter { it.lockedUntilLevel == null && it.needsBase == null }
+        (if (atShop) buyable.take(MENU_BUY_AT_SHOP) else buyable.filter { it.affordable }.take(4)).forEach { m += buyLine(it) }
         m += "cast s1|s2|s3|s4"
         m += "wait <ticks> / hold <item>"
         if (m.size <= 3) emptyMenus++
         return m
     }
 
-    private fun affordable(o: MatchShopOffer, have: Map<String, Int>) = o.price.all { (ore, n) -> (have[ore.value] ?: 0) >= n }
+    /** `buy dagger (6 iron, short 5 iron)` - the same `verb target (info)` style as the goto lines. */
+    private fun buyLine(l: ShopLine) = "buy ${l.id} (${l.priceText}, ${if (l.affordable) "affordable" else "short " + l.missing.entries.joinToString("+") { "${it.value} ${it.key} ore" }})"
+
+    /** Balances per currency from the real economy ledger (lower-case currency name -> amount). */
+    fun wallet(): Map<String, Long> = Currency.entries.associate { it.name.lowercase() to ledger.balance(me.id, it) }
 
     fun summaryStats(): Map<String, Any> = mapOf(
         "ticks" to host.tick, "decisions" to decisions, "skipped_ticks" to skippedTicks, "longest_wait" to longestWait,
         "longest_wait_at" to longestWaitAt, "empty_menus" to emptyMenus, "stars_gained" to starsGained, "ore_mined" to oreMined,
+        "decisions_ok" to decisions - decisionsFailed, "decisions_failed" to decisionsFailed,
         "purchases" to purchases, "kills" to kills, "deaths" to deaths, "norma_level" to normaLevel(), "phase" to phase,
     )
 
@@ -556,6 +636,11 @@ class Session(private val host: MatchHost, contentDir: File) {
         const val RESPAWN_TICKS = com.astarworks.astera.match.domain.death.DeathRespawnConfig.DEFAULT_RESPAWN_DELAY_SECONDS * 20
         const val REACH = 4.5
         private const val HIT_COOLDOWN = 6L
+        private const val SHOP_LIST_MAX = 12
+        private const val MENU_BUY_AT_SHOP = 6
+        private const val SHOP_NEAR = 5.0
+        /** Stops that end a step without the decision itself being wrong. */
+        private val SOFT_STOPS = setOf("timeout", "hit_taken", "enemy_within_12", "phase_change", "norma", "died", "match_ended", "done", "arrived", "mined", "target_down", "listing", "look")
         private val WEAPON = listOf("sword", "dagger", "spear", "blade", "katana", "axe", "scythe", "hammer", "bow", "wand", "staff")
     }
 }
