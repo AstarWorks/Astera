@@ -76,6 +76,87 @@ object MassPlay {
         }
     }
 
+    private const val BOOTSTRAP_RESAMPLES = 1000
+    private const val BOOTSTRAP_SEED = 20261102L
+    private val PHASES = listOf("p1" to "P1 build", "p2" to "P2 engage", "p3" to "P3 center", "p4plus" to "P4+ escalation / sudden death")
+
+    private fun RunResult.sc(key: String) = result.scalars[key] ?: 0.0
+
+    /** Pooled kill rate: sum(kills) / sum(match minutes). Null when no minutes were played. */
+    fun pooledRate(kills: Double, minutes: Double): Double? = if (minutes > 0.0) kills / minutes else null
+
+    /**
+     * Deterministic bootstrap 90% interval (5th and 95th percentile, nearest rank of the sorted resamples) of the pooled
+     * rate sum(kills) / sum(minutes): [BOOTSTRAP_RESAMPLES] resamples of the matches with replacement, `java.util.Random([BOOTSTRAP_SEED])`.
+     * [kills] and [minutes] are per-match, same order.
+     */
+    fun bootstrapInterval(kills: List<Double>, minutes: List<Double>): Pair<Double, Double>? {
+        require(kills.size == minutes.size)
+        if (kills.isEmpty()) return null
+        val rng = java.util.Random(BOOTSTRAP_SEED)
+        val n = kills.size
+        val rates = ArrayList<Double>(BOOTSTRAP_RESAMPLES)
+        repeat(BOOTSTRAP_RESAMPLES) {
+            var k = 0.0; var m = 0.0
+            repeat(n) { val i = rng.nextInt(n); k += kills[i]; m += minutes[i] }
+            pooledRate(k, m)?.let { rates += it }
+        }
+        if (rates.isEmpty()) return null
+        rates.sort()
+        return rates[(rates.size * 0.05).toInt()] to rates[(rates.size * 0.95).toInt().coerceAtMost(rates.size - 1)]
+    }
+
+    /** End kind of a run from the normalised `end_reason`: elimination, hp_decision (the P5 HP tiebreak = a stall), draw, running (= hit the tick cap = timeout), other. */
+    private fun endKind(r: RunResult) = (r.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "other"
+
+    /** First line of the summary: matches with at least one P3+ stall window, total windows, stall share. See [killRateSection] for definitions. */
+    fun stallLine(results: List<RunResult>): String {
+        val n = results.size
+        val windows = results.map { it.sc("stall_windows_p3plus") }
+        val kinds = results.map { endKind(it) }
+        val hp = kinds.count { it == "hp_decision" }
+        val timeout = kinds.count { it == "running" }
+        return "Stall signature: matches with at least one stall window ${windows.count { it >= 1.0 }} of $n; total stall windows ${fmt(windows.sum())} " +
+            "(stall window = a maximal gap of at least 3 min inside P3+ with no cross-team engagement; engagement = cross-team player damage, or an alive cross-team pair within 12 blocks, sampled each second). " +
+            "Stall share = (hp_decision + timeout) / matches = ($hp + $timeout) / $n = ${pct((hp + timeout).toDouble(), n.toDouble())}."
+    }
+
+    /**
+     * Headline kill rate. Definitions:
+     * - pooled kills/min = sum(kills_total) / sum(duration minutes) over all matches (a long stall weighs by its minutes, not as one match).
+     * - per phase: sum(kills in phase) / sum(minutes in phase); phases are [start, next start), P4+ = Phase4Escalation + Phase5SuddenDeath, a phase never reached adds 0 kills and 0 minutes.
+     * - P2+ = P2 + P3 + P4+ pooled together.
+     * - 90% interval: bootstrap over matches, see [bootstrapInterval].
+     * - median / mean: of the per-match kills_per_min column (unpooled, kept for comparison with older reports).
+     * - end counts: elimination (TeamVictory), hp_decision (PillarHpDecision, a stall), draw, timeout (still running at the tick cap).
+     */
+    fun killRateSection(results: List<RunResult>): String = buildString {
+        val kills = results.map { it.sc("kills_total") }
+        val minutes = results.map { it.sc("duration_s") / 60.0 }
+        val pooled = pooledRate(kills.sum(), minutes.sum())
+        val ci = bootstrapInterval(kills, minutes)
+        val perMatch = results.mapNotNull { it.result.scalars["kills_per_min"] }.sorted()
+        appendLine("## Kill rate (pooled over ${results.size} matches)")
+        appendLine()
+        appendLine("**Headline: pooled kills/min = ${pooled?.let { "%.2f".format(it) } ?: "n/a"}** " +
+            "(${fmt(kills.sum())} kills / ${"%.1f".format(minutes.sum())} match-min; bootstrap 90% interval ${ci?.let { "[%.2f, %.2f]".format(it.first, it.second) } ?: "n/a"}, $BOOTSTRAP_RESAMPLES resamples, fixed seed). " +
+            "Per-match median ${if (perMatch.isEmpty()) "n/a" else "%.2f".format(median(perMatch))}, mean ${if (perMatch.isEmpty()) "n/a" else "%.2f".format(perMatch.average())} (extra columns, not the gate).")
+        appendLine()
+        appendLine("| phase | kills | minutes | pooled kills/min |")
+        appendLine("|---|---:|---:|---:|")
+        fun row(label: String, keys: List<String>) {
+            val k = keys.sumOf { key -> results.sumOf { it.sc("kills_$key") } }
+            val m = keys.sumOf { key -> results.sumOf { it.sc("minutes_$key") } }
+            appendLine("| $label | ${fmt(k)} | ${"%.1f".format(m)} | ${pooledRate(k, m)?.let { "%.2f".format(it) } ?: "n/a"} |")
+        }
+        for ((key, label) in PHASES) row(label, listOf(key))
+        row("P2+ (P2 + P3 + P4+)", listOf("p2", "p3", "p4plus"))
+        appendLine()
+        val kinds = results.map { endKind(it) }.groupingBy { it }.eachCount()
+        appendLine("Match ends: elimination ${kinds["elimination"] ?: 0}, hp_decision (stall) ${kinds["hp_decision"] ?: 0}, draw ${kinds["draw"] ?: 0}, timeout (running at cap) ${kinds["running"] ?: 0}, other ${kinds.filterKeys { it !in setOf("elimination", "hp_decision", "draw", "running") }.values.sum()}.")
+        appendLine()
+    }
+
     private const val SPARK = "▁▂▃▄▅▆▇█"
 
     private fun spark(values: List<Double>): String {
@@ -92,9 +173,12 @@ object MassPlay {
     fun summary(results: List<RunResult>): String = buildString {
         appendLine("# Mass play summary")
         appendLine()
+        appendLine(stallLine(results))
+        appendLine()
         appendLine("Matches: ${results.size} (seeds ${results.joinToString { it.seed.toString() }}). End reasons: " +
             results.groupingBy { it.endReason }.eachCount().entries.joinToString { "${it.key} x${it.value}" })
         appendLine()
+        appendLine(killRateSection(results))
         appendLine("| metric | n | min | median | max | distribution (low to high) |")
         appendLine("|---|---:|---:|---:|---:|---|")
         val keys = results.flatMap { it.result.scalars.keys }.distinct()
