@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=0.000000,1.320000,0.800000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=0.000000,1.320000,0.800000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=0 pos=0.000000,1.320000,0.800000 rot=-0.340425,0.000000,0.000000,0.940272 scale=1.000000,1.000000,1.000000 bb=FIXED
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=0.000000,1.320000,0.800000
 @1 write #0 op=lob/shell dur=0 pos=0.000000,1.352204,0.838498 rot=-0.342165,0.000000,0.000000,0.939640 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -31,7 +31,7 @@
 @23 damage 00000000-0000-0000-0000-00000000000a op=- fire=14 skill=arc-lob at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @24 remove #0 op=lob/shell
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=-0.481452,1.320000,0.638908 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=-0.481452,1.320000,0.638908 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=0 pos=-0.481452,1.320000,0.638908 rot=-0.322833,-0.298353,-0.108019,0.891682 scale=1.000000,1.000000,1.000000 bb=FIXED
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=-0.481452,1.320000,0.638908
 @1 write #0 op=lob/shell dur=0 pos=-0.504621,1.352204,0.669654 rot=-0.324483,-0.298152,-0.108571,0.891083 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -63,7 +63,7 @@
 @23 damage 00000000-0000-0000-0000-00000000000a op=- fire=14 skill=arc-lob at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @24 remove #0 op=lob/shell
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=0.000000,1.320000,0.800000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=0.000000,1.320000,0.800000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=0 pos=0.000000,1.320000,0.800000 rot=-0.340425,0.000000,0.000000,0.940272 scale=1.000000,1.000000,1.000000 bb=FIXED
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=0.000000,1.320000,0.800000
 @1 write #0 op=lob/shell dur=0 pos=0.000000,1.352204,0.838498 rot=-0.342165,0.000000,0.000000,0.939640 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -100,7 +100,7 @@ g @26 state-exit reason=TIMER | state=lob
 g @26 cast-end | pose
 r @28 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=-0.481452,1.320000,0.638908 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ffd080 seethrough=false pos=-0.481452,1.320000,0.638908 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=0 pos=-0.481452,1.320000,0.638908 rot=-0.322833,-0.298353,-0.108019,0.891682 scale=1.000000,1.000000,1.000000 bb=FIXED
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=-0.481452,1.320000,0.638908
 @1 write #0 op=lob/shell dur=0 pos=-0.504621,1.352204,0.669654 rot=-0.324483,-0.298152,-0.108571,0.891083 scale=1.000000,1.000000,1.000000 bb=FIXED

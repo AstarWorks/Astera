@@ -596,7 +596,7 @@ public class PaperSkillVisualGateway(
         val player = if (anchored) server.getPlayer(owner) else null
         val caster = PlayerId(owner)
         val target = view.target?.let(::PlayerId)
-        val shown = spec.copy(glowing = view.glowing, glowArgb = SkillDisplaySpecs.glowArgb(view.glowColor))
+        val shown = spec.copy(glowing = view.glowing, glowArgb = SkillDisplaySpecs.glowArgb(view.glowColor), viewRange = view.viewRange ?: spec.viewRange)
         if (player != null) {
             val feet = player.location
             val scope = DisplayScope(view.audience, caster, target, view.lane)
