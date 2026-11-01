@@ -106,19 +106,20 @@ class StageObjectives private constructor(
             of(stage, spotPoints, economyOf(contentDir, stage, stageId, here), cachePoints)
         }.onFailure { System.err.println("Bot stage '$lane' could not load: ${it.message}") }.getOrNull()
 
-        /** Shop NPCs of [stage], the team base ore generators of [stageId] and the pickaxe Mid nodes of its `content/ore-nodes/` file. */
+        /** Shop NPCs of [stage], the team base ore generators of [stageId] and the pickaxe Mid nodes (axe / shovel nodes are not dug by the economy yet) of its `content/ore-nodes/` file. */
         private fun economyOf(contentDir: File, stage: Stage, stageId: String, stageGenerators: Collection<GeneratorYamlConfig>): Economy {
             val shops = stage.shopNpcs.associate { it.team.value to EconomyPlanner.Site(it.x, it.y, it.z) }
             val gens = stageGenerators.filter { it.dropItem != null && it.affiliation.kind.equals("team", ignoreCase = true) && it.affiliation.teamId != null }
                 .groupBy({ it.affiliation.teamId!! }, { EconomyPlanner.Site(it.position.x, it.position.y, it.position.z, it.dropItem!!) })
             val nodes = ArrayList<EconomyPlanner.Site>()
+            val properTools = com.astarworks.astera.core.application.skillengine.compose.blockProperTools(contentDir.toPath())
             val nodeFile = contentDir.toPath().resolve("ore-nodes")
             val oreNodes = OreNodeContents()
             if (java.nio.file.Files.isDirectory(nodeFile)) {
                 check(oreNodes.bootstrap(nodeFile).failed == 0)
                 oreNodes.find(stage.templateId.value)?.nodes?.forEach { group ->
                     val ore = group.drops.singleOrNull()?.itemId ?: return@forEach
-                    if (!isPickaxeNode(group.block)) return@forEach
+                    if (requiredTool(properTools, group.block) != com.astarworks.astera.core.domain.world.ToolKind.PICKAXE) return@forEach
                     for (p in group.positions) nodes += EconomyPlanner.Site(p.x + 0.5, p.y, p.z + 0.5, ore)
                     group.region?.let { r ->
                         for (x in r.min.x.toInt()..r.max.x.toInt()) for (y in r.min.y.toInt()..r.max.y.toInt()) for (z in r.min.z.toInt()..r.max.z.toInt()) {
@@ -132,8 +133,9 @@ class StageObjectives private constructor(
             return Economy(shops, gens, nodes, ladder)
         }
 
-        /** Stone ores are the pickaxe's; the wood (axe) and clay / silt (shovel) nodes are not dug by the economy. */
-        private fun isPickaxeNode(block: String) = listOf("wood", "timber", "silt", "clay").none { block.contains(it) }
+        /** A node's proper tool from block-families.yaml (the same source the match uses); an unlisted block fails loudly. */
+        private fun requiredTool(properTools: Map<String, com.astarworks.astera.core.domain.world.ToolKind>, block: String) =
+            properTools[block] ?: error("ore node block '$block' has no tool family in content/engine/block-families.yaml")
 
         private fun stageOf(lines: List<String>, lane: String): String? {
             var current: String? = null

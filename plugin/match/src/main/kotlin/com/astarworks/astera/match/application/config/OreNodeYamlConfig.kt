@@ -85,17 +85,24 @@ public fun OreNodeGroupYaml.gate(file: OreNodeYamlConfig): OreNodeGate {
 }
 
 /**
- * [blockOf] resolves [OreNodeGroupYaml.block] to its custom block (the registry); a miss is an authoring error. HP and the
+ * [properToolOf] gives a block id's tool class from the block families (null = authoring error). [blockOf] resolves [OreNodeGroupYaml.block] to its custom block (the registry); a miss is an authoring error. HP and the
  * per-class / per-tier hit damage come from it; [file] supplies the level table and the skill multiplier.
  */
 public fun OreNodeGroupYaml.toSpec(
     file: OreNodeYamlConfig,
     blockOf: (String) -> com.astarworks.astera.core.domain.block.CustomBlockSpec?,
+    properToolOf: (String) -> ToolKind?,
 ): OreNodeSpec {
     val blockSpec = blockOf(block) ?: throw IllegalArgumentException("ore node block '$block' is not a known custom block")
     val material = blockSpec.baseBukkitMaterial
     val hitDamage = blockSpec.toolEffectiveness.orEmpty().filterKeys { it.kind != ToolKind.NONE }
     require(hitDamage.values.any { it > 0 }) { "ore node '$block': the block needs tool_effectiveness entries (PICKAXE/AXE/SHOVEL) with damage > 0" }
+    val requiredTool = properToolOf(block)
+        ?: throw IllegalArgumentException("ore node '$block': its block has no tool family in content/engine/block-families.yaml (pickaxe / axe / shovel)")
+    val strongest = hitDamage.maxByOrNull { it.value }!!.key.kind
+    require(strongest == requiredTool) {
+        "ore node '$block': block-families.yaml says $requiredTool but tool_effectiveness is strongest for $strongest"
+    }
     require(blockSpec.baseDurability > 0) { "ore node '$block': base_durability must be > 0" }
     val gate = gate(file)
     require(minNormaLevel >= 1) { "ore node '$block': min_norma_level must be >= 1 (got $minNormaLevel)" }
@@ -111,7 +118,11 @@ public fun OreNodeGroupYaml.toSpec(
     val cells = positions.map { Vec3(it.x, it.y, it.z) } + filled
     require(cells.isNotEmpty()) { "ore node '$block': give positions or region" }
     return OreNodeSpec(
+<<<<<<< HEAD
         material, placeholder.trim().uppercase(), regrowSeconds, gate.requiredTier, drops.map { OreDrop(it.itemId, it.count) }, cells,
+=======
+        material, requiredTool, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells,
+>>>>>>> worktree-agent-ab3a7c2fc489bea05
         blockSpec.baseDurability, hitDamage, minNormaLevel, file.levelSpeed, file.skillMult,
         minPhase = gate.minPhase,
     )
