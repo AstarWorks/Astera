@@ -16,3 +16,10 @@ with:
   chips: 7
   core_color: "#eed095"
   core_size: 0.6
+  arc_height: 1.3
+  arc_depth: 0.85
+  arc_size: 1.45
+  arc_samples: 37
+  arc_count: 4
+  arc_color: "#fff0c8"
+  sweep_layers: 3

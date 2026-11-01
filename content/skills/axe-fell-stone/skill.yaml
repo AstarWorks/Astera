@@ -17,6 +17,13 @@ params:
   chips: {type: number, default: 3}
   core_color: {type: string, default: "#9e7545"}
   core_size: {type: number, default: 0.3}
+  arc_height: {type: number, default: 0.8}
+  arc_depth: {type: number, default: 0.55}
+  arc_size: {type: number, default: 0.7}
+  arc_samples: {type: number, default: 21}
+  arc_count: {type: number, default: 2}
+  arc_color: {type: string, default: "#dfba7a"}
+  sweep_layers: {type: number, default: 1}
 frames:
   - id: arm
     origin: caster.shoulder_r
@@ -61,12 +68,15 @@ machine:
         - {id: rig, op: rig, frame: tool, for: 14, detach: true}
         # First blade sample precedes impact; remaining samples belong to cast.
         - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#b88c55", size: 0.35, extra: 0, at: 5}
-        - {"id": "crescent_0", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 1.4 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 2}
-        - {"id": "crescent_1", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 2.55 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 3}
-        - {"id": "crescent_2", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 3.6999999999999997 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 4}
-        - {"id": "crescent_3", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 4.85 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 5}
-        - {"id": "travel_sweep_0", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 1.4, "w": 1}, "count": 1, "extra": 0, "at": 2}
-        - {"id": "travel_sweep_2", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 3.7, "w": 1}, "count": 1, "extra": 0, "at": 4}
+        - {"id": "crescent_1", "op": "particle", "particle": "dust", "frame": "body", "times": "${arc_samples}", "pos": {"v": "= 2.55 - ${arc_depth} * cos(-pi / 2 + i * pi / (${arc_samples} - 1))", "w": "= 1.0 + ${arc_height} * sin(-pi / 2 + i * pi / (${arc_samples} - 1))"}, "count": "${arc_count}", "color": "${arc_color}", "size": "${arc_size}", "extra": 0, "at": 3, "offset": [0.02, 0.02, 0.02]}
+        - {"id": "crescent_2", "op": "particle", "particle": "dust", "frame": "body", "times": "${arc_samples}", "pos": {"v": "= 3.6999999999999997 - ${arc_depth} * cos(-pi / 2 + i * pi / (${arc_samples} - 1))", "w": "= 1.0 + ${arc_height} * sin(-pi / 2 + i * pi / (${arc_samples} - 1))"}, "count": "${arc_count}", "color": "${arc_color}", "size": "${arc_size}", "extra": 0, "at": 4, "offset": [0.02, 0.02, 0.02]}
+        - {"id": "crescent_3", "op": "particle", "particle": "dust", "frame": "body", "times": "${arc_samples}", "pos": {"v": "= 4.85 - ${arc_depth} * cos(-pi / 2 + i * pi / (${arc_samples} - 1))", "w": "= 1.0 + ${arc_height} * sin(-pi / 2 + i * pi / (${arc_samples} - 1))"}, "count": "${arc_count}", "color": "${arc_color}", "size": "${arc_size}", "extra": 0, "at": 5, "offset": [0.02, 0.02, 0.02]}
+        - {"id": "travel_sweep_0", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 1.4, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "count": 1, "extra": 0, "at": 2, "times": "${sweep_layers}", "detach": true}
+        - {"id": "travel_sweep_0_beat_1", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 1.4, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "count": 1, "extra": 0, "at": 3, "times": "${sweep_layers}", "detach": true}
+        - {"id": "travel_sweep_0_beat_2", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 1.4, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "count": 1, "extra": 0, "at": 4, "times": "${sweep_layers}", "detach": true}
+        - {"id": "travel_sweep_2", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 3.7, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "count": 1, "extra": 0, "at": 4, "times": "${sweep_layers}", "detach": true}
+        - {"id": "travel_sweep_2_beat_1", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 3.7, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "count": 1, "extra": 0, "at": 5, "times": "${sweep_layers}", "detach": true}
+        - {"id": "travel_sweep_2_beat_2", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 3.7, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "count": 1, "extra": 0, "at": 6, "times": "${sweep_layers}", "detach": true}
     cast:
       for: 1
       then: end
@@ -84,8 +94,10 @@ machine:
         - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#b88c55", size: 0.35, extra: 0, at: 1, every: 2, for: "= ${trail_span} - 2", detach: true}
         - {"id": "contact_chips", "op": "particle", "frame": "body", "pos": {"v": 5.65, "w": 1.0}, "at": 0, "detach": true, "particle": "block", "block": "minecraft:oak_log", "count": "= 12 + 6 * ${chips}", "offset": [0.18, 0.18, 0.18], "extra": 0.13}
         - {"id": "contact_core", "op": "particle", "frame": "body", "pos": {"v": 5.65, "w": 1.0}, "at": 0, "detach": true, "particle": "dust", "count": "= 6 + 2 * ${chips}", "offset": [0.12, 0.12, 0.12], "color": "${core_color}", "size": "= ${core_size} * 2", "extra": 0}
-        - {"id": "crescent_4", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 6.0 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "= ${core_size} + 0.4", "extra": 0, "at": 4, "detach": true}
-        - {"id": "contact_sweep", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": 1.0}, "at": 0, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0}
+        - {"id": "crescent_4", "op": "particle", "particle": "dust", "frame": "body", "times": "${arc_samples}", "pos": {"v": "= 6.0 - ${arc_depth} * cos(-pi / 2 + i * pi / (${arc_samples} - 1))", "w": "= 1.0 + ${arc_height} * sin(-pi / 2 + i * pi / (${arc_samples} - 1))"}, "count": "${arc_count}", "color": "${arc_color}", "size": "${arc_size}", "extra": 0, "at": 4, "detach": true, "offset": [0.02, 0.02, 0.02]}
+        - {"id": "contact_sweep", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "at": 0, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0, "times": "${sweep_layers}"}
+        - {"id": "contact_sweep_beat_1", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "at": 1, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0, "times": "${sweep_layers}"}
+        - {"id": "contact_sweep_beat_2", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "at": 2, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0, "times": "${sweep_layers}"}
         - {"id": "terminal_chips", "op": "particle", "frame": "body", "pos": {"v": 5.65, "w": 1.0}, "at": 4, "detach": true, "particle": "block", "block": "minecraft:oak_log", "count": "= 6 + 3 * ${chips}", "offset": [0.18, 0.18, 0.18], "extra": 0.13}
-        - {"id": "terminal_sweep", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": 1.0}, "at": 4, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0}
+        - {"id": "terminal_sweep", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": "= 1.0 + (i - (${sweep_layers} - 1) / 2.0) * 0.16"}, "at": 4, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0, "times": "${sweep_layers}"}
     end: {final: true}
