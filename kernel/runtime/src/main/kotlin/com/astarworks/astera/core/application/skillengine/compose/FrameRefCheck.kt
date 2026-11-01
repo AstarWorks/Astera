@@ -17,7 +17,8 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
  */
 internal object FrameRefCheck {
     fun run(def: SkillDef, table: ExpansionTable): SkillDecodeError? {
-        val declared = def.frames.map { it.id }.toSet()
+        // a `frames_in` name is a frame the caller binds (ADR-0314: frame-typed arguments); the callee reads it like a declared one
+        val declared = def.frames.map { it.id }.toSet() + def.framesIn.keys
         val rows = table.states.flatMap { it.rows } + table.subTables.values.flatMap { it.rows } + table.worldRows
         // an instance-rooted frame (`origin: bolt`) names an op of this skill that spawns an instance; an id no op spawns would wait forever, so it is a load error
         val spawned = rows.filter { val a = it.action; a is Action.Summon || a is Action.Spawn || (a is Action.Effect && (a.spawnsAnchor || a.op.value == "body")) }

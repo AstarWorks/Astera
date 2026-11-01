@@ -224,6 +224,41 @@ class AnnihilationPillarScenarioTest {
         }
     }
 
+    /**
+     * A bolt aimed at the pillar block centre (y + 0.5, the block spans y..y+1) from beyond contact range damages the pillar with
+     * ONE cast: the structure block is a hit target, not a wall, and its box spans exactly the block cell.
+     */
+    @Test
+    fun `a bolt aimed at a pillar block centre damages the pillar`() {
+        scenario("annihilation-pillar-centre-shot", config) {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val yellow = player("yellow-1", team = "yellow")
+            val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
+            val matchId = (lifecycle.start(StageId("annihilation-arena"), "annihilation") as Result.Success).value
+            lifecycle.entry(matchId, red.id, TeamId("red"))
+            lifecycle.entry(matchId, blue.id, TeamId("blue"))
+            lifecycle.entry(matchId, yellow.id, TeamId("yellow"))
+            lifecycle.switchPhase(matchId, MatchStateMachine.TransitionTrigger.CountdownComplete)
+            advance(40)
+            val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena")))
+            val targets = sim.services.getOrThrow<IStructureTargets>()
+            val t1 = checkNotNull(stage.pillars.firstOrNull { it.team.value == "blue" && it.tier == NexusPillarTier.TIER_1 })
+            val pillarId = AnnihilationPillarTargets.idOf("${matchId.value}-blue-${t1.tier.ordinalValue}")
+            blue.position = Vec3(0.0, groundY, 0.0)
+            yellow.position = Vec3(0.0, groundY, 1.0)
+
+            advance(200) // Build ends -> Tier 1 opens
+            red.position = Vec3(t1.centre.x, t1.position.y, t1.centre.z + 5.0)
+            red.holds("fire-staff")
+            red.lookAt(t1.centre)
+            val before = checkNotNull(targets.hitPoints(pillarId))
+            red.cast("flame-burst")
+            advance(85)
+            assertThat(checkNotNull(targets.hitPoints(pillarId))).`as`("one bolt at the block centre").isLessThan(before)
+        }
+    }
+
     @Test
     fun `a solo annihilation playtest does not end by itself`() {
         scenario("annihilation-solo-playtest", config) {

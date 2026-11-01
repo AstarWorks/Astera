@@ -145,7 +145,7 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
     @Test
     fun pathPlacesTheDisplayOnTheSplineAndFacesAlongTheTangent() {
         val rec = GatewayRecorder()
-        play(pathSkill("[{forward: 0}, {forward: 4, up: 2}, {forward: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
+        play(pathSkill("[{v: 0}, {v: 4, w: 2}, {v: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
         val poses = rec.writtenPoses.map { it.third.frame }
         assertThat(poses).isNotEmpty()
         // the curve passes through its points at the matching progress: start, the apex at the half, the end
@@ -164,7 +164,7 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
     @Test
     fun twoPointPathIsAStraightLine() {
         val rec = GatewayRecorder()
-        play(pathSkill("[{forward: 0}, {forward: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
+        play(pathSkill("[{v: 0}, {v: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
         val poses = rec.writtenPoses.map { it.third.frame }
         assertThat(poses.any { near(it.origin, 0.0, rec.casterPosition.y, 4.0) }).describedAs("middle; poses=" + poses.map { it.origin }).isTrue()
         assertThat(poses.all { Math.abs(it.origin.y - rec.casterPosition.y) < 1e-9 && Math.abs(it.origin.x) < 1e-9 }).isTrue()
@@ -172,7 +172,7 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
 
     @Test
     fun pathNeedsTwoPoints() {
-        assertThat(runCatching { pathSkill("[{forward: 3}]") }.isFailure).isTrue()
+        assertThat(runCatching { pathSkill("[{v: 3}]") }.isFailure).isTrue()
     }
 
     // ---- summon ------------------------------------------------------------------------------------------------------

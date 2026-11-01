@@ -91,7 +91,7 @@ machine:
               until: ball.end
               motion:
                 # the visible core drifts up and the drift decays (drag on move)
-                - {law: move, velocity: {up: 0.4}, drag: 0.3, at: 0, for: 6}
+                - {law: move, velocity: {w: 0.4}, drag: 0.3, at: 0, for: 6}
             - id: trail
               op: particle
               particle: small_flame

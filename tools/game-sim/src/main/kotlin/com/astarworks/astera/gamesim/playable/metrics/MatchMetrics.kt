@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.NexusDamaged
 import com.astarworks.astera.core.domain.event.NexusDestroyed
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -93,6 +94,9 @@ class MatchMetrics(
     private var starsSupplied = 0
     private var starsCollected = 0
 
+    private var oreByGroup: Map<String, Double> = emptyMap()
+    private val contentionWindowTicks = 2_400L
+
     private val heat = Array(gridSize) { IntArray(gridSize) }
     private val leadSamples = mutableListOf<Triple<Long, TeamId?, Map<String, Double>>>()
     private var leader: TeamId? = null
@@ -120,16 +124,16 @@ class MatchMetrics(
             is MatchEnded -> if (e.matchId == matchId && ended == null) { ended = e; endTick = e.atTick }
             is DamageDealt -> {
                 val attacker = e.attacker
-                if (e.target in pillarIds.keys) {
-                    if (attacker != null) { pillarAttackers += attacker; pillarDirect.merge(attacker, e.resolved.finalAmount, Double::plus) }
-                } else if (attacker != null && isPlayer(attacker) && isPlayer(e.target)) {
+                // Pillar damage of every kind (weapon, tool skill, hand-break) is attributed from NexusDamaged / NexusDestroyed below.
+                if (e.target !in pillarIds.keys && attacker != null && isPlayer(attacker) && isPlayer(e.target)) {
                     fighters += attacker; fighters += e.target
                     if (firstFightTick == null) firstFightTick = e.atTick
                 }
             }
-            is BlockBroken -> { miners += e.playerId; pillarAttackers += e.playerId }
+            is BlockBroken -> miners += e.playerId
+            is NexusDamaged -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.damageAmount.toDouble(), Double::plus) }
             is PlayerKilled -> onKill(e)
-            is NexusDestroyed -> e.attackerId?.let { pillarAttackers += it }
+            is NexusDestroyed -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) }
             is StarSupplied -> if (e.matchId == matchId) starsSupplied += e.amount
             is StarsCollected -> if (e.matchId == matchId) { starsCollected += e.amount; collected++ }
             is NormaLevelUp -> if (e.matchId == matchId) normaLevel[e.playerId] = maxOf(normaLevel[e.playerId] ?: 0, e.level)
@@ -178,7 +182,8 @@ class MatchMetrics(
         val targets = sim.services.get<IStructureTargets>() ?: return
         var delta = 0.0
         for (id in pillarIds.keys) {
-            val hp = targets.hitPoints(id) ?: 0.0
+            // null = the match no longer tracks the pillar (ended/cleaned up): not damage, so the remaining HP must not count.
+            val hp = targets.hitPoints(id) ?: continue
             val prev = pillarHp[id]
             if (prev != null && hp < prev) delta += prev - hp
             pillarHp[id] = hp
@@ -326,10 +331,28 @@ class MatchMetrics(
         scalars["heatmap_unvisited_ratio"] = if (bounds != null && total > 0) unvisited else null
         if (scalars["heatmap_unvisited_ratio"] == null) na["heatmap_unvisited_ratio"] = "stage bounds unknown or no player ticks"
 
-        scalars["ore_contention"] = null
-        scalars["ore_per_role"] = null
-        na["ore_contention"] = "GameSim exposes no ore-node positions or mining events (SimOreNodeWorld keeps them private)"
-        na["ore_per_role"] = "SimItemDelivery.delivered carries no player; ore gain cannot be attributed"
+        val mined = sim.oreNodes.mined
+        if (mined.isEmpty()) {
+            scalars["ore_contention"] = null
+            scalars["ore_per_role"] = null
+            na["ore_contention"] = "no ore node was mined"
+            na["ore_per_role"] = "no ore node was mined"
+        } else {
+            val byCell = mined.groupBy { Triple(it.x, it.y, it.z) }
+            val contested = byCell.values.count { events ->
+                val teams = events.filter { it.miner != null }.map { it.tick to (sim.world.find(it.miner!!)?.team?.value ?: "?") }
+                teams.any { (t, team) -> teams.any { (t2, team2) -> team != team2 && kotlin.math.abs(t - t2) <= contentionWindowTicks } }
+            }
+            scalars["ore_contention"] = contested.toDouble() / byCell.size
+            na["ore_contention_basis"] = "share of mined node cells that two different teams mined within ${contentionWindowTicks / 20}s of each other (${byCell.size} cells, ${mined.size} minings)"
+            val perPlayer = playerList.associate { it.id to 0 }.toMutableMap()
+            for (m in mined) m.miner?.let { perPlayer.merge(it, m.items, Int::plus) }
+            val groups = perPlayer.entries.groupBy({ group(it.key) }, { it.value })
+            oreByGroup = groups.mapValues { (_, v) -> v.average() }
+            scalars["ore_per_role"] = perPlayer.values.takeIf { it.isNotEmpty() }?.average()
+            if (scalars["ore_per_role"] == null) na["ore_per_role"] = "no players"
+            na["ore_per_role_basis"] = "mean ore items mined per player (detail per ${if (roleOf != null) "role" else "team, no RoleAssigner role source attached"} in metrics.json oreByGroup); miner = player the drops were delivered to"
+        }
 
         val pick = pickupPositions
         if (pick.size >= 2) {
@@ -373,6 +396,8 @@ class MatchMetrics(
                     put("ticksByActivity", JsonObject(Activity.entries.associate { it.name.lowercase() to JsonPrimitive(st.ticksByActivity[it.ordinal]) }))
                 }
             }))
+            put("oreByGroup", JsonObject(oreByGroup.mapValues { JsonPrimitive(it.value) }))
+            put("oreNodesMined", mined.size)
             put("killsByGroup", JsonObject(kills.mapValues { JsonPrimitive(it.value) }))
             put("killsByItem", JsonObject(killsByItem.mapValues { JsonPrimitive(it.value) }))
             put("pillarDamageByGroup", JsonObject(pillarDamageByKey.mapValues { JsonPrimitive(it.value) }))

@@ -1,0 +1,15 @@
+# error: SkillDecodeError.RuntimeTiming   (C5 / 11.4 check 9: `rand()` in a timing field)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r2
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+machine:
+  start: s
+  states:
+    s:
+      for: 20
+      then: end
+      do:
+        - {id: puff, op: particle, anchor: caster, particle: cloud, count: 4, offset: [0, 0, 0], extra: 0, at: "= rand() * 10"}
+    end: {final: true}

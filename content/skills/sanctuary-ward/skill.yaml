@@ -3,9 +3,10 @@
 # four motes orbit the caster, a halo follows the caster's eye; 10 the ward strikes: lightning (visual only), enemies in `radius` take
 # damage (nearest 3), allies heal and are cleansed; 36 the hum is stopped; 40 end.
 # Only the visuals use rand; every tick above is fixed.
-# Frame grammar (ADR-0314): floor - the plate under the caster's feet (v up, so the ring lies flat without an `align` law): the opening chime, the ground ring
-# and the strike dust are drawn on it. The spine is a ribbon between two points of `floor` (no fade: a line ribbon has no motion laws). The orbiting motes and the following halo are caster-local laws
-# and stay on anchors; the strike, damage, heal and cleanse sit on `floor` (live, where the old `ground` anchor was a snapshot). Gameplay unchanged.
+# Frame grammar (ADR-0314): floor - the plate under the caster's feet (v up, so the ring lies flat without an `align` law): the opening chime, the ground ring,
+# the spine plate (fading out) and the strike dust are drawn on it; swirl - the same point at chest height, turning 14 degrees a tick about v: the four motes
+# sit on it at 90 degree phases; eye - the caster's eye, the halo's rise. The strike, damage, heal and cleanse sit on `floor` (live, where the old `ground`
+# anchor was a snapshot). Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: sanctuary-ward
@@ -17,11 +18,9 @@ params:
   cap:         {type: number, default: 3}
 frames:
   - {id: floor, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.05}}]}
+  - {id: swirl, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 1.0}}], rotate: [{at: 2, for: 34, about: v, to: 476}]}
+  - {id: eye, origin: caster.eye, v: up, w: forward, s: right}
   - {id: torso, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 1.0}}]}
-anchors:
-  - {id: ground, anchor: caster, offset: {up: 0.05}, mode: snapshot}   # the ward stays where it was raised
-  - {id: sky,    anchor: caster, offset: {up: 2.4}, mode: snapshot}
-  - {id: chest,  anchor: caster, offset: {up: 1.0}, mode: follow}
 machine:
   start: ward
   states:
@@ -54,45 +53,36 @@ machine:
           motion:
             - {law: grow, by: 9.0, at: 0, for: 8, ease: out_cubic}
             - {law: fade, start: 1.0, to: 0.0, at: 20, for: 20}
-        # --- spine: a beam from the floor to 2.35 above it ---
-        - id: spine
-          op: ribbon
-          from: {frame: floor, pos: {v: 0}}
-          to: {frame: floor, pos: {v: 2.35}}
-          thickness: 0.15
-          color: "#fff3c8"
-          at: 0
-          for: 40
-        # --- four motes circle the caster; phase from the copy index, spread from rand (visual only) ---
+        # --- spine: a plate from the floor to 2.35 above it, fading out over its last 16 ticks ---
+        - {id: spine, op: display, kind: sprite, sprite: line-thin, frame: floor, plane: [s, v], pos: {v: 1.2}, size: [0.6, 2.4], color: "#fff3c8", see_through: true, brightness: {block: 15, sky: 15}, at: 0, for: 40, motion: [{law: fade, start: 1.0, to: 0.0, at: 24, for: 16}]}
+        # --- four motes circle the caster on the turning `swirl` frame; phase from the copy index, height spread from rand (visual only) ---
         - id: mote
           op: display
           kind: sprite
           sprite: holy-glint
-          anchor: chest
+          frame: swirl
           times: 4
           size: [0.5, 0.5]
-          offset: {forward: 2.2, up: "= 0.25 * i + rand('mote') * 0.2"}
+          pos: {w: "= 2.2 * cos(rad(90 * i))", s: "= 2.2 * sin(rad(90 * i))", v: "= 0.25 * i + rand('mote') * 0.2"}
           billboard: center
           brightness: {block: 15, sky: 15}
           at: 2
           for: 34
           motion:
-            - {law: orbit, center: {forward: 0}, axis: up, deg_per_tick: 14, phase_deg: "= 90 * i", face: keep, at: 0, for: 34}
             - {law: fade, start: 1.0, to: 0.0, at: 24, for: 10}
-        # --- halo follows the caster's eye ---
+        # --- halo rises from the eye frame ---
         - id: halo
           op: display
           kind: sprite
           sprite: sparkle-cross
-          anchor: ground
-          offset: {up: 0.7}
+          frame: eye
+          pos: {v: 0}
           size: [0.8, 0.8]
           billboard: center
           brightness: {block: 15, sky: 15}
           at: 10
           for: 26
           motion:
-            - {law: follow, anchor: caster.eye, at: 0, for: 26, step: 2}
             - {law: grow, by: 0.4, at: 12, for: 14}
             - {law: fade, start: 1.0, to: 0.0, at: 12, for: 14}
         # --- burst on the strike ---

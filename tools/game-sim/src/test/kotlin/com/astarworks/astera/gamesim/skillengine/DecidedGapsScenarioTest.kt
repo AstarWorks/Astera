@@ -39,7 +39,7 @@ class DecidedGapsScenarioTest : SkillEngineScenario() {
 
     @Test
     fun movingDisplayKeepsBaseOffsetAndRotate() {
-        val yaml = skill("{id: d, op: display, kind: block, block: stone, anchor: caster, for: 8, offset: {up: 2}, rotate: [{axis: up, deg: 90}], motion: [{law: move, velocity: {forward: 0.5}, for: 4}]}")
+        val yaml = skill("{id: d, op: display, kind: block, block: stone, anchor: caster, for: 8, offset: {up: 2}, rotate: [{axis: up, deg: 90}], motion: [{law: move, velocity: {v: 0.5}, for: 4}]}")
         val rows = spawns(yaml)
         assertThat(rows.single()).contains("rot=0.000000,0.707107,0.000000,0.707107")
         assertThat(rows.single()).doesNotContain("pos=0.000000,0.000000,0.000000")
@@ -114,7 +114,7 @@ class DecidedGapsScenarioTest : SkillEngineScenario() {
     // B4
     @Test
     fun growOffsetToPartialAxes() {
-        val rows = spawns(skill("{id: d, op: display, kind: block, block: stone, anchor: caster, for: 8, motion: [{law: grow, prop: offset, to: {up: 0.8}, for: 4}]}"))
+        val rows = spawns(skill("{id: d, op: display, kind: block, block: stone, anchor: caster, for: 8, motion: [{law: grow, prop: offset, to: {w: 0.8}, for: 4}]}"))
         assertThat(rows).hasSize(1)
     }
 

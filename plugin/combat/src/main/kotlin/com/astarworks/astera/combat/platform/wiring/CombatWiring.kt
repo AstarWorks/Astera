@@ -773,6 +773,7 @@ public object CombatWiring {
                     outDir = java.nio.file.Path.of(engineConfig.expandDir),
                 ),
                 faults = skillFaults,
+                applyDamage = applyDamageOut,
             ),
         )
         // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).

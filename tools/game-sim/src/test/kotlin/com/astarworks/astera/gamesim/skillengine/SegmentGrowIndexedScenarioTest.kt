@@ -122,7 +122,7 @@ class SegmentGrowIndexedScenarioTest : SkillEngineScenario() {
     @Test
     fun growByIsExclusiveWithToAndPerTick() {
         listOf("by: 2, to: 3", "by: 2, per_tick: 0.1").forEach {
-            failure("{id: d, op: display, kind: item, item: couture-rapier, anchor: caster, motion: [{law: grow, prop: scale, $it, for: 4}], for: 20}")
+            failure("{id: d, op: display, kind: item, item: couture-rapier, anchor: caster, motion: [{law: grow, prop: scale, $it: , for: 4}], for: 20}")
         }
     }
 

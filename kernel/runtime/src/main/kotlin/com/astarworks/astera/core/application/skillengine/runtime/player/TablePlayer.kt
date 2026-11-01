@@ -392,7 +392,7 @@ public class TablePlayer(
             val h = rec.real ?: continue
             if (rec.anchor == null && rec.anchorName.startsWith(FrameRefs.PREFIX) && rec.kind in RIDER_KINDS) {
                 // a display placed by a frame (ADR-0314) follows the frame table: re-written when the frame moved since it last looked
-                val pw = framePose(run, rec.anchorName, rec.binding)
+                val pw = framePose(run, rec.anchorName, rec.binding, rec.scope)
                 val seen = rec.parentSeen
                 rec.parentSeen = pw
                 if (seen != null && samePose(seen, pw)) continue
@@ -720,7 +720,7 @@ public class TablePlayer(
 
     /**
      * Offers [ev] to the levels innermost first (item 14.8). Per level the branches are tried in declaration order and the first
-     * match wins; a matched transition on a level that already transitioned this tick does not handle the event, so it bubbles.
+     * match wins. A level entered this tick is offered the events its own entry raised (a part's `emit: parried` reaches the caller's `on: <call>.parried` that was folded onto it).
      * A handled event is consumed: the handler's ancestors are not offered it.
      */
     private fun offer(run: Run, ev: RuntimeEvent, binding: EventBinding, now: Int, only: LevelCursor?): Offered {
@@ -735,7 +735,6 @@ public class TablePlayer(
             val br = st.branches.firstOrNull { b ->
                 b.event == ev.path && lt in b.window.min..b.window.max && guardOk(run, b, binding, lt, now)
             } ?: continue
-            if (br.target != null && lvl.firedTick == now) continue
             any = true
             consumed += lvl
             generateSequence(lvl.parent) { it.parent }.forEach { consumed += it }
@@ -1232,7 +1231,7 @@ public class TablePlayer(
         rec.real = h
         rec.anchor?.let { run.recs[it] }?.let { p -> rec.parentSeen = worldOf(run, p, p.localAt(now), null, now) }
         // a frame display (ADR-0314) has seen its frame at spawn: followRiders writes it only once the frame moves (no spawn-tick write)
-        if (rec.anchor == null && rec.anchorName.startsWith(FrameRefs.PREFIX) && rec.kind in RIDER_KINDS) rec.parentSeen = framePose(run, rec.anchorName, ctx.binding)
+        if (rec.anchor == null && rec.anchorName.startsWith(FrameRefs.PREFIX) && rec.kind in RIDER_KINDS) rec.parentSeen = framePose(run, rec.anchorName, ctx.binding, ctx.scope).also { rec.scope = ctx.scope }
         // a glyph quad: the text colour and opacity of the spawn row are written like a first `set` (spawnText has no slot for them)
         if (h != null && a.kind == SpawnKind.TEXT) {
             look.fields["color"]?.let { hooks.setDisplayText(h, "color", strOf(run, it, ctx)) }
@@ -1452,7 +1451,7 @@ public class TablePlayer(
             is HitShape.Sector -> s.origin
             is HitShape.Box -> s.center
         }
-        val ref = (cell as? Val.Live)?.name?.let { FrameRefs.parse(it) }?.takeIf { !it.direction } ?: return null
+        val ref = (cell as? Val.Live)?.name?.let { FrameRefs.parse(it) }?.takeIf { !it.direction }?.let { concrete(run, it, ctx.binding, ctx.scope) } ?: return null
         val inst = frameInst(run, ref, ctx.binding)
         val cur = inst.state?.world(ref.at) ?: return null
         val prev = inst.prevState?.world(ref.at) ?: return Vector3d()
@@ -1950,6 +1949,12 @@ public class TablePlayer(
                         else if (ticks > 0) run.frozenUntil[target] = now + ticks
                     }
                 }
+                // hit stop on the caster stops every frame clock for those ticks (clockOf): ticks now+1 .. now+ticks stand still
+                if (ticks > 0 && caster in entities) {
+                    // windows are added in tick order; one that touches the last extends it, so a tick is never counted twice
+                    val last = run.casterStops.lastOrNull()
+                    if (last != null && now + 1 <= last[1] + 1) last[1] = maxOf(last[1], now + ticks) else run.casterStops += intArrayOf(now + 1, now + ticks)
+                }
                 if (ticks > 0 && entities.isNotEmpty()) gameplay.freezeEntities(entities.toList(), ticks)
             }
             "camera_shake" -> {
@@ -2202,6 +2207,26 @@ public class TablePlayer(
      * Runs at the end of the tick, so a rig that started on this tick's rows is pushed on the tick its mesh was first written.
      */
     private fun pushBodies(run: Run, now: Int) {
+        val pushes = bodyPushes(run, now)
+        if (pushes.isEmpty()) return
+        val anchor by lazy { casterAnchor(run) }
+        for (bodies in pushes.groupBy { it.who }.values) {
+            val push = bodies.maxBy { it.start }
+            // every frame rig of the body pins its own hand: the newest main rig the right, the newest `hand: off` rig the left (ADR-0315)
+            val right = bodies.mapNotNull { it.pin }.filter { !it.off }.maxByOrNull { it.start }
+            val left = bodies.mapNotNull { it.pin }.filter { it.off }.maxByOrNull { it.start }
+            var frame = push.frame()
+            if (right != null) frame = frame.copy(rightHandTarget = pinnedHandTarget(run, right))
+            if (left != null) frame = frame.copy(leftHandTarget = pinnedHandTarget(run, left))
+            gameplay.poseBody(castRef(run), push.who, frame, if (push.anchored) anchor else null)
+        }
+    }
+
+    /**
+     * Every body shown at [now], with the frame the engine's tables used (the hand pins are applied by the push; the torso reading
+     * ([torsoRot]) leaves them off, since a pin reads the very frame being evaluated).
+     */
+    private fun bodyPushes(run: Run, now: Int): List<BodyPush> {
         val pushes = ArrayList<BodyPush>()
         for ((id, rec) in run.recs.entries) {
             rec.body?.let { b ->
@@ -2220,23 +2245,24 @@ public class TablePlayer(
                 pushes += BodyPush(fr.start, fr.caster, {
                     // no clip (ADR-0315): the rest body, the pinned hand is all that moves
                     val frame = if (anim == null || clip == null) RigFrame.REST
-                    else run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(fr.caster)) }.frameAt(now - fr.start)
+                    else run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(fr.caster)) }.frameAt(clockOf(run, fr.start, now))
                     frame
                 }, true, fr)
             }
         }
-        if (pushes.isEmpty()) return
-        val anchor by lazy { casterAnchor(run) }
-        for (bodies in pushes.groupBy { it.who }.values) {
-            val push = bodies.maxBy { it.start }
-            // every frame rig of the body pins its own hand: the newest main rig the right, the newest `hand: off` rig the left (ADR-0315)
-            val right = bodies.mapNotNull { it.pin }.filter { !it.off }.maxByOrNull { it.start }
-            val left = bodies.mapNotNull { it.pin }.filter { it.off }.maxByOrNull { it.start }
-            var frame = push.frame()
-            if (right != null) frame = frame.copy(rightHandTarget = pinnedHandTarget(run, right))
-            if (left != null) frame = frame.copy(leftHandTarget = pinnedHandTarget(run, left))
-            gameplay.poseBody(castRef(run), push.who, frame, if (push.anchored) anchor else null)
-        }
+        return pushes
+    }
+
+    /**
+     * The caster's torso (root x body, the spine landmark of the puppet the skin draws) in the caster's axes at [now]: the newest body shown on the
+     * caster, the rest body when none plays. `body.forward` / `body.up` / `body.left` frame axes turn by it, so an arm frame follows the torso
+     * on the same clock as the skin (ADR-0315) with no hand-keyed yaw.
+     */
+    private fun torsoRot(run: Run, now: Int): Quaterniond {
+        val caster = run.request.caster
+        val frame = bodyPushes(run, now).filter { it.who == caster }.maxByOrNull { it.start }?.frame?.invoke() ?: RigFrame.REST
+        val q = SkinRigTransforms.spine(frame, gameplay.isSlimSkin(caster)).rotation
+        return Quaterniond(q.x, q.y, q.z, q.w)
     }
 
     /**
@@ -2300,6 +2326,20 @@ public class TablePlayer(
         for ((key, inst) in run.frames.entries.toList()) if (inst.evaluatedTick != now) evaluateFrame(run, key, inst, now)
     }
 
+    /**
+     * The clock of anything that runs on a frame (its move / rotate / scale keys, a clip riding it): ticks since [start], minus the ticks the
+     * caster stood in hit stop since then. The one place hit stop pauses frames; no op carries a flag for it.
+     */
+    private fun clockOf(run: Run, start: Int, now: Int): Int {
+        var stalled = 0
+        for (w in run.casterStops) {
+            val lo = maxOf(w[0], start + 1)
+            val hi = minOf(w[1], now)
+            if (hi >= lo) stalled += hi - lo + 1
+        }
+        return now - start - stalled
+    }
+
     private fun evaluateFrame(run: Run, key: String, inst: FrameInst, now: Int) {
         val decl = inst.decl
         val scope = RowScope.cast(run.request.seed)
@@ -2327,7 +2367,7 @@ public class TablePlayer(
             return
         }
         val snapshotAt = decl.snapshotAt
-        val held = if (snapshotAt != null && now - inst.start >= snapshotAt) inst.frozen else null
+        val held = if (snapshotAt != null && clockOf(run, inst.start, now) >= snapshotAt) inst.frozen else null
         val origin = held?.origin ?: try {
             if (parentOrigin != null) parentState!!.world(parentOrigin.pos) else frameOrigin(run, decl, binding, scope, now)
         } catch (e: IllegalArgumentException) {
@@ -2339,6 +2379,7 @@ public class TablePlayer(
         val lookRot = live.rot(handle, "caster.look", binding, scope)
         fun turned(q: Quaterniond, v: Vec3): Vec3 = Vector3d(v.x, v.y, v.z).rotate(q).let { Vec3(it.x, it.y, it.z) }
         val aim = turned(lookRot, Vec3(0.0, 0.0, 1.0))
+        val torso by lazy { torsoRot(run, now) }
         val prev = inst.prevOrigin
         inst.prevOrigin = origin
         val liveDirection: (String) -> Vec3? = { name ->
@@ -2350,6 +2391,13 @@ public class TablePlayer(
                 "back" -> turned(casterRot, Vec3(0.0, 0.0, -1.0))
                 "left" -> turned(casterRot, Vec3(1.0, 0.0, 0.0))
                 "right" -> turned(casterRot, Vec3(-1.0, 0.0, 0.0))
+                // the torso of the body shown on the caster this tick (the puppet the skin draws), in the caster's axes
+                "body.forward" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, 0.0, 1.0))
+                "body.back" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, 0.0, -1.0))
+                "body.up" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, 1.0, 0.0))
+                "body.down" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, -1.0, 0.0))
+                "body.left" -> turned(Quaterniond(casterRot).mul(torso), Vec3(1.0, 0.0, 0.0))
+                "body.right" -> turned(Quaterniond(casterRot).mul(torso), Vec3(-1.0, 0.0, 0.0))
                 // the block's surface normal at the contact (an on: event.block frame); any other frame has no contact
                 "normal" -> binding?.contact?.normal?.let { Vec3(it.x, it.y, it.z) }?.takeIf { it.lengthSquared() > 1e-12 }?.normalize()
                 // from the caster's eye to the frame origin (a victim / contact frame: the way the blow came in); a frame on the caster has no incoming side: the aim
@@ -2363,12 +2411,12 @@ public class TablePlayer(
             }
         }
         // snapshot: the first evaluation at or after the snapshot tick reads the live inputs and keeps them; later ticks replay the held ones
-        if (snapshotAt != null && held == null && now - inst.start >= snapshotAt) {
+        if (snapshotAt != null && held == null && clockOf(run, inst.start, now) >= snapshotAt) {
             inst.frozen = Frozen(origin, AxisSpec.NAMED.mapNotNull { n -> liveDirection(n)?.let { n to it } }.toMap())
         }
         val frozen = if (snapshotAt != null) inst.frozen else null
         val inputs = if (frozen != null) FrameInputs(frozen.origin) { frozen.directions[it] } else FrameInputs(origin, liveDirection)
-        when (val out = FrameEvaluator.evaluate(decl, now - inst.start, inputs)) {
+        when (val out = FrameEvaluator.evaluate(decl, clockOf(run, inst.start, now), inputs)) {
             is FrameEvaluator.Outcome.Ok -> inst.state = out.state
             is FrameEvaluator.Outcome.Degenerate -> {
                 inst.state = null
@@ -2390,6 +2438,15 @@ public class TablePlayer(
                 else -> v3(live.vec(handle, "caster.${o.point}", binding, scope))
             }
             is OriginSpec.Frame -> error("a frame-point origin is read from its parent's state")
+            // the aim point: the same host query as the expression aim_point(caster, range) (first block within range, else the point at range)
+            is OriginSpec.Aim -> {
+                val range = when (val r = o.range) {
+                    is Value.Literal -> r.value
+                    is Value.ParamRef -> (paramOf(run, "param:${r.name}") as? Number)?.toDouble() ?: throw IllegalArgumentException("frame '${decl.id}': aim param '${r.name}' is not a number")
+                    is Value.Expr -> live.num(handle, "= ${r.source}", binding, scope)
+                }
+                v3(live.vec(handle, "= aim_point(caster, $range)", binding, scope))
+            }
             is OriginSpec.Victim -> v3(live.vec(handle, "victim.${o.point}", binding, scope))
             // the attacker is read as a victim of a binding made for it: the live source already knows an entity's points
             is OriginSpec.Attacker -> {
@@ -2418,7 +2475,7 @@ public class TablePlayer(
         // (start, clip or null for a clip-less frame rig's rest body, body-clock tick)
         val newest = run.recs.values.mapNotNull { rec ->
             rec.rig?.let { r -> r.anim?.let { Triple<Int, String?, Double>(r.start, it, r.bodyClock.clock(now - r.start)) } }
-                ?: rec.frameRig?.let { r -> Triple(r.start, r.anim, (now - r.start).toDouble()) }
+                ?: rec.frameRig?.let { r -> Triple(r.start, r.anim, clockOf(run, r.start, now).toDouble()) }
         }.maxByOrNull { it.first }
         val pinned = run.recs.values.mapNotNull { it.frameRig }.filter { it.off == left }.maxByOrNull { it.start }
         if (!joint && pinned != null && newest != null && pinned.start >= newest.first) {
@@ -2444,7 +2501,9 @@ public class TablePlayer(
 
     /** The live instance a frame cell names: a per-victim frame keyed by the row's victim, instantiated (and evaluated) at its first read. */
     private fun frameInst(run: Run, ref: FrameRef, binding: EventBinding?): FrameInst {
-        val decl = run.cursor.skill.def.frames.firstOrNull { it.id == ref.frame }
+        val def = run.cursor.skill.def
+        val decl = def.frames.firstOrNull { it.id == ref.frame }
+            ?: ref.frame.takeIf { it in def.framesIn }?.let { FrameDecl.inbound(it) }
             ?: throw IllegalArgumentException("frame '${ref.frame}' is not declared under frames:")
         val key = when {
             decl.perVictim -> {
@@ -2478,14 +2537,21 @@ public class TablePlayer(
             )
         }
 
+    /**
+     * The ONE place an `= expr` coefficient is evaluated (every op that takes `frame:` + `pos:` reads its cell through here): each component runs
+     * through the same `= CEL` path as every live cell, then the reference is an ordinary numeric one. A summon / world op / projectile reads its
+     * cell at its spawn tick (so it is baked once there); a display or a hit re-reads its cell every tick.
+     */
+    private fun concrete(run: Run, ref: FrameRef, binding: EventBinding?, scope: RowScope?): FrameRef {
+        val ex = ref.at.exprs ?: return ref
+        val sc = scope ?: throw IllegalArgumentException("frame '${ref.frame}': an '= expr' coefficient is read without a row scope")
+        fun c(i: Int, n: Double): Double = ex[i]?.let { live.num(run.cursor.handle, "= $it", binding, sc) } ?: n
+        return ref.copy(at = Coeff(c(0, ref.at.v), c(1, ref.at.w), c(2, ref.at.s)))
+    }
+
     /** A `pos` cell: the frame's origin plus the coefficients along its axes; a `dir` cell (ADR-0314): the same weighted axes with no origin. */
     private fun frameVec(run: Run, ref0: FrameRef, binding: EventBinding?, scope: RowScope? = null): Vector3d {
-        // `pos: {v: "= i * 0.2"}`: each expression component is evaluated now (the same path as every `= CEL` cell), then the cell is an ordinary one
-        val ref = ref0.at.exprs?.let { ex ->
-            val sc = scope ?: throw IllegalArgumentException("frame '${ref0.frame}': an '= expr' coefficient is read where a row scope exists (particle, particle_def, sound)")
-            fun c(i: Int, n: Double): Double = ex[i]?.let { live.num(run.cursor.handle, "= $it", binding, sc) } ?: n
-            ref0.copy(at = Coeff(c(0, ref0.at.v), c(1, ref0.at.w), c(2, ref0.at.s)))
-        } ?: ref0
+        val ref = concrete(run, ref0, binding, scope)
         val st = frameState(run, ref, binding)
         val a = (if (ref.direction) st.basis.direction(ref.at) else st.world(ref.at)).let { Vector3d(it.x, it.y, it.z) }
         if (ref.toFrame == ref.frame) return a
@@ -2498,9 +2564,9 @@ public class TablePlayer(
     private fun frameRot(run: Run, ref: FrameRef, binding: EventBinding?): Quaterniond =
         frameState(run, ref, binding).orientation().let { Quaterniond(it.x, it.y, it.z, it.w) }
 
-    private fun framePose(run: Run, cell: String, binding: EventBinding?): PoseV {
+    private fun framePose(run: Run, cell: String, binding: EventBinding?, scope: RowScope?): PoseV {
         val ref = FrameRefs.parse(cell) ?: throw IllegalArgumentException("'$cell' is not a frame cell")
-        return PoseV(frameVec(run, ref, binding), frameRot(run, ref, binding), Vector3d(1.0, 1.0, 1.0))
+        return PoseV(frameVec(run, ref, binding, scope), frameRot(run, ref, binding), Vector3d(1.0, 1.0, 1.0))
     }
 
     /**
@@ -2791,6 +2857,11 @@ public class TablePlayer(
 
     private fun liveVec(run: Run, name: String, ctx: RowCtx): Vector3d {
         FrameRefs.parse(name)?.let { return frameVec(run, it, ctx.binding, ctx.scope) }
+        // a frame id (declared, a built-in the compiler declared, or a `frames_in` name) as a follow / stretch / trail role: its origin in world
+        val skillDef = run.cursor.skill.def
+        if (skillDef.frames.any { it.id == name } || name in skillDef.framesIn) {
+            return frameVec(run, FrameRef(name, Coeff(0.0, 0.0, 0.0)), ctx.binding, ctx.scope)
+        }
         paramOf(run, name)?.let { return toVector(it, name) }
         anchorOf(run, name, ctx.owner)?.let { (rec, part) ->
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
@@ -3171,6 +3242,8 @@ public class TablePlayer(
         var frameRig: FrameRigRec? = null
         /** The hit that spawned this instance (null outside `on.hit`): a `victim` anchor/axes keeps resolving to that victim after the row is gone (end-of-cast freeze, later ticks). */
         var binding: EventBinding? = null
+        /** The row scope a frame display was spawned under: its host cell may carry `= expr` coefficients, evaluated each tick in it. */
+        var scope: RowScope? = null
         var flight: Flight? = null
         /** R16: the tick the flight ends by range / `for` (-1 none), the body events that end it early, and whether one did. */
         var expireTick: Int = -1
@@ -3331,6 +3404,9 @@ public class TablePlayer(
 
         /** `freeze` on a frame instance: the tick it lifts (exclusive), per instance. */
         val frozenUntil = HashMap<InstanceId, Int>()
+
+        /** The tick windows (first, last; inclusive) the caster stood in hit stop (`freeze` with the caster in scope): frame clocks do not run in them. */
+        val casterStops = ArrayList<IntArray>()
 
         /** Ops (identity without the occurrence index) that have found a victim at least once / already raised `miss`. */
         val hitEver = HashSet<InstanceId>()

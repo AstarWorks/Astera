@@ -1013,6 +1013,21 @@ film() { # viewer view_dir
       printf '%s\trotate Caster %s %s\n' "$(( t_tick * 50 ))" "$t_yaw" "${t_pitch:-~}" >> "$STATE/camera-plan.tsv"
     done
   fi
+  # ATTACKER=1 (opt-in): the dummy husk nearest the Caster deals ONE hit to the Caster ATTACK_AT ticks after the cast (default 10, inside a
+  # 30-tick guard window) through the normal damage path (`astera skill hurt`: ApplyDamageUseCase with the husk as attacker, the call a skill's
+  # `damage` op makes), so a counter / guard skill (couture-rapier-def: hurt -> parry -> riposte) fires its branch. The director logs the reply.
+  ATTACK_TICK=""
+  if [ "${ATTACKER:-0}" = 1 ]; then
+    ATTACK_TICK="${ATTACK_AT:-10}"
+    [[ "$ATTACK_TICK" =~ ^[0-9]+$ ]] && [ "$ATTACK_TICK" -lt "$TICKS" ] || die "ATTACKER=1: ATTACK_AT must be a tick number below TICKS ($TICKS), got '$ATTACK_TICK'"
+    local husk_raw husk_uuid
+    husk_raw="$(rcon "data get entity @e[type=minecraft:husk,x=$CX,y=$Y,z=$CZ,sort=nearest,limit=1] UUID")"
+    husk_uuid="$(python3 -I -c 'import re,sys,uuid
+m=re.search(r"\[I;\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+)\]", sys.argv[1])
+print(uuid.UUID(bytes=b"".join((int(g) & 0xFFFFFFFF).to_bytes(4, "big") for g in m.groups())) if m else "")' "$husk_raw")"
+    [ -n "$husk_uuid" ] || die "ATTACKER=1: there is no dummy husk to attack with (rcon: ${husk_raw:-<empty>})"
+    printf '%s\tastera skill hurt Caster %s 1\n' "$(( ATTACK_TICK * 50 ))" "$husk_uuid" >> "$STATE/camera-plan.tsv"
+  fi
   # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
   # advanced one tick at a time until the viewer's screen shows each new tick; realtime: the plan runs on the wall clock.
   local dstep=()
@@ -1056,11 +1071,30 @@ film() { # viewer view_dir
     docker logs "$SERVER_CT" 2>&1 | grep -E '\[(vfx|skill)-trace\]' | tr -d '\r' \
       | awk -v lo="$((ct - 1))" -v hi="$((ct + TICKS + PRE_TICKS + 10))" '{ if (match($0, /tick=[0-9]+/)) { t = substr($0, RSTART + 5, RLENGTH - 5) + 0; if (t >= lo && t <= hi) print } }' > "$dir/trace.log" || true
     # ADR-0315: the weapon display and the puppet's right hand must be sent on one entity position / yaw / interpolation contract, grip on origin
-    python3 -I "$HERE/rig_trace_check.py" "$dir/trace.log" "$dir/rig-check.txt" > "$STATE/rig-check.out" 2>&1 \
+    # (the display sits PLAYER_SCALE * |grip| off the pin: the checker reads that grip from the skill's item frames table)
+    local rig_item rig_frames=""
+    rig_item="$(awk '/^item:/ { print $2; exit }' "$ROOT/content/skills/$SKILL/skill.yaml" 2>/dev/null)"
+    [ -n "$rig_item" ] && [ -f "$ROOT/content/frames/$rig_item.yaml" ] && rig_frames="$ROOT/content/frames/$rig_item.yaml"
+    python3 -I "$HERE/rig_trace_check.py" "$dir/trace.log" "$dir/rig-check.txt" $rig_frames > "$STATE/rig-check.out" 2>&1 \
       || die "rig check failed ($(tail -1 "$dir/rig-check.txt" 2>/dev/null)); see $dir/rig-check.txt and $dir/trace.log"
     log "rig check: $(tail -1 "$dir/rig-check.txt")"
   fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"
+  if [ -n "$ATTACK_TICK" ]; then
+    local areply; areply="$(grep -m1 "^PLAN_REPLY $((ATTACK_TICK * 50)) " "$STATE/director.stderr" | cut -d' ' -f3- | head -c 300)"
+    log "ATTACKER: hit at +$ATTACK_TICK ticks, reply: ${areply:-<empty>}"
+    # applied = the hit landed; immune = absorbed by a guard / parry window OR an immune Caster (told apart below by the reaction)
+    case "$areply" in
+      *"result=applied"*|*"result=immune"*) ;;
+      *) die "ATTACKER=1: the hit did not land (reply: ${areply:-<empty>}): the attacker is not a valid entity, the Caster is offline or the damage was refused" ;;
+    esac
+    case "$areply" in *"result=immune"*)
+      # an immune Caster and a parry both answer "immune": a parry is followed by fx of the skill after the hit
+      local after; after="$(awk -v lo="$((ct + ATTACK_TICK + 2))" '/\[vfx-trace\] fx / { if (match($0, /tick=[0-9]+/) && substr($0, RSTART + 5, RLENGTH - 5) + 0 >= lo) n++ } END { print n + 0 }' "$dir/trace.log")"
+      [ "${after:-0}" -gt 0 ] || die "ATTACKER=1: the hit was refused as immune and the skill drew nothing after it (no reaction fx after tick +$ATTACK_TICK): the Caster is invulnerable or the skill has no hurt branch"
+      log "ATTACKER: hit absorbed, $after fx rows after +$ATTACK_TICK (the skill's reaction)" ;;
+    esac
+  fi
   # The gate is the server's own trace, not pixels: the cast was acknowledged (above) AND the [vfx-trace] fx rows (PaperSkillParticleGateway:
   # `fx particle`, PaperSkillVisualGateway: `fx display`, ASTERA_VFX_TRACE=1 in the compose) hold at least one row at or after the cast tick.
   # An empty trace is a failure, never a pass. The pixel measurement (noise, peak, first fx tick) is information only.

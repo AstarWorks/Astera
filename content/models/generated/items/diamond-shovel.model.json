@@ -2,5 +2,24 @@
   "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "astera:generated/items/diamond-shovel"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        55
+      ],
+      "translation": [
+        0,
+        6.416,
+        -1.4024
+      ],
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ]
+    }
   }
 }

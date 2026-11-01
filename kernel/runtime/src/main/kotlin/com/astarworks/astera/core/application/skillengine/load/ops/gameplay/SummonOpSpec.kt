@@ -85,7 +85,7 @@ public object SummonOpSpec : OpSpec<SummonOp> {
         if (reactsToBreak && op.body == null) {
             return Result.failure(SkillDecodeError.Invalid(lc.skillId, at, "summoned skill '${callee.id}' reacts to `destroyed` but this summon has no `body`; give it `body: {hp: ...}`"))
         }
-        val frameCentre = op.place.centre()
+        val frameCentre = op.place.centre(lc)
         if (frameCentre != null) {
             val action = Action.Summon(op.skill, frameCentre, op.place.forward()!!, op.lasts, op.outlivesCaster, op.body)
             return Result.Success(Lowered(rows = listOf(Row(0, lc.self, action, lc.src))))

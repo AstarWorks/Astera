@@ -91,7 +91,7 @@ class ScriptedAnnihilationRun(
         if (e.position.distance(spot) > 1.0) {
             walk(e, spot, 0.35)
         } else if (tick >= seat.nextAction) {
-            e.lookAt(pillar.centre)
+            e.lookAt(Vec3(pillar.centre.x, pillar.position.y, pillar.centre.z))
             sim.cast(e, "flame-burst")
             seat.nextAction = tick + 85
         }
