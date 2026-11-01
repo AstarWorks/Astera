@@ -66,6 +66,6 @@ machine:
               - {id: hiss, op: sound, sound: entity.generic.extinguish_fire, frame: body, volume: 0.8, pitch: 0.7, detach: true}
               - {id: big, op: particle, particle: large_smoke, frame: body, count: 0, extra: 0.01, detach: true}
               - {id: small, op: particle, particle: smoke, frame: body, count: 0, extra: 0.01, detach: true}
-        - {id: shell, op: display, kind: item, item: "minecraft:gunpowder", context: fixed, frame: body, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - {id: shell, op: display, kind: item, item: "minecraft:gunpowder", context: fixed, frame: body, scale: [0.25, 0.25, 0.25], at: 0, until: bolt.end}
         - {id: trail, op: particle, particle: smoke, along: tail, samples: 2, count: 1, offset: [0.04, 0.04, 0.04], at: 2, every: 1, until: bolt.end}
     end: {final: true}
