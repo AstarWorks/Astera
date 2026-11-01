@@ -15,7 +15,9 @@ import com.astarworks.astera.match.application.contents.BotLoadoutContents
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.loadout.BotLoadoutService
+import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
 import com.astarworks.astera.match.domain.event.NormaLevelUp
+import com.astarworks.astera.match.domain.norma.NormaProgress
 import com.astarworks.astera.match.domain.loadout.BotWeaponFamily
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import org.assertj.core.api.Assertions.assertThat
@@ -166,9 +168,9 @@ class BotLoadoutScenarioTest {
 
             val service = sim.services.getOrThrow<IMatchEntryLoadout>() as BotLoadoutService
             val matchId = sim.services.getOrThrow<IMatchRepository>().findActiveMatches().single().id
-            // Every bot enters at level 1 (common pool only); the Norma check then lifts three of them to levels 2, 3 and 5.
+            // No humans: every bot enters at level 1 (spread to 1-2, so no rare piece); the Norma check then lifts three of them to levels 2, 3 and 5.
             val entry = bots.map { checkNotNull(service.loadoutOf(matchId, it.id)) }
-            assertThat(entry.map { it.toSet() }.toSet()).`as`("level 1 pool is common only").hasSize(1)
+            assertThat(entry.flatten().map { it.value }).`as`("no rare weapon at a level 1-2 entry").doesNotContain("sniper", "greatsword")
 
             val bus = sim.services.getOrThrow<IDomainEventBus>()
             listOf(bots[1] to 2, bots[2] to 3, bots[3] to 5).forEach { (bot, level) -> bus.publish(NormaLevelUp(matchId, bot.id, level)) }
@@ -192,6 +194,38 @@ class BotLoadoutScenarioTest {
                     assertThat(needed).`as`("${bot.name} at level $level holds ${id.value}").isLessThanOrEqualTo(level)
                 }
             }
+        } finally {
+            sim.shutdown()
+        }
+    }
+
+    @Test
+    fun `bots entering a match whose humans average Norma level 5 roll from the wide pool at entry`() {
+        val sim = GameSim.boot("bot-loadout-human-level", snapshots = InMemoryPlayerInventorySnapshotRepository())
+        try {
+            val humans = listOf(sim.spawnPlayer("human-a"), sim.spawnPlayer("human-b"))
+            val bots = listOf("Bot_Ash", "Bot_Birch", "Bot_Cedar", "Bot_Dusk").map { sim.spawnPlayer(it) }
+            sim.step(5)
+            val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
+            val stage = com.astarworks.astera.core.domain.stage.StageId("siege-isles-tnt")
+            val matchId = (lifecycle.start(stage, "carry-tnt") as com.astarworks.astera.core.domain.Result.Success).value
+            humans.forEachIndexed { i, human ->
+                lifecycle.entry(matchId, human.id, com.astarworks.astera.core.domain.match.TeamId("red"))
+                // Levels 4 and 6: the average is 5.
+                sim.services.getOrThrow<IMatchNormaStore>().put(matchId, human.id, NormaProgress(level = if (i == 0) 4 else 6))
+            }
+            sim.step(5)
+            bots.forEachIndexed { i, bot -> lifecycle.entry(matchId, bot.id, com.astarworks.astera.core.domain.match.TeamId(if (i % 2 == 0) "red" else "blue")) }
+            sim.step(10)
+
+            val service = sim.services.getOrThrow<IMatchEntryLoadout>() as BotLoadoutService
+            val loadouts = bots.map { checkNotNull(service.loadoutOf(matchId, it.id)) }
+            val weapons = loadouts.flatten().map { it.value }.toSet()
+            assertThat(weapons).`as`("distinct weapons at entry: $loadouts").hasSizeGreaterThanOrEqualTo(3)
+            assertThat(loadouts.flatten().map { familyOf(it.value) }.toSet()).contains(BotWeaponFamily.RANGED, BotWeaponFamily.MELEE)
+            // Level 5 +-1 opens every rarity up to rare at least (rare:3), so no bot is stuck on the starter pair.
+            assertThat(loadouts.map { it.toSet() }.toSet()).isNotEqualTo(setOf(setOf(ItemId("pistol"), ItemId("knight-sword"))))
+            bots.zip(loadouts).forEach { (bot, loadout) -> assertThat(weaponsOf(sim, bot)).containsAll(loadout.map { it.value }) }
         } finally {
             sim.shutdown()
         }
