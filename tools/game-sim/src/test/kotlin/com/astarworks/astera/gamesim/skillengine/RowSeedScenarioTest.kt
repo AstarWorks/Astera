@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
- * Content-addressed row seed (ADR-0303 rev4.8, design (h)): `rand()` and the particle spread of a row derive from the row's own content,
- * never from an op id or its place in the document. Renaming or reordering ops keeps every draw; byte-identical rows still differ; a random
- * value can never reach a schedule.
+ * Identity-addressed row seed: `rand()` and the particle spread of a row derive from the row's stable identity (skill id, op id with copy
+ * indices, tick, kind, sample), never from the text of its spec. Reordering ops keeps every draw, adding a look field keeps it, renaming an
+ * op re-rolls only that op; identical rows still differ; a random value can never reach a schedule.
  */
 class RowSeedScenarioTest : SkillEngineScenario() {
     private fun skill(vararg ops: String): String = """
@@ -42,22 +42,32 @@ class RowSeedScenarioTest : SkillEngineScenario() {
         play(s, seed).filter { it.verb == "particle" }.map { "${it.tick} ${it.payload} ${it.detail}" }.sorted()
 
     @Test
-    fun renameAndReorderKeepEverySpread() {
+    fun reorderKeepsEverySpreadAndRenameRerollsOnlyThatOp() {
         val a = loaded(skill(spread("flame_ring", "flame", 2), spread("smoke_ring", "smoke", 5)))
-        val b = loaded(skill(spread("display_9", "smoke", 5), spread("x", "flame", 2)))
+        val reordered = loaded(skill(spread("smoke_ring", "smoke", 5), spread("flame_ring", "flame", 2)))
+        val renamed = loaded(skill(spread("flame_ring", "flame", 2), spread("smoke_x", "smoke", 5)))
         val before = bursts(a, 7L)
         assertEquals(6, before.size)
-        assertEquals(before, bursts(b, 7L), "renamed and reordered ops must draw the same spread")
+        assertEquals(before, bursts(reordered, 7L), "reordered ops must draw the same spread")
         assertNotEquals(before, bursts(a, 8L), "a different cast seed must still re-roll")
         assertEquals(before.toSet().size, before.size, "the three copies of a times family draw differently")
+        val after = bursts(renamed, 7L)
+        assertEquals(before.filter { it.startsWith("2 ") }, after.filter { it.startsWith("2 ") }, "the untouched op keeps its draw")
+        assertNotEquals(before.filter { it.startsWith("5 ") }, after.filter { it.startsWith("5 ") }, "the renamed op re-rolls")
     }
 
     @Test
-    fun changingWhatARowIsRerollsOnlyThatRow() {
-        val a = bursts(loaded(skill(spread("p", "flame", 2), spread("q", "smoke", 5))), 7L)
-        val b = bursts(loaded(skill(spread("p", "flame", 3), spread("q", "smoke", 5))), 7L)
-        assertEquals(3, a.filter { it.startsWith("5 ") }.size)
-        assertEquals(a.filter { it.startsWith("5 ") }, b.filter { it.startsWith("5 ") }, "the untouched row keeps its draw")
+    fun addingALookFieldKeepsTheDraws() {
+        fun p(extra: String) =
+            "{id: p, op: particle, particle: flame, anchor: body, at: 2, times: 3, shift: {left: \"= rand() * 4.0\", up: \"= i\"}$extra}"
+        fun positions(s: CompiledSkill) = play(s, 7L).filter { it.verb == "particle" }.map { "${it.tick} ${it.payload.substringBefore(" count")}" }
+        assertEquals(positions(loaded(skill(p("")))), positions(loaded(skill(p(", extra: 0.0")))), "a look field must not change the draws")
+
+        fun d(extra: String) = "{id: g, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, for: 20$extra}"
+        fun seeds(s: CompiledSkill) = s.table.states.flatMap { it.rows }.map { it.seed }
+        val plain = seeds(loaded(skill(d(""))))
+        assertEquals(plain, seeds(loaded(skill(d(", glowing: false")))), "glowing: false must not change the row seed")
+        assertEquals(plain, seeds(loaded(skill(d(", glowing: true")))), "glowing: true must not change the row seed")
     }
 
     @Test
@@ -67,12 +77,10 @@ class RowSeedScenarioTest : SkillEngineScenario() {
         val s = loaded(skill(one, two))
         val seeds = s.table.states.flatMap { it.rows }.filter { it.action is com.astarworks.astera.core.domain.skillengine.table.Action.Particle }.map { it.seed }
         assertEquals(2, seeds.size)
-        assertNotEquals(seeds[0], seeds[1], "a deliberately doubled emitter keeps two streams")
+        assertNotEquals(seeds[0], seeds[1], "two ops keep two streams")
         val calls = bursts(s, 7L)
         assertEquals(2, calls.size)
         assertNotEquals(calls[0], calls[1])
-        // the document order only matters between true duplicates: swapping the ids changes nothing
-        assertEquals(calls, bursts(loaded(skill(two.replace("id: b", "id: z"), one.replace("id: a", "id: y"))), 7L))
     }
 
     private fun assertRuntimeTiming(yaml: String, field: String) {

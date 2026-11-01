@@ -25,7 +25,7 @@
 @21 write #0 op=lob/shell dur=0 pos=0.000000,0.689563,8.577413 rot=0.573687,0.000000,0.000000,0.819075 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #0 op=lob/shell dur=0 pos=0.000000,0.367288,8.699017 rot=0.563131,0.000000,0.000000,0.826367 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #0 op=lob/shell dur=0 pos=0.000000,0.180777,8.774416 rot=0.554760,0.000000,0.000000,0.832010 scale=1.000000,1.000000,1.000000 bb=FIXED
-@23 particle - op=lob/boom type=flame count=20 at=0.000000,0.000000,8.000000 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8538437200764137578
+@23 particle - op=lob/boom type=flame count=20 at=0.000000,0.000000,8.000000 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6890631187154094140
 @23 hit - op=lob/hurt at=0.000000,0.000000,8.000000 r=3.000000 shape=area
 @23 damage 00000000-0000-0000-0000-00000000000b op=- fire=14 skill=arc-lob at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
 @23 damage 00000000-0000-0000-0000-00000000000a op=- fire=14 skill=arc-lob at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
@@ -57,7 +57,7 @@
 @21 write #0 op=lob/shell dur=0 pos=-5.162016,0.689563,6.850227 rot=0.544041,-0.259896,0.182033,0.776748 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #0 op=lob/shell dur=0 pos=-5.235199,0.367288,6.947344 rot=0.534031,-0.262210,0.178684,0.783664 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #0 op=lob/shell dur=0 pos=-5.280575,0.180777,7.007560 rot=0.526092,-0.264001,0.176028,0.789015 scale=1.000000,1.000000,1.000000 bb=FIXED
-@23 particle - op=lob/boom type=flame count=20 at=-4.814520,0.000000,6.389084 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8538437200764137578
+@23 particle - op=lob/boom type=flame count=20 at=-4.814520,0.000000,6.389084 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6890631187154094140
 @23 hit - op=lob/hurt at=-4.814520,0.000000,6.389084 r=3.000000 shape=area
 @23 damage 00000000-0000-0000-0000-00000000000b op=- fire=14 skill=arc-lob at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
 @23 damage 00000000-0000-0000-0000-00000000000a op=- fire=14 skill=arc-lob at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
@@ -89,7 +89,7 @@
 @21 write #0 op=lob/shell dur=0 pos=0.000000,0.689563,8.577413 rot=0.573687,0.000000,0.000000,0.819075 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #0 op=lob/shell dur=0 pos=0.000000,0.367288,8.699017 rot=0.563131,0.000000,0.000000,0.826367 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #0 op=lob/shell dur=0 pos=0.000000,0.180777,8.774416 rot=0.554760,0.000000,0.000000,0.832010 scale=1.000000,1.000000,1.000000 bb=FIXED
-@23 particle - op=lob/boom type=flame count=20 at=0.000000,0.000000,8.000000 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8538437200764137578
+@23 particle - op=lob/boom type=flame count=20 at=0.000000,0.000000,8.000000 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6890631187154094140
 @23 hit - op=lob/hurt at=0.000000,0.000000,8.000000 r=3.000000 shape=area
 @23 damage 00000000-0000-0000-0000-00000000000c op=- fire=14 skill=arc-lob at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
 @23 damage 00000000-0000-0000-0000-00000000000d op=- fire=14 skill=arc-lob at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
@@ -126,7 +126,7 @@ r @28 run-end tail=2 | pose
 @21 write #0 op=lob/shell dur=0 pos=-5.162016,0.689563,6.850227 rot=0.544041,-0.259896,0.182033,0.776748 scale=1.000000,1.000000,1.000000 bb=FIXED
 @22 write #0 op=lob/shell dur=0 pos=-5.235199,0.367288,6.947344 rot=0.534031,-0.262210,0.178684,0.783664 scale=1.000000,1.000000,1.000000 bb=FIXED
 @23 write #0 op=lob/shell dur=0 pos=-5.280575,0.180777,7.007560 rot=0.526092,-0.264001,0.176028,0.789015 scale=1.000000,1.000000,1.000000 bb=FIXED
-@23 particle - op=lob/boom type=flame count=20 at=-4.814520,0.000000,6.389084 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8538437200764137578
+@23 particle - op=lob/boom type=flame count=20 at=-4.814520,0.000000,6.389084 off=0.500000,0.200000,0.500000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6890631187154094140
 @23 hit - op=lob/hurt at=-4.814520,0.000000,6.389084 r=3.000000 shape=area
 @23 damage 00000000-0000-0000-0000-00000000000c op=- fire=14 skill=arc-lob at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
 @23 damage 00000000-0000-0000-0000-00000000000d op=- fire=14 skill=arc-lob at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false

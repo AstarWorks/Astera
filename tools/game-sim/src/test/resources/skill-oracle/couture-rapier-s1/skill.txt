@@ -79,7 +79,7 @@ g @1 cast-end | pose
 @11 write #17 op=- dur=7 pos=0.000000,0.820000,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.005000,0.005000,0.480000 bb=FIXED
 @11 write #18 op=- dur=7 pos=0.000000,0.820000,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.005000,0.005000,0.480000 bb=FIXED
 @11 write #19 op=- dur=7 pos=0.000000,0.820000,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.005000,0.005000,0.480000 bb=FIXED
-@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=0.000000,0.830000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5488853701558515701
+@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=0.000000,0.830000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8629271929592265302
 @11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.810000,2.500000
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @11 effect 00000000-0000-0000-0000-00000000000a op=- hurt
@@ -131,7 +131,7 @@ g @1 cast-end | pose
 @14 hit - op=cast/dash/dash_hit[3] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
 @14 write #12 op=cast/crescent dur=5 pos=0.000000,0.934810,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.010000,3.300000,0.010000 bb=FIXED
 @14 write #13 op=- dur=5 pos=0.000000,0.934810,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.010000,3.300000,0.010000 bb=FIXED
-@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=0.000000,0.976414,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2115687373311200289
+@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=0.000000,0.976414,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2254547660879320251
 @14 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.909433,3.151521 rot=0.055822,0.000000,0.000000,0.998441 scale=0.120000,0.250000,1.800000 bb=FIXED
 @14 write #3 op=cast/a_edge dur=1 pos=-0.300000,1.009427,3.150474 rot=0.081939,0.000000,0.000000,0.996637 scale=0.120000,0.050000,1.800000 bb=FIXED
 @14 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.241612,1.447950 rot=-0.178802,0.000000,0.000000,0.983885 scale=0.120000,0.100000,0.600000 bb=FIXED
@@ -352,7 +352,7 @@ g @37 cast-end | pose
 @11 write #17 op=- dur=7 pos=-1.504538,0.820000,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.005000,0.005000,0.480000 bb=FIXED
 @11 write #18 op=- dur=7 pos=-1.504538,0.820000,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.005000,0.005000,0.480000 bb=FIXED
 @11 write #19 op=- dur=7 pos=-1.504538,0.820000,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.005000,0.005000,0.480000 bb=FIXED
-@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=-1.504538,0.830000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5488853701558515701
+@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=-1.504538,0.830000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8629271929592265302
 @11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.810000,1.996589
 @11 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @11 write #2 op=cast/a_blade dur=1 pos=-1.017852,0.701389,0.852243 rot=0.164675,-0.312484,0.055099,0.933916 scale=0.120000,0.250000,1.800000 bb=FIXED
@@ -403,7 +403,7 @@ g @37 cast-end | pose
 @14 hit - op=cast/dash/dash_hit[3] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
 @14 write #12 op=cast/crescent dur=5 pos=-1.504538,0.934810,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.010000,3.300000,0.010000 bb=FIXED
 @14 write #13 op=- dur=5 pos=-1.504538,0.934810,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.010000,3.300000,0.010000 bb=FIXED
-@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=-1.504538,0.976414,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2115687373311200289
+@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=-1.504538,0.976414,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2254547660879320251
 @14 write #2 op=cast/a_blade dur=1 pos=-2.093325,0.909433,2.279445 rot=0.052937,-0.316810,0.017712,0.946845 scale=0.120000,0.250000,1.800000 bb=FIXED
 @14 write #3 op=cast/a_edge dur=1 pos=-2.092695,1.009427,2.278608 rot=0.077704,-0.316238,0.025999,0.945135 scale=0.120000,0.050000,1.800000 bb=FIXED
 @14 write #4 op=cast/a_handle dur=1 pos=-1.068090,1.241612,0.918912 rot=-0.169562,-0.312191,-0.056735,0.933041 scale=0.120000,0.100000,0.600000 bb=FIXED

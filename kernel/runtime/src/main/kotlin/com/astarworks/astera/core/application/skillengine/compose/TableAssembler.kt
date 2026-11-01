@@ -16,7 +16,7 @@ import com.astarworks.astera.core.domain.skillengine.table.phase
 /**
  * Final step of the compiler: sorts rows by (tick, phase, declaration order, occurrence) (ADR-0303 11.3, skeleton delta 3).
  * Callers pass rows in declaration/occurrence order; the sort is stable, so that order breaks every remaining tie.
- * Each row list is stamped with its content seed ([RowSeeds]) before the sort, so the counter of byte-identical rows follows document order.
+ * Each row list is stamped with its identity seed ([RowSeeds]) before the sort, so the counter of colliding rows follows document order.
  */
 public object TableAssembler {
     public fun sortRows(rows: List<Row>, rooted: Map<String, String> = emptyMap()): List<Row> {
@@ -63,11 +63,11 @@ public object TableAssembler {
         sampleSeed = sampleSeed,
         params = params,
         bounds = bounds,
-        states = states.map { it.copy(rows = sortRows(RowSeeds.assign(it.rows), rooted)) },
-        subTables = subTables.mapValues { (_, s) -> s.copy(rows = sortRows(RowSeeds.assign(s.rows), rooted)) },
+        states = states.map { it.copy(rows = sortRows(RowSeeds.assign(it.rows, skillId), rooted)) },
+        subTables = subTables.mapValues { (_, s) -> s.copy(rows = sortRows(RowSeeds.assign(s.rows, skillId), rooted)) },
         writes = writes,
         conditions = conditions,
         config = config,
-        worldRows = sortRows(RowSeeds.assign(worldRows), rooted),
+        worldRows = sortRows(RowSeeds.assign(worldRows, skillId), rooted),
     )
 }

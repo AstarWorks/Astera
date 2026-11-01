@@ -7,10 +7,10 @@
 @1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=5.625000,5.625000,5.625000 bb=FIXED
 @2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.189119,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.382581,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.501486,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.846689,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.026162,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.358853,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.682567,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.922945,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.000000,8.000000,8.000000 bb=FIXED
@@ -29,8 +29,8 @@
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5752966973615328259
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7597756050773603128
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6914811239872778270
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6712665765066030903
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
@@ -99,10 +99,10 @@
 @1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=5.625000,5.625000,5.625000 bb=FIXED
 @2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.189119,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.382581,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.501486,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.846689,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.026162,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.358853,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.682567,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.922945,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.000000,8.000000,8.000000 bb=FIXED
@@ -121,8 +121,8 @@
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5752966973615328259
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7597756050773603128
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6914811239872778270
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6712665765066030903
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
@@ -191,10 +191,10 @@
 @1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=5.625000,5.625000,5.625000 bb=FIXED
 @2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.189119,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.382581,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.501486,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.846689,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.026162,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.358853,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.682567,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.922945,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.000000,8.000000,8.000000 bb=FIXED
@@ -213,8 +213,8 @@
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5752966973615328259
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7597756050773603128
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6914811239872778270
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6712665765066030903
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
@@ -286,10 +286,10 @@ g @40 cast-end | pose
 @1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=5.625000,5.625000,5.625000 bb=FIXED
 @2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.189119,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.382581,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.501486,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.846689,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.026162,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.358853,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.682567,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.922945,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.000000,8.000000,8.000000 bb=FIXED
@@ -308,8 +308,8 @@ g @40 cast-end | pose
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5752966973615328259
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7597756050773603128
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6914811239872778270
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6712665765066030903
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
