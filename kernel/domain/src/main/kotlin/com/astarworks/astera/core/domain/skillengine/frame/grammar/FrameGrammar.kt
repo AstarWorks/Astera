@@ -36,8 +36,11 @@ public object FrameLocal {
     }
 }
 
-/** Coefficients along `v`, `w`, `s`. */
-public data class Coeff(val v: Double = 0.0, val w: Double = 0.0, val s: Double = 0.0) {
+/**
+ * Coefficients along `v`, `w`, `s`. A component written as a CEL expression (`pos: {v: "= i * 0.2"}`) keeps its source in [exprs]
+ * (index 0/1/2 = v/w/s; null = a numeric component) and its numeric slot is 0; the player evaluates the expression each tick.
+ */
+public data class Coeff(val v: Double = 0.0, val w: Double = 0.0, val s: Double = 0.0, val exprs: List<String?>? = null) {
     public companion object {
         public val ZERO: Coeff = Coeff()
         public val ONE: Coeff = Coeff(1.0, 1.0, 1.0)
