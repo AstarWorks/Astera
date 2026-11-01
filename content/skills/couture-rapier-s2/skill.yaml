@@ -43,7 +43,7 @@ params:
   thread_thick: {type: number, default: 0.06}
   spark_count: {type: number, default: 14}
   thread_color: {type: string, default: "#ff5fa2"}
-  trail_color: {type: string, default: "#59ff5fa2"}
+  trail_color: {type: string, default: "#bfff5fa2"}
   spark_particle: {type: string, default: crit}
 frames:
   - {id: body, origin: caster, v: forward, w: up, s: v x w}
@@ -169,7 +169,7 @@ machine:
         - {id: piece_body_m, op: display, kind: item, item: "astera:couture-rapier", part: body, frame: spin, at: 4, for: 30}
         - {id: piece_a_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_a, frame: spin_a, at: 4, for: 30}
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_b, frame: spin_b, at: 4, for: 30}
-        # trails: the blade tip (0.77 up, 0.54 to the side) behind the root; alpha 0.35 = byte 0x59 of the colour, fade 1.5
+        # trails: the blade tip (0.77 up, 0.54 to the side) behind the root; alpha 0.75 = byte 0xbf of the colour (was 0x59: the whirl band read as a faint smear in frames 20-30), fade 1.5
         - {id: trail_a, op: ribbon, of: {frame: spin_a, pos: {v: 0.77, s: -0.54}}, root: {frame: spin_a, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
         - {id: trail_b, op: ribbon, of: {frame: spin_b, pos: {v: 0.77, s: 0.54}}, root: {frame: spin_b, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
         - {id: whoosh, op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(spin_dpt * 0.0175 * 0.77 / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(spin_dpt * 0.0175 * 0.77 / 2.0, 0.0, 1.0)"}
