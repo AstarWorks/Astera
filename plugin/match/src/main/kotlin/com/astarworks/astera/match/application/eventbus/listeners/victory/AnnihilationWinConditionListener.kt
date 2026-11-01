@@ -96,7 +96,7 @@ public class AnnihilationWinConditionListener(
             // one legitimate case). Still end the match - hanging in SD is worse -
             // without a winner.
             val winner = (outcome as? WinConditionRules.Outcome.Winner)?.team
-            endMatch(event.matchId, EndReason.TeamVictory(winner), "sudden-death outcome=$outcome")
+            endMatch(event.matchId, EndReason.PillarHpDecision(winner), "sudden-death outcome=$outcome")
         }
     }
 
