@@ -3,7 +3,7 @@
 #   body    - the caster's feet; the looks that follow the caster hang on it.
 #   pre     - the caster at tick 2 (held in the world): the white line and the lavender haze. c1 / wisp - the caster at ticks 7 and 15: the coin1 cut.
 #   raise   - the right hand, lifted 0.9 over 6 ticks: the held shears go overhead before they come apart.
-#   spin    - the right hand: the body piece whirls about s (54 degrees a tick, ticks 4..34; one turn is 360, so 30 ticks make 4.5 turns).
+#   spin    - the whirl centre: 2.0 ahead of the right hand along the look (so the circle clears the eye by 0.8 or more at every tick; at the hand it passed within 0.24); the body piece whirls about s (54 degrees a tick, ticks 4..34; one turn is 360, so 30 ticks make 4.5 turns).
 #   spin_a / spin_b - the same whirl, with the blade opening listed AFTER the s sweep so it turns about the swept edge (w): 35 / -35 degrees over ticks 4..8.
 #             The body rides plain `spin`. (The whoosh volume and pitch read the tip speed spin_dpt x 0.0175 (radians) x the 0.77 tip radius: Paper gives a
 #             frame no live velocity, only caster / victim / target, so the old speed(piece_a.tip) had no frame equivalent; it varied only with the hand.)
@@ -57,15 +57,16 @@ frames:
     s: v x w
     move:
       - {at: 0, for: 6, to: {v: 0.9}, ease: out_quad}
+  - {id: hand, origin: body_anim.hand_r, v: forward, w: up, s: v x w}
   - id: spin
-    origin: body_anim.hand_r
+    origin: {frame: hand, pos: {v: 2.0}}
     v: up
     w: forward
     s: v x w
     rotate:
       - {at: 4, for: 30, about: s, to: 1620}
   - id: spin_a
-    origin: body_anim.hand_r
+    origin: {frame: hand, pos: {v: 2.0}}
     v: up
     w: forward
     s: v x w
@@ -73,14 +74,13 @@ frames:
       - {at: 4, for: 30, about: s, to: 1620}
       - {at: 4, for: 4, about: w, to: 35}
   - id: spin_b
-    origin: body_anim.hand_r
+    origin: {frame: hand, pos: {v: 2.0}}
     v: up
     w: forward
     s: v x w
     rotate:
       - {at: 4, for: 30, about: s, to: 1620}
       - {at: 4, for: 4, about: w, to: -35}
-  - {id: hand, origin: body_anim.hand_r, v: forward, w: up, s: v x w}
   - id: over_a
     origin: {frame: body, pos: {w: 2.5, v: 2.2}}
     v: forward
