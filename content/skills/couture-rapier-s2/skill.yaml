@@ -7,7 +7,7 @@
 #   spin_a / spin_b - the same whirl, with the blade opening listed AFTER the s sweep so it turns about the swept edge (w): 35 / -35 degrees over ticks 4..8.
 #             The body rides plain `spin`. (The whoosh volume and pitch read the tip speed spin_dpt x 0.0175 (radians) x the 0.77 tip radius: Paper gives a
 #             frame no live velocity, only caster / victim / target, so the old speed(piece_a.tip) had no frame equivalent; it varied only with the hand.)
-#   hand    - the right hand again, unrotated: the threads start 0.8 forward of it (pos v 0.8), so in first person they leave a point ahead of the eye, not the eye.
+#   hand    - the right hand again, unrotated (kept for the whirl; the threads start on `body` at the right hip, 0.2 ahead, 1.0 up: in first person that is below the eye, so they read as lines going away, not a wedge at the camera).
 #   over_a / over_b - 2.5 above and 2.2 ahead of the caster (in the world, never at the camera): the overhead slash loops (three sprites each, 0.1 apart) turn about v (+-600 degrees, ticks 22..32).
 #   shot    - the thrown volley (release at tick 34), upright: the flight fan and the tip glints. vol - the same, but it spins about v by 378 degrees
 #             (ticks 38..45, release + 4..11): the three pieces ride it at +-0.35 (the old lane). Keys count from the cast start, so these two are
@@ -247,9 +247,9 @@ machine:
         # palm_f stays: the reel flies the volley back to it. The three threads run from the hand to each piece's root.
         - {id: palm_f, op: frame, anchor: palm, until: reel.end}
         # the reel ends on arrival (a runtime distance), so the threads have no static length: until: reel.end ends them the tick the reel lands.
-        - {id: thread_a, op: ribbon, from: {frame: hand, pos: {v: 0.8}}, to: {frame: vol, pos: {s: 0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_b, op: ribbon, from: {frame: hand, pos: {v: 0.8}}, to: {frame: vol, pos: {s: -0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_body, op: ribbon, from: {frame: hand, pos: {v: 0.8}}, to: {frame: vol, pos: {}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_a, op: ribbon, from: {frame: body, pos: {v: 0.2, w: 1.0, s: 0.45}}, to: {frame: vol, pos: {s: 0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_b, op: ribbon, from: {frame: body, pos: {v: 0.2, w: 1.0, s: 0.45}}, to: {frame: vol, pos: {s: -0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_body, op: ribbon, from: {frame: body, pos: {v: 0.2, w: 1.0, s: 0.45}}, to: {frame: vol, pos: {}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
         # the flight fan: the crescent lies in the plane of the flight direction (w) and up (v), alpha 0.5, size 6.4 x 0.15625 = 1.0 rendered
         - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [6.4, 6.4], color: "#80ffffff", frame: shot, plane: [w, v], billboard: fixed, for: 7}
       on:
