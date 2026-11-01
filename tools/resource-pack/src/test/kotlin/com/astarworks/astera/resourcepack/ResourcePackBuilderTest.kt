@@ -78,7 +78,13 @@ class ResourcePackBuilderTest {
         val itemDefs = files.keys.filter { it.startsWith("assets/astera/items/") && it.endsWith(".json") }
         assertThat(itemDefs).isNotEmpty()
         for (def in itemDefs) {
-            val model = json(files.getValue(def)).path("model").path("model").asText()
+            val root = json(files.getValue(def)).path("model")
+            if (root.path("type").asText() == "minecraft:empty") {
+                // an invisible item (weapon_model hide key, `astera_empty`): the vanilla empty model, no model file to point at
+                assertThat(root.has("model")).`as`("$def: an empty definition carries no model reference").isFalse()
+                continue
+            }
+            val model = root.path("model").asText()
             assertThat(files).`as`(def).containsKey("assets/astera/models/" + model.substringAfter("astera:") + ".json")
         }
     }
