@@ -770,6 +770,7 @@ astera:
       not-in-match: "<red>The ore shop only works inside a match.</red>"
       failed: "<red>The purchase failed. Nothing was taken.</red>"
       need-base: "<red>You need a {from} in your inventory to buy this upgrade.</red>"
+      already-owned: "<red>You already carry {item}.</red>"
     shop:
       example-shop:
         title: "Example Shop"

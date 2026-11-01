@@ -27,6 +27,9 @@ public data class MatchShopOffer(
     val stack: Int = 1,
     val upgradeFrom: ItemId? = null,
 ) {
+    /** A plain weapons-tab offer: the shop never sells one to a player who already carries it (upgrade tiers and other tabs stay buyable). */
+    val isBaseWeapon: Boolean get() = tab == MatchShopTab.WEAPONS && upgradeFrom == null
+
     init {
         require(price.isNotEmpty() && price.values.all { it > 0 }) { "match-shop offer '${itemId.value}' needs a positive price" }
         require(stack in 1..64) { "match-shop offer '${itemId.value}' stack must be 1..64" }
