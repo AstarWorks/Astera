@@ -1,5 +1,8 @@
 package com.astarworks.astera.match.application.gamemode.annihilation
 
+import com.astarworks.astera.match.domain.orenode.OreAccess
+import com.astarworks.astera.match.domain.orenode.OreNodeAccess
+import com.astarworks.astera.match.domain.orenode.OreNodeGate
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.nexus.NexusPhase
 import com.astarworks.astera.core.domain.world.ToolTier
@@ -25,6 +28,7 @@ public object AnnihilationNavigation {
     ) {
         /** A node that waits for a later phase belongs to the Mid; the rest are the base ores. */
         val isMid: Boolean get() = minPhase > 1
+        val gate: OreNodeGate get() = OreNodeGate(minPhase, minLevel, requiredTier)
     }
 
     /** What the objective line is about. */
@@ -61,7 +65,7 @@ public object AnnihilationNavigation {
 
     /** The sites [state] may damage in [phase] right now: open in the phase, level met, tool tier enough. */
     public fun mineable(sites: List<OreSite>, state: PlayerState, phase: NexusPhase): List<OreSite> =
-        sites.filter { it.minPhase <= phase.number && state.level >= it.minLevel && state.toolTier >= it.requiredTier }
+        sites.filter { OreNodeAccess.check(it.gate, phase.number, state.level, state.toolTier) == OreAccess.Allowed }
 
     /**
      * The node to mine: of the nodes [state] can mine now, the kind that advances the player most (the highest Norma level it

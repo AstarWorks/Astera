@@ -111,8 +111,13 @@ class MatchMetricsScenarioTest {
             assertThat(purchase.execute(buyer.id, offer)).isInstanceOf(Result.Success::class.java)
             run.step(60)
             // A second buy later must not replace the first.
-            repeat(count) { bag += ore.value }
-            assertThat(purchase.execute(buyer.id, offer)).isInstanceOf(Result.Success::class.java)
+            // Starter kit items are already owned; the first other single-ore offer the buyer can still take is the later buy.
+            val later = catalog.offers.filter { it.upgradeFrom == null && it.price.size == 1 && it.stack == 1 && it.itemId != offer.itemId }.firstOrNull { o ->
+                val (ore2, count2) = o.price.entries.single()
+                repeat(count2) { bag += ore2.value }
+                (purchase.execute(buyer.id, o) is Result.Success).also { ok -> if (!ok) repeat(count2) { bag.remove(ore2.value) } }
+            }
+            assertThat(later).`as`("a second purchasable offer").isNotNull()
 
             val json = metrics.finish().json
             val players = json["players"]!!.jsonObject

@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
  * [tick] is driven by a repeating task; one pass walks every bot of every running match and runs [shop] for each one at its shop.
  *
  * Order (matches the planner's ladder in the bot runner): base-ore armour tiers, then weapon upgrades, then Mid-ore armour tiers.
- * Armour is bought as a whole set of the next tier (every slot that still holds a lower tier or nothing) before the next weapon
+ * Armour is bought piece by piece, cheapest affordable piece first, before the next weapon
  * tier; a tier equal to or below the one owned in a slot is never bought, and the replaced piece is handed in.
  */
 public class MatchShopBotBuyer(
@@ -62,12 +62,6 @@ public class MatchShopBotBuyer(
     private fun affordable(member: PlayerId, owned: IOwnedItemStock, price: Map<ItemId, Int>): Boolean =
         price.all { (ore, count) -> owned.count(member, ore) >= count }
 
-    private fun summed(offers: Collection<MatchShopOffer>): Map<ItemId, Int> {
-        val out = HashMap<ItemId, Int>()
-        offers.forEach { o -> o.price.forEach { (ore, n) -> out.merge(ore, n, Int::plus) } }
-        return out
-    }
-
     /** Rank of the best armour piece the bot holds in [slot] (worn or carried), -1 when none. */
     private fun ownedRank(member: PlayerId, owned: IOwnedItemStock, tiers: List<Tier>, slot: String): Int =
         tiers.filter { t -> t.pieces[slot]?.let { owned.count(member, it.itemId) >= 1 } == true }.maxOfOrNull { it.rank } ?: -1
@@ -80,22 +74,25 @@ public class MatchShopBotBuyer(
     }
 
     /**
-     * Within one ore group the bot buys the BEST tier whose missing pieces it can pay in full (a lower tier it could also pay
-     * would be replaced at once, so it is skipped). Each lower-tier piece of the slot is handed in by the purchase itself
-     * (atomic: a failed purchase keeps the old piece), freeing the armour slot for the new one.
+     * Piece by piece, cheapest first: for every slot the best tier of the ore group whose piece the bot can pay NOW and that beats what it
+     * holds there; of those the cheapest is bought (the lower-tier piece of the slot is handed in by the purchase itself, atomic: a failed
+     * purchase keeps the old piece), then the choice is made again with the ore left. One affordable piece is enough to buy; the bot does
+     * not wait for a whole tier.
      */
     private fun armourGroup(member: PlayerId, name: String, owned: IOwnedItemStock, tiers: List<Tier>, mid: Boolean) {
-        var best: Pair<Tier, List<Map.Entry<String, MatchShopOffer>>>? = null
-        for (tier in tiers.filter { it.mid == mid }) {
-            val need = tier.pieces.entries.filter { (slot, _) -> ownedRank(member, owned, tiers, slot) < tier.rank }
-            if (need.isEmpty()) continue
-            if (affordable(member, owned, summed(need.map { it.value }))) best = tier to need
-        }
-        val (tier, need) = best ?: return
-        for ((slot, offer) in need) {
+        repeat(MAX_PIECES_PER_PASS) {
+            val pick = SLOTS.mapNotNull { slot ->
+                val have = ownedRank(member, owned, tiers, slot)
+                tiers.filter { it.mid == mid && (it.pieces[slot]?.let { o -> it.rank > have && affordable(member, owned, o.price) } == true) }
+                    .maxByOrNull { it.rank }?.let { slot to it }
+            }.minByOrNull { (slot, tier) -> tier.pieces.getValue(slot).price.values.sum() } ?: return
+            val (slot, tier) = pick
             val handIn = tiers.filter { it.rank < tier.rank }.mapNotNull { it.pieces[slot]?.itemId }
                 .flatMap { id -> List(owned.count(member, id)) { id } }
+            val offer = tier.pieces.getValue(slot)
+            val before = owned.count(member, offer.itemId)
             buy(member, name, offer, handIn)
+            if (owned.count(member, offer.itemId) <= before) return // refused: do not retry the same piece in a loop
         }
     }
 
@@ -144,6 +141,8 @@ public class MatchShopBotBuyer(
 
         private val ORE_ORDER = listOf("ore-iron", "ore-gold", "ore-diamond", "ore-emerald")
         private val MID_ORES = setOf("ore-diamond", "ore-emerald")
+        private const val MAX_PIECES_PER_PASS = 8
+        private val SLOTS = listOf("helmet", "chestplate", "leggings", "boots")
         private val ARMOUR_SLOT = Regex("(helmet|chestplate|leggings|boots)$")
     }
 }

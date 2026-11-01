@@ -23,6 +23,8 @@ import kotlin.math.hypot
 class EconomyPlanner(
     private val sites: Sites,
     private val shopping: List<Buy>,
+    /** Stable per-bot number: bots of one team pick different nodes of a cluster instead of crowding the nearest one (a node gives its drop to one swing). */
+    private val spread: Int = 0,
 ) {
     private val ladder: List<Map<String, Int>> = shopping.map { it.price }
 
@@ -72,7 +74,7 @@ class EconomyPlanner(
      * first rung whose missing ore it can actually get, so an unreachable rung (no generator, no pickaxe, level-gated node) never stalls it.
      */
     fun step(now: Long, x: Double, z: Double, have: Map<String, Int>, hasPickaxe: Boolean, owned: Set<String>? = null): Step? {
-        if (owned != null) shopping.forEachIndexed { i, b -> if (!passed[i] && b.items.all { it in owned }) passed[i] = true } // owning the item is the proof of the buy
+        if (owned != null) shopping.forEachIndexed { i, b -> if (!passed[i] && (b.items.all { it in owned } || b.supersededBy.any { it in owned })) passed[i] = true } // owning the item is the proof of the buy
         if (committed >= 0 && passed[committed]) { committed = -1; shopSince = 0L; toShop = false }
         if (done) return null
         val shop = sites.shop
@@ -168,7 +170,10 @@ class EconomyPlanner(
         var target = mineTarget
         if (target == null) {
             val pick = sites.nodes.filter { it.ore == ore && (blockedUntil[blockOf(it)] ?: 0L) <= now }
-                .minByOrNull { hypot(it.x - x, it.z - z) } ?: return null
+                .sortedBy { hypot(it.x - x, it.z - z) }.let { sorted ->
+                    val near = sorted.filter { hypot(it.x - x, it.z - z) <= hypot(sorted[0].x - x, sorted[0].z - z) + CLUSTER_RADIUS }
+                    near.getOrNull(Math.floorMod(spread, near.size.coerceAtLeast(1))) ?: return null
+                }
             target = blockOf(pick)
             mineTarget = target
             mineSince = 0L
@@ -186,12 +191,13 @@ class EconomyPlanner(
         const val SHOP_WAIT_MS = 4_000L
         const val SHOP_RETRY_MS = 60_000L
         const val COLLECT_RADIUS = 1.5
+        const val CLUSTER_RADIUS = 8.0
         const val MINE_ARRIVE = 3.0
         const val MINE_REACH = 4.5
         const val MINE_GIVE_UP_MS = 15_000L
         const val BLOCK_MS = 120_000L
         const val UNREACHABLE_BLOCK_MS = 3_600_000L
-        const val REGROW_BLOCK_MS = 30_000L
+        const val REGROW_BLOCK_MS = 12_000L
         const val ORE_RETRY_MS = 90_000L
 
         /** Ore item id from a stack's display name (en/ja), or null for anything that is not a shop ore. */
@@ -221,8 +227,11 @@ class EconomyPlanner(
         private val MID_ORES = setOf("ore-diamond", "ore-emerald")
         private val ARMOR_PIECE = Regex("-(helmet|chestplate|leggings|boots)$")
 
-        /** One shopping-list entry: the shop offers [items] (all bought together) for [price]. */
-        data class Buy(val items: List<String>, val price: Map<String, Int>)
+        /**
+         * One shopping-list entry: the shop offers [items] (all bought together) for [price]. [supersededBy] = items that make the entry
+         * pointless once owned (the same armour slot in a better tier).
+         */
+        data class Buy(val items: List<String>, val price: Map<String, Int>, val supersededBy: List<String> = emptyList())
 
         private data class Offer(val item: String, val tab: String, val price: Map<String, Int>)
 
@@ -234,27 +243,32 @@ class EconomyPlanner(
             if (map.isEmpty()) null else Offer(item, tab, map)
         }
 
+        private val ORE_ORDER = listOf("ore-iron", "ore-gold", "ore-diamond", "ore-emerald")
+
         /**
-         * What a bot saves for, in priority order, read from the shop file: each base-ore armour tier as one bundle (the four pieces,
-         * summed price, file order), then the weapon upgrades (one entry per distinct price), then Mid-ore armour. Tools are never
-         * bought (they follow the Norma level, ADR-0319), whether or not the shop still lists a tools tab; ore that needs a pickaxe
-         * waits until the bot carries one. The planner skips an entry it cannot fund yet instead of waiting for it.
+         * What a bot saves for, in priority order, read from the shop file: armour PIECE by piece (each base-ore tier in file order,
+         * its cheapest piece first, so the bot spends as soon as one piece is affordable), then the weapon upgrades (one entry per
+         * distinct price), then Mid-ore armour pieces. A piece is superseded once the same slot is owned in a better tier (tiers rank by
+         * best ore, then summed price, like the server-side buyer). Tools are never bought (they follow the Norma level, ADR-0319),
+         * whether or not the shop still lists a tools tab. The planner skips an entry it cannot fund yet instead of waiting for it.
          */
         fun parseShoppingList(shopYaml: String): List<Buy> {
             val all = offers(shopYaml)
             val out = ArrayList<Buy>()
             val tiers = LinkedHashMap<String, MutableList<Offer>>()
             all.filter { it.tab == "armor" }.forEach { tiers.getOrPut(it.item.replace(ARMOR_PIECE, "")) { ArrayList() } += it }
-            val armour = tiers.values.map { pieces ->
-                val sum = HashMap<String, Int>()
-                pieces.forEach { p -> p.price.forEach { (ore, n) -> sum.merge(ore, n, Int::plus) } }
-                Buy(pieces.map { it.item }, sum)
+            fun oreRank(o: Offer) = o.price.keys.maxOf { ORE_ORDER.indexOf(it) }
+            val ranked = tiers.entries.sortedWith(compareBy({ e -> e.value.maxOf(::oreRank) }, { e -> e.value.sumOf { it.price.values.sum() } })).map { it.key }
+            fun slotOf(item: String) = ARMOR_PIECE.find(item)!!.groupValues[1]
+            fun pieces(tier: String): List<Buy> = tiers.getValue(tier).sortedBy { it.price.values.sum() }.map { o ->
+                val better = ranked.drop(ranked.indexOf(tier) + 1).flatMap { t -> tiers.getValue(t).filter { slotOf(it.item) == slotOf(o.item) }.map { it.item } }
+                Buy(listOf(o.item), o.price, better)
             }
-            val (midArmour, baseArmour) = armour.partition { buy -> buy.price.keys.any { it in MID_ORES } }
-            out += baseArmour
+            val (midTiers, baseTiers) = tiers.keys.partition { t -> tiers.getValue(t).any { o -> o.price.keys.any { it in MID_ORES } } }
+            baseTiers.forEach { out += pieces(it) }
             val upgradePrices = HashSet<Map<String, Int>>()
             for (o in all.filter { it.tab == "upgrades" }) if (upgradePrices.add(o.price)) out += Buy(listOf(o.item), o.price)
-            out += midArmour
+            midTiers.forEach { out += pieces(it) }
             return out
         }
 
