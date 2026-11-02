@@ -92,6 +92,7 @@ ADD the e2e / game-sim test that proves their item. The manager runs one batched
 - Write or edit ADRs — Phase C / orchestrator only (use the `adr-new` skill).
 - Run `git commit` / `git push` / `git branch` / `git checkout`.
 - Modify the Board or `docs/vision/` outside their own track's area spec 現状 section (Board: manager only).
+- Kill processes machine-wide: no `pkill java`, `pkill -f gradle`, `killall java`, `./gradlew --stop`, or `docker kill`/`stop` of containers you did not start. Applies on the dev host and on astera-mc. Stop only PIDs your own run started (record them at launch) or daemons under your own `--project-cache-dir` / `GRADLE_USER_HOME`. Why: 11/02 09:07 one global kill (exit 144) cost every parallel track about 30 min.
 
 ## ADR numbers are pre-allocated
 

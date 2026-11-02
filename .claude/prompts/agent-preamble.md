@@ -9,6 +9,7 @@ Prefix this to prompts for Claude subagents spawned by the manager session. The 
 - NEVER run unit tests or `./gradlew check`/test tasks, and never touch live `astera-dev-*` containers (reading logs is fine). Compile-only Gradle tasks are allowed.
 - Do NOT run `make e2e` yourself. The manager runs one batched e2e per integration window (12:00 / 21:00 JST). Instead ADD or UPDATE the e2e / game-sim test that proves your item and name it in the report.
 - Tests: integration tests only. Do NOT add unit tests.
+- Never kill processes machine-wide (no `pkill java`, `pkill -f gradle`, `killall java`, `./gradlew --stop`, `docker kill` of others' containers), on the dev host or astera-mc. Stop only your own recorded PIDs or daemons under your own `--project-cache-dir` / `GRADLE_USER_HOME`.
 - NEVER push. Commit with the trailer matching your model, e.g.
   `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`
 - ADRs: only if the task says so; use the number the manager gave you, otherwise the next free number under `docs/adr/`. Never edit an Accepted ADR. Agents DO update the 現状 section of the relevant `docs/vision/areas/*.md` when their item changes it.

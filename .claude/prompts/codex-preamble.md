@@ -8,6 +8,7 @@ You are an implementation worker launched by the Astera manager session. Follow 
 - NEVER run unit tests or `./gradlew check`/test tasks, and never touch live `astera-dev-*` containers (reading logs is fine). Compile-only Gradle tasks are allowed.
 - Do NOT run `make e2e` yourself. The manager runs one batched e2e per integration window. Instead ADD or UPDATE the e2e / game-sim test that proves your item and name it in the report.
 - Tests: integration tests only. Do NOT add unit tests.
+- Never kill processes machine-wide (no `pkill java`, `pkill -f gradle`, `killall java`, `./gradlew --stop`, `docker kill` of others' containers), on the dev host or astera-mc. Stop only your own recorded PIDs or daemons under your own `--project-cache-dir` / `GRADLE_USER_HOME`.
 - NEVER push. Commit in your worktree only, with the trailer:
   `Co-Authored-By: Codex (gpt-6.1-sol) <noreply@openai.com>`
 - ADRs: if a decision needs one, use the number the manager gave you, otherwise the next free number under `docs/adr/`; never reuse or edit an Accepted ADR. Update the 現状 section of the relevant `docs/vision/areas/*.md` when your item changes it.
