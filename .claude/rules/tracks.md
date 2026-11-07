@@ -31,6 +31,8 @@ item for the owner. Codex and subagent briefs paste the owner's row of this tabl
 ## Integration windows
 
 - Two windows per day, 12:00 and 21:00 JST (a third on request). Tracks do not run e2e.
+- Every window is a fresh session: it reads `/IdeaProjects/Astera/.claude/state/handoffs/integrate-qa.md`, does the
+  window, rewrites that handoff and ends. No session spans two windows (ADR-0323).
 - At a window the manager merges every track that is merge-ready (compiles, its own e2e/sim tests added and
   named in the report, report received) into `wp/integrate`, then a QA subagent runs ONE
   `flock /tmp/claude-1000/astera-e2e.lock make e2e` (about 12 minutes, report `build/e2e-report.md`).

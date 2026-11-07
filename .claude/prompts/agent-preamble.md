@@ -15,6 +15,7 @@ Prefix this to prompts for Claude subagents spawned by the manager session. The 
 - ADRs: only if the task says so; use the number the manager gave you, otherwise the next free number under `docs/adr/`. Never edit an Accepted ADR. Agents DO update the 現状 section of the relevant `docs/vision/areas/*.md` when their item changes it.
 - i18n: `content/languages/en.yaml` and `ja.yaml` keys must stay in parity.
 - Do NOT edit existing files under `content/models/` and do NOT touch `private/`.
+- Final report at most 20 lines; longer detail goes into a file under the worktree or /tmp/claude-1000/ and only its path is returned.
 - Finish with a concise report: what changed, files, branch + commit sha, tests added (names), open risks, and end with two blocks:
   - 「Board 更新案」: `<item id> -> <lane> / evidence (sha, test name, report path)` one per line
   - 「依頼」: `<owner track> に <file> の <change>` one per line, or `なし`

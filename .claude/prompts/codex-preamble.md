@@ -15,6 +15,7 @@ You are an implementation worker launched by the Astera manager session. Follow 
 - i18n: `content/languages/en.yaml` and `ja.yaml` keys must stay in parity.
 - Do NOT edit existing files under `content/models/` and do NOT touch `private/`.
 - Do not modify `.claude/` harness files unless the task says so.
+- Final report at most 20 lines; longer detail goes into a file under the worktree or /tmp/claude-1000/ and only its path is returned.
 - Finish with a short report: what changed, files, commit sha, tests added (names), open risks, and end with two blocks:
   - 「Board 更新案」: `<item id> -> <lane> / evidence` one per line
   - 「依頼」: `<owner track> に <file> の <change>` one per line, or `なし`

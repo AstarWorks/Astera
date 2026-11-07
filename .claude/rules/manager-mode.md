@@ -8,6 +8,9 @@ delegates, merges, deploys, reads logs, reports. It does not implement.
 `PreToolUse` hook `.claude/hooks/manager-guard.py` (registered in `.claude/settings.json`
 for `Edit|Write|MultiEdit|NotebookEdit|Bash`). Exit 2 + a message telling the session to delegate.
 
+Session length is enforced separately by `.claude/hooks/session-budget.py` (UserPromptSubmit warn/block,
+SessionStart `compact` counter, statusline; ADR-0323, override `ASTERA_SESSION_BUDGET=off`).
+
 **Main vs subagent:** Claude Code puts `agent_id` (and `agent_type`) in the hook stdin JSON
 only when the hook fires inside a subagent (docs: code.claude.com/docs/en/hooks, "Common
 input fields"). No `agent_id` => main session => guarded. Subagents (also in

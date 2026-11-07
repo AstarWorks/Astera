@@ -55,6 +55,14 @@ implementer — in every session, not just one:
   gated by `.claude/hooks/gate-codex-lane.py`) and prompt preambles:
   `.claude/rules/manager-mode.md`.
 
+## Session budget (ADR-0323)
+
+One task per session. Start every task with `/clear` or a new session; delegate investigation and
+implementation to subagents/Codex instead of reading code in the main context. At the warn line (120k tokens)
+write the handoff and restart. `.claude/hooks/session-budget.py` enforces it: warn at 120k, block at 200k or
+2 compactions (handoff prompts still pass), statusline `ctx <N>k / compactions <M>`; founder override
+`ASTERA_SESSION_BUDGET=off`.
+
 ## Session bootstrap (track protocol)
 
 Work is organised by **track** (one area of the game, one worktree, one session) and tracked on the
