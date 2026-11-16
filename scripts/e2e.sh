@@ -20,7 +20,7 @@
 # Velocity's log is copied to build/e2e-velocity.log (uploaded by CI as the e2e-velocity-log artifact).
 #
 # OPS-10 resilience:
-#   - leak cleanup: this checkout's project is removed at start and (trap) on every exit incl. SIGINT/SIGTERM;
+#   - leak cleanup: this checkout's project is removed at start and (trap) on every exit incl. SIGINT/SIGTERM/SIGHUP;
 #     stale OTHER astera-e2e-* projects are reaped when older than E2E_STALE_HOURS (default 3) AND no live run
 #     owns them (stamp file with pid+host in $E2E_STAMP_DIR). astera-dev-* is never touched.
 #     E2E_REAP=0 disables the reaper.
@@ -175,7 +175,9 @@ printf '%s %s %s\n' "$$" "$HOST" "$(date +%s)" > "$STAMP"
 # Images stay cached for the next run. The stamp is always removed. Preserves the exit code.
 on_exit() {
   local rc=$?
-  trap - EXIT INT TERM
+  trap - EXIT
+  # Ignore further INT/TERM/HUP: a second Ctrl-C or a closing shell must not cut the teardown short (volumes leak).
+  trap '' INT TERM HUP
   docker rm -f "$RUNNER" >/dev/null 2>&1 || true
   # Keep the game server log next to the report (stack traces the report lines may cut off), before the project goes.
   "${C[@]}" logs --no-color --no-log-prefix e2e > build/e2e-server.log 2>&1 || true
@@ -189,6 +191,7 @@ on_exit() {
 trap on_exit EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+trap 'exit 129' HUP   # closed agent shell / dropped ssh
 
 reap_stale
 wait_for_load

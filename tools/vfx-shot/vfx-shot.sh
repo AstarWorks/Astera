@@ -406,7 +406,10 @@ cleanup() {
     log "stack $PROJECT kept (SHOT_KEEP=1) until $(date -d "@$(cat "$STATE/keep-until")" '+%H:%M:%S'); make vfx-shot-down drops it now"
   else
     rm -f "$STATE/capture.active" "$STATE/parker.on"
+    load_subnet || SUBNET=10.211.77   # before reap.py, which deletes $STATE/subnet; compose() interpolates it
     reap_py --only-state "$STATE" --force --lock-held {STACK_LOCK_FD}>&- {SLOT_FD}>&- || true
+    # Removes the run's own volumes even when its containers are already gone; never another project (-p "$PROJECT").
+    compose down -v --remove-orphans >/dev/null 2>&1 || true
     log "stack $PROJECT and its clients removed"
   fi
   : > "$STATE/run.done"

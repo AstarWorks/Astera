@@ -314,10 +314,10 @@ class Stack:
             pass
         return pids
 
-    def teardown(self, why, project_known=True):
+    def teardown(self, why):
         kill_procs([p for p, _ in self.procs], f"{self.state}: {why}")
-        if project_known:
-            remove_project(self.project, why)
+        # Always: a project whose containers are gone may still own volumes / a network (label-scoped, PROJECT_RE-guarded).
+        remove_project(self.project, why)
         if A.dry:
             return
         for pat in ("clients/*.env",):
@@ -454,7 +454,7 @@ def main():
             if st.procs or st.project in projects:
                 log(f"{st.state}: {why}, left alone")
             return False
-        st.teardown(why, project_known=st.project in projects)
+        st.teardown(why)
         reaped.add(st.project)
         return True
 
